@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { GachaEffectSystem, GachaVideoPlayer } from '@/components/effects';
-import { AuthHeader } from '@/components/layout';
 import Link from 'next/link';
 import { useGacha } from '@/hooks/useGacha';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 // 仮のガチャID（実際はAPIから取得）
 const DEFAULT_GACHA_ID = 'g001';
