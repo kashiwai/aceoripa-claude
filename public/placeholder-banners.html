@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Banner Placeholder Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .banner-container { margin: 20px 0; }
+    canvas { border: 1px solid #ccc; display: block; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>バナー プレースホルダー画像</h1>
+  
+  <div class="banner-container">
+    <h3>gacha-banner-1.png</h3>
+    <canvas id="gacha-banner-1" width="1024" height="1024"></canvas>
+  </div>
+  <div class="banner-container">
+    <h3>gacha-banner-2.png</h3>
+    <canvas id="gacha-banner-2" width="1024" height="1024"></canvas>
+  </div>
+  <div class="banner-container">
+    <h3>gacha-banner-3.png</h3>
+    <canvas id="gacha-banner-3" width="1024" height="1024"></canvas>
+  </div>
+  <div class="banner-container">
+    <h3>event-banner-1.png</h3>
+    <canvas id="event-banner-1" width="1024" height="1024"></canvas>
+  </div>
+  <div class="banner-container">
+    <h3>special-banner-1.png</h3>
+    <canvas id="special-banner-1" width="1024" height="1024"></canvas>
+  </div>
+  
+  <script>
+    
+    {
+      const canvas = document.getElementById('gacha-banner-1');
+      const ctx = canvas.getContext('2d');
+      
+      // 背景
+      const gradient = ctx.createLinearGradient(0, 0, 1024, 1024);
+      gradient.addColorStop(0, '#1a1a2e');
+      gradient.addColorStop(1, '#16213e');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 装飾パターン
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 20; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * 50);
+        ctx.lineTo(1024, i * 50);
+        ctx.stroke();
+      }
+      
+      // テキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 120px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 20;
+      const lines = 'GACHA
+BANNER 1'.split('\n');
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, 512, 400 + idx * 150);
+      });
+      
+      // ダウンロードリンク
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'gacha-banner-1.png';
+        a.textContent = 'ダウンロード';
+        a.style = 'display: block; margin: 10px 0; color: blue;';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    {
+      const canvas = document.getElementById('gacha-banner-2');
+      const ctx = canvas.getContext('2d');
+      
+      // 背景
+      const gradient = ctx.createLinearGradient(0, 0, 1024, 1024);
+      gradient.addColorStop(0, '#0f3460');
+      gradient.addColorStop(1, '#16213e');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 装飾パターン
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 20; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * 50);
+        ctx.lineTo(1024, i * 50);
+        ctx.stroke();
+      }
+      
+      // テキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 120px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 20;
+      const lines = 'GACHA
+BANNER 2'.split('\n');
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, 512, 400 + idx * 150);
+      });
+      
+      // ダウンロードリンク
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'gacha-banner-2.png';
+        a.textContent = 'ダウンロード';
+        a.style = 'display: block; margin: 10px 0; color: blue;';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    {
+      const canvas = document.getElementById('gacha-banner-3');
+      const ctx = canvas.getContext('2d');
+      
+      // 背景
+      const gradient = ctx.createLinearGradient(0, 0, 1024, 1024);
+      gradient.addColorStop(0, '#533483');
+      gradient.addColorStop(1, '#16213e');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 装飾パターン
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 20; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * 50);
+        ctx.lineTo(1024, i * 50);
+        ctx.stroke();
+      }
+      
+      // テキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 120px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 20;
+      const lines = 'GACHA
+BANNER 3'.split('\n');
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, 512, 400 + idx * 150);
+      });
+      
+      // ダウンロードリンク
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'gacha-banner-3.png';
+        a.textContent = 'ダウンロード';
+        a.style = 'display: block; margin: 10px 0; color: blue;';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    {
+      const canvas = document.getElementById('event-banner-1');
+      const ctx = canvas.getContext('2d');
+      
+      // 背景
+      const gradient = ctx.createLinearGradient(0, 0, 1024, 1024);
+      gradient.addColorStop(0, '#e94560');
+      gradient.addColorStop(1, '#16213e');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 装飾パターン
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 20; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * 50);
+        ctx.lineTo(1024, i * 50);
+        ctx.stroke();
+      }
+      
+      // テキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 120px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 20;
+      const lines = 'EVENT
+BANNER'.split('\n');
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, 512, 400 + idx * 150);
+      });
+      
+      // ダウンロードリンク
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'event-banner-1.png';
+        a.textContent = 'ダウンロード';
+        a.style = 'display: block; margin: 10px 0; color: blue;';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    {
+      const canvas = document.getElementById('special-banner-1');
+      const ctx = canvas.getContext('2d');
+      
+      // 背景
+      const gradient = ctx.createLinearGradient(0, 0, 1024, 1024);
+      gradient.addColorStop(0, '#ff6b6b');
+      gradient.addColorStop(1, '#ee6c4d');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 装飾パターン
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 20; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, i * 50);
+        ctx.lineTo(1024, i * 50);
+        ctx.stroke();
+      }
+      
+      // テキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 120px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 20;
+      const lines = 'SPECIAL
+OFFER'.split('\n');
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, 512, 400 + idx * 150);
+      });
+      
+      // ダウンロードリンク
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'special-banner-1.png';
+        a.textContent = 'ダウンロード';
+        a.style = 'display: block; margin: 10px 0; color: blue;';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+  </script>
+</body>
+</html>

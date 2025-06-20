@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Effect Placeholder Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .effect-container { display: inline-block; margin: 10px; text-align: center; }
+    canvas { border: 1px solid #ccc; }
+    .download-btn { 
+      display: block; 
+      margin: 10px auto; 
+      padding: 5px 10px; 
+      background: #007bff; 
+      color: white; 
+      text-decoration: none; 
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <h1>ガチャエフェクト プレースホルダー画像</h1>
+  <p>各画像を右クリックして「名前を付けて画像を保存」してください。</p>
+
+  <div class="effect-container">
+    <h3>ssr-rainbow-1.png</h3>
+    <canvas id="ssr-rainbow-1" width="1024" height="1024"></canvas>
+  </div>
+  <div class="effect-container">
+    <h3>ssr-rainbow-2.png</h3>
+    <canvas id="ssr-rainbow-2" width="1024" height="1024"></canvas>
+  </div>
+  <div class="effect-container">
+    <h3>ssr-rainbow-3.png</h3>
+    <canvas id="ssr-rainbow-3" width="1024" height="1024"></canvas>
+  </div>
+  <div class="effect-container">
+    <h3>sr-fire-1.png</h3>
+    <canvas id="sr-fire-1" width="1024" height="1024"></canvas>
+  </div>
+  <div class="effect-container">
+    <h3>sr-fire-2.png</h3>
+    <canvas id="sr-fire-2" width="1024" height="1024"></canvas>
+  </div>
+  <div class="effect-container">
+    <h3>sr-fire-3.png</h3>
+    <canvas id="sr-fire-3" width="1024" height="1024"></canvas>
+  </div>
+  <div class="effect-container">
+    <h3>r-water-1.png</h3>
+    <canvas id="r-water-1" width="1024" height="1024"></canvas>
+  </div>
+  <div class="effect-container">
+    <h3>r-water-2.png</h3>
+    <canvas id="r-water-2" width="1024" height="1024"></canvas>
+  </div>
+  <div class="effect-container">
+    <h3>r-water-3.png</h3>
+    <canvas id="r-water-3" width="1024" height="1024"></canvas>
+  </div>
+  <div class="effect-container">
+    <h3>n-light-1.png</h3>
+    <canvas id="n-light-1" width="1024" height="1024"></canvas>
+  </div>
+  <div class="effect-container">
+    <h3>n-light-2.png</h3>
+    <canvas id="n-light-2" width="1024" height="1024"></canvas>
+  </div>
+  <script>
+    
+    // ssr-rainbow-1
+    {
+      const canvas = document.getElementById('ssr-rainbow-1');
+      const ctx = canvas.getContext('2d');
+      
+      // グラデーション背景
+      const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
+      gradient.addColorStop(0, '#ff0000');
+      gradient.addColorStop(0.16666666666666666, '#ff7f00');
+      gradient.addColorStop(0.3333333333333333, '#ffff00');
+      gradient.addColorStop(0.5, '#00ff00');
+      gradient.addColorStop(0.6666666666666666, '#0000ff');
+      gradient.addColorStop(0.8333333333333334, '#4b0082');
+      gradient.addColorStop(1, '#9400d3');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 中央のテキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 200px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      ctx.fillText('SSR', 512, 512);
+      
+      // 装飾的な円
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 5;
+      for (let r = 100; r < 500; r += 100) {
+        ctx.beginPath();
+        ctx.arc(512, 512, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      // ダウンロード用のデータURL
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ssr-rainbow-1.png';
+        a.className = 'download-btn';
+        a.textContent = 'ダウンロード';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    // ssr-rainbow-2
+    {
+      const canvas = document.getElementById('ssr-rainbow-2');
+      const ctx = canvas.getContext('2d');
+      
+      // グラデーション背景
+      const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
+      gradient.addColorStop(0, '#ff0000');
+      gradient.addColorStop(0.16666666666666666, '#ff7f00');
+      gradient.addColorStop(0.3333333333333333, '#ffff00');
+      gradient.addColorStop(0.5, '#00ff00');
+      gradient.addColorStop(0.6666666666666666, '#0000ff');
+      gradient.addColorStop(0.8333333333333334, '#4b0082');
+      gradient.addColorStop(1, '#9400d3');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 中央のテキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 200px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      ctx.fillText('SSR', 512, 512);
+      
+      // 装飾的な円
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 5;
+      for (let r = 100; r < 500; r += 100) {
+        ctx.beginPath();
+        ctx.arc(512, 512, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      // ダウンロード用のデータURL
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ssr-rainbow-2.png';
+        a.className = 'download-btn';
+        a.textContent = 'ダウンロード';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    // ssr-rainbow-3
+    {
+      const canvas = document.getElementById('ssr-rainbow-3');
+      const ctx = canvas.getContext('2d');
+      
+      // グラデーション背景
+      const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
+      gradient.addColorStop(0, '#ff0000');
+      gradient.addColorStop(0.16666666666666666, '#ff7f00');
+      gradient.addColorStop(0.3333333333333333, '#ffff00');
+      gradient.addColorStop(0.5, '#00ff00');
+      gradient.addColorStop(0.6666666666666666, '#0000ff');
+      gradient.addColorStop(0.8333333333333334, '#4b0082');
+      gradient.addColorStop(1, '#9400d3');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 中央のテキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 200px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      ctx.fillText('SSR', 512, 512);
+      
+      // 装飾的な円
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 5;
+      for (let r = 100; r < 500; r += 100) {
+        ctx.beginPath();
+        ctx.arc(512, 512, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      // ダウンロード用のデータURL
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ssr-rainbow-3.png';
+        a.className = 'download-btn';
+        a.textContent = 'ダウンロード';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    // sr-fire-1
+    {
+      const canvas = document.getElementById('sr-fire-1');
+      const ctx = canvas.getContext('2d');
+      
+      // グラデーション背景
+      const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
+      gradient.addColorStop(0, '#ff4500');
+      gradient.addColorStop(0.3333333333333333, '#ff6347');
+      gradient.addColorStop(0.6666666666666666, '#ff8c00');
+      gradient.addColorStop(1, '#ffa500');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 中央のテキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 200px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      ctx.fillText('SR', 512, 512);
+      
+      // 装飾的な円
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 5;
+      for (let r = 100; r < 500; r += 100) {
+        ctx.beginPath();
+        ctx.arc(512, 512, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      // ダウンロード用のデータURL
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sr-fire-1.png';
+        a.className = 'download-btn';
+        a.textContent = 'ダウンロード';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    // sr-fire-2
+    {
+      const canvas = document.getElementById('sr-fire-2');
+      const ctx = canvas.getContext('2d');
+      
+      // グラデーション背景
+      const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
+      gradient.addColorStop(0, '#ff4500');
+      gradient.addColorStop(0.3333333333333333, '#ff6347');
+      gradient.addColorStop(0.6666666666666666, '#ff8c00');
+      gradient.addColorStop(1, '#ffa500');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 中央のテキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 200px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      ctx.fillText('SR', 512, 512);
+      
+      // 装飾的な円
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 5;
+      for (let r = 100; r < 500; r += 100) {
+        ctx.beginPath();
+        ctx.arc(512, 512, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      // ダウンロード用のデータURL
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sr-fire-2.png';
+        a.className = 'download-btn';
+        a.textContent = 'ダウンロード';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    // sr-fire-3
+    {
+      const canvas = document.getElementById('sr-fire-3');
+      const ctx = canvas.getContext('2d');
+      
+      // グラデーション背景
+      const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
+      gradient.addColorStop(0, '#ff4500');
+      gradient.addColorStop(0.3333333333333333, '#ff6347');
+      gradient.addColorStop(0.6666666666666666, '#ff8c00');
+      gradient.addColorStop(1, '#ffa500');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 中央のテキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 200px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      ctx.fillText('SR', 512, 512);
+      
+      // 装飾的な円
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 5;
+      for (let r = 100; r < 500; r += 100) {
+        ctx.beginPath();
+        ctx.arc(512, 512, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      // ダウンロード用のデータURL
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sr-fire-3.png';
+        a.className = 'download-btn';
+        a.textContent = 'ダウンロード';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    // r-water-1
+    {
+      const canvas = document.getElementById('r-water-1');
+      const ctx = canvas.getContext('2d');
+      
+      // グラデーション背景
+      const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
+      gradient.addColorStop(0, '#00bfff');
+      gradient.addColorStop(0.3333333333333333, '#87ceeb');
+      gradient.addColorStop(0.6666666666666666, '#4682b4');
+      gradient.addColorStop(1, '#1e90ff');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 中央のテキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 200px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      ctx.fillText('R', 512, 512);
+      
+      // 装飾的な円
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 5;
+      for (let r = 100; r < 500; r += 100) {
+        ctx.beginPath();
+        ctx.arc(512, 512, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      // ダウンロード用のデータURL
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'r-water-1.png';
+        a.className = 'download-btn';
+        a.textContent = 'ダウンロード';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    // r-water-2
+    {
+      const canvas = document.getElementById('r-water-2');
+      const ctx = canvas.getContext('2d');
+      
+      // グラデーション背景
+      const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
+      gradient.addColorStop(0, '#00bfff');
+      gradient.addColorStop(0.3333333333333333, '#87ceeb');
+      gradient.addColorStop(0.6666666666666666, '#4682b4');
+      gradient.addColorStop(1, '#1e90ff');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 中央のテキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 200px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      ctx.fillText('R', 512, 512);
+      
+      // 装飾的な円
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 5;
+      for (let r = 100; r < 500; r += 100) {
+        ctx.beginPath();
+        ctx.arc(512, 512, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      // ダウンロード用のデータURL
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'r-water-2.png';
+        a.className = 'download-btn';
+        a.textContent = 'ダウンロード';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    // r-water-3
+    {
+      const canvas = document.getElementById('r-water-3');
+      const ctx = canvas.getContext('2d');
+      
+      // グラデーション背景
+      const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
+      gradient.addColorStop(0, '#00bfff');
+      gradient.addColorStop(0.3333333333333333, '#87ceeb');
+      gradient.addColorStop(0.6666666666666666, '#4682b4');
+      gradient.addColorStop(1, '#1e90ff');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 中央のテキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 200px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      ctx.fillText('R', 512, 512);
+      
+      // 装飾的な円
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 5;
+      for (let r = 100; r < 500; r += 100) {
+        ctx.beginPath();
+        ctx.arc(512, 512, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      // ダウンロード用のデータURL
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'r-water-3.png';
+        a.className = 'download-btn';
+        a.textContent = 'ダウンロード';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    // n-light-1
+    {
+      const canvas = document.getElementById('n-light-1');
+      const ctx = canvas.getContext('2d');
+      
+      // グラデーション背景
+      const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
+      gradient.addColorStop(0, '#ffd700');
+      gradient.addColorStop(0.5, '#ffffe0');
+      gradient.addColorStop(1, '#fffacd');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 中央のテキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 200px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      ctx.fillText('N', 512, 512);
+      
+      // 装飾的な円
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 5;
+      for (let r = 100; r < 500; r += 100) {
+        ctx.beginPath();
+        ctx.arc(512, 512, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      // ダウンロード用のデータURL
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'n-light-1.png';
+        a.className = 'download-btn';
+        a.textContent = 'ダウンロード';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+
+    // n-light-2
+    {
+      const canvas = document.getElementById('n-light-2');
+      const ctx = canvas.getContext('2d');
+      
+      // グラデーション背景
+      const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
+      gradient.addColorStop(0, '#ffd700');
+      gradient.addColorStop(0.5, '#ffffe0');
+      gradient.addColorStop(1, '#fffacd');
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 1024, 1024);
+      
+      // 中央のテキスト
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 200px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 20;
+      ctx.fillText('N', 512, 512);
+      
+      // 装飾的な円
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 5;
+      for (let r = 100; r < 500; r += 100) {
+        ctx.beginPath();
+        ctx.arc(512, 512, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      // ダウンロード用のデータURL
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'n-light-2.png';
+        a.className = 'download-btn';
+        a.textContent = 'ダウンロード';
+        canvas.parentElement.appendChild(a);
+      });
+    }
+  </script>
+</body>
+</html>
