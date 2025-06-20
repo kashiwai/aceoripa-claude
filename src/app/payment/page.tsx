@@ -1,158 +1,145 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { SQUARE_CONFIG } from '@/lib/square/config'
-import { useAuth } from '@/hooks/useAuth'
-import { toast } from 'react-hot-toast'
-import Link from 'next/link'
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 export default function PaymentPage() {
-  const [selectedPackage, setSelectedPackage] = useState<number | null>(null)
-  const [userPoints, setUserPoints] = useState({ free: 0, paid: 0 })
-  const [isProcessing, setIsProcessing] = useState(false)
-  const { user } = useAuth()
-  
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [userPoints, setUserPoints] = useState({ free: 0, paid: 0, total: 0 });
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  const paymentPlans = [
+    { id: 'plan1', points: 150, price: 120, bonus: 0 },
+    { id: 'plan2', points: 500, price: 400, bonus: 50 },
+    { id: 'plan3', points: 1000, price: 800, bonus: 150 },
+    { id: 'plan4', points: 3000, price: 2400, bonus: 600 },
+    { id: 'plan5', points: 5000, price: 4000, bonus: 1200 },
+    { id: 'plan6', points: 10000, price: 8000, bonus: 3000 },
+  ];
+
   useEffect(() => {
-    fetchUserPoints()
-  }, [user])
-  
-  const fetchUserPoints = async () => {
-    if (!user) return
-    
-    try {
-      const response = await fetch('/api/user/points')
-      if (response.ok) {
-        const data = await response.json()
-        setUserPoints({
-          free: data.free_points,
-          paid: data.paid_points
-        })
+    if (!loading && !user) {
+      router.push('/auth/login');
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
+    const fetchUserPoints = async () => {
+      if (!user) return;
+      
+      try {
+        const response = await fetch('/api/user/points');
+        if (response.ok) {
+          const data = await response.json();
+          setUserPoints({
+            free: data.free_points,
+            paid: data.paid_points,
+            total: data.free_points + data.paid_points
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch points:', error);
       }
-    } catch (error) {
-      console.error('Failed to fetch points:', error)
-    }
-  }
-  
-  const handlePurchase = async (packageIndex: number) => {
-    setIsProcessing(true)
-    const selectedPkg = SQUARE_CONFIG.pointPackages[packageIndex]
+    };
     
-    try {
-      // Square決済ページへのリダイレクト（実装簡略版）
-      toast.success(`${selectedPkg.points + selectedPkg.bonus}ポイントの購入を開始します`)
-      
-      // 実際の実装では、Square Web Payments SDKを使用
-      // またはサーバーサイドでSquare Checkout APIを使用してリダイレクト
-      
-      // デモ用：ポイント付与のシミュレーション
-      setTimeout(() => {
-        fetchUserPoints()
-        toast.success('ポイントが付与されました！')
-        setIsProcessing(false)
-      }, 2000)
-      
-    } catch (error) {
-      console.error('Purchase error:', error)
-      toast.error('購入処理に失敗しました')
-      setIsProcessing(false)
-    }
-  }
-  
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <p className="mb-4">ログインが必要です</p>
-          <Link href="/login" className="text-blue-600 hover:underline">
-            ログインページへ
-          </Link>
-        </div>
-      </div>
-    )
-  }
-  
+    fetchUserPoints();
+  }, [user]);
+
+  const handlePurchase = async (plan: any) => {
+    toast.success(`${plan.points + plan.bonus}ポイント購入処理を開始します`);
+    // TODO: 実際の決済処理実装
+    router.push('/gacha');
+  };
+
   return (
-    <main className="min-h-screen bg-gray-100">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-6">
-          <Link href="/" className="text-blue-600 hover:underline">
-            ← トップに戻る
-          </Link>
-        </div>
-        
-        <h1 className="text-3xl font-bold mb-8">ポイント購入</h1>
-        
-        {/* 現在のポイント */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-lg font-semibold mb-4">現在の所持ポイント</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <p className="text-sm text-gray-500">無料ポイント</p>
-              <p className="text-2xl font-bold text-blue-600">
-                {userPoints.free.toLocaleString()}
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-gray-500">有料ポイント</p>
-              <p className="text-2xl font-bold text-green-600">
-                {userPoints.paid.toLocaleString()}
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-gray-500">合計</p>
-              <p className="text-2xl font-bold">
-                {(userPoints.free + userPoints.paid).toLocaleString()}
-              </p>
-            </div>
+    <main className="min-h-screen bg-gray-900 text-white">
+      <header className="bg-gray-800 p-4 border-b border-gray-700">
+        <div className="container mx-auto flex items-center justify-between">
+          <h1 className="text-2xl font-bold">ポイント購入</h1>
+          <div className="flex items-center space-x-2">
+            <span className="text-yellow-400">💎</span>
+            <span>{userPoints.total.toLocaleString()}</span>
           </div>
         </div>
-        
-        {/* ポイントパッケージ */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4">ポイントパッケージを選択</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {SQUARE_CONFIG.pointPackages.map((pkg, index) => (
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* 現在のポイント */}
+        <section className="mb-8 bg-gray-800 rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-4">現在の所持ポイント</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-gray-400">無料ポイント</p>
+              <p className="text-2xl font-bold">{userPoints.free.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-gray-400">有料ポイント</p>
+              <p className="text-2xl font-bold">{userPoints.paid.toLocaleString()}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* 購入プラン */}
+        <section>
+          <h2 className="text-xl font-bold mb-6">ポイント購入プラン</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paymentPlans.map((plan) => (
               <button
-                key={index}
-                onClick={() => handlePurchase(index)}
-                disabled={isProcessing}
-                className="border-2 border-gray-200 rounded-lg p-6 hover:border-blue-500 hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                key={plan.id}
+                onClick={() => handlePurchase(plan)}
+                className={`bg-gray-800 rounded-xl p-6 text-left hover:bg-gray-700 transition-colors relative overflow-hidden ${
+                  plan.bonus > 0 ? 'ring-2 ring-yellow-400' : ''
+                }`}
               >
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="text-2xl font-bold">{pkg.points}pt</p>
-                    {pkg.bonus > 0 && (
-                      <p className="text-sm text-green-600 font-semibold">
-                        +{pkg.bonus}ptボーナス
-                      </p>
-                    )}
-                  </div>
-                  <p className="text-xl font-bold">¥{pkg.price.toLocaleString()}</p>
-                </div>
-                <p className="text-sm text-gray-500">
-                  合計 {(pkg.points + pkg.bonus).toLocaleString()}pt
-                </p>
-                {pkg.bonus > 0 && (
-                  <div className="mt-2 bg-green-50 text-green-700 text-xs px-2 py-1 rounded inline-block">
-                    {Math.round((pkg.bonus / pkg.points) * 100)}%お得！
+                {plan.bonus > 0 && (
+                  <div className="absolute top-2 right-2 bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold">
+                    +{plan.bonus.toLocaleString()}ボーナス
                   </div>
                 )}
+                <div className="mb-4">
+                  <p className="text-3xl font-bold">
+                    {(plan.points + plan.bonus).toLocaleString()}
+                    <span className="text-lg text-gray-400 ml-1">ポイント</span>
+                  </p>
+                  {plan.bonus > 0 && (
+                    <p className="text-gray-400 text-sm mt-1">
+                      ({plan.points.toLocaleString()} + {plan.bonus.toLocaleString()}ボーナス)
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-2xl font-bold">
+                    ¥{plan.price.toLocaleString()}
+                  </p>
+                  <p className="text-gray-400 text-sm">
+                    ¥{(plan.price / (plan.points + plan.bonus)).toFixed(2)}/pt
+                  </p>
+                </div>
               </button>
             ))}
           </div>
-        </div>
-        
-        {/* Square決済に関する注意事項 */}
-        <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-          <h3 className="font-semibold text-blue-900 mb-2">決済について</h3>
-          <ul className="text-sm text-blue-800 space-y-1">
-            <li>• 決済はSquareの安全な決済システムを使用します</li>
-            <li>• クレジットカード・デビットカードがご利用いただけます</li>
-            <li>• 購入後、即座にポイントが付与されます</li>
-            <li>• 有料ポイントは無料ポイントより優先的に消費されます</li>
-          </ul>
+        </section>
+
+        {/* 注意事項 */}
+        <section className="mt-8 text-center text-gray-400 text-sm">
+          <p>※ 購入したポイントの払い戻しはできません</p>
+          <p>※ 無料ポイントから優先的に消費されます</p>
+        </section>
+
+        {/* 戻るボタン */}
+        <div className="mt-8 text-center">
+          <Link
+            href="/gacha"
+            className="inline-block px-8 py-3 bg-gray-600 hover:bg-gray-700 rounded-lg font-bold transition-colors"
+          >
+            ガチャに戻る
+          </Link>
         </div>
       </div>
     </main>
-  )
+  );
 }

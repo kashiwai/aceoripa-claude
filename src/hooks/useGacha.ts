@@ -38,8 +38,8 @@ export function useGacha() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          gachaId,
-          drawCount,
+          productId: gachaId,
+          pullCount: drawCount,
         }),
       })
 

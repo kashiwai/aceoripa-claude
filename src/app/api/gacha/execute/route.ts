@@ -59,8 +59,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
-    const body: GachaDrawRequest = await req.json()
-    const { gachaId, drawCount } = body
+    const body = await req.json()
+    const { productId, pullCount } = body
+    
+    // 互換性のため変数名を調整
+    const gachaId = productId
+    const drawCount = pullCount
     
     // ガチャ商品情報の取得
     const { data: gachaProduct, error: gachaError } = await supabase

@@ -20,7 +20,16 @@ export default function GachaPage() {
   const [userPoints, setUserPoints] = useState({ total: 0, free: 0, paid: 0 });
   
   const { executeGacha, isLoading, clearResults } = useGacha();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  // 認証チェック
+  useEffect(() => {
+    if (!authLoading && !user) {
+      toast.error('ログインが必要です');
+      router.push('/auth/login');
+    }
+  }, [user, authLoading, router]);
 
   // ユーザーポイント取得
   useEffect(() => {
@@ -48,12 +57,15 @@ export default function GachaPage() {
   const performGacha = async (count: 1 | 10) => {
     if (!user) {
       toast.error('ログインが必要です');
+      router.push('/auth/login');
       return;
     }
     
     const requiredPoints = count === 1 ? 150 : 1500;
     if (userPoints.total < requiredPoints) {
       toast.error('ポイントが不足しています');
+      // 決済ページへリダイレクト
+      router.push('/payment');
       return;
     }
     
@@ -110,7 +122,6 @@ export default function GachaPage() {
 
   return (
     <>
-      <AuthHeader />
       <main className="min-h-screen bg-gray-900 text-white">
         {/* ポイント表示ヘッダー */}
         <div className="bg-gray-800 p-4 border-b border-gray-700">
