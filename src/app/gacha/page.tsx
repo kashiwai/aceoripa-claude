@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { GachaEffectSystem, GachaVideoPlayer } from '@/components/effects';
+import { AuthHeader } from '@/components/layout';
 import Link from 'next/link';
 import { useGacha } from '@/hooks/useGacha';
 import { useAuth } from '@/hooks/useAuth';
@@ -108,18 +109,19 @@ export default function GachaPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white">
-      {/* ヘッダー */}
-      <header className="bg-gray-800 p-4">
-        <div className="container mx-auto flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">Aceoripa TCG</Link>
-          <h1 className="text-2xl font-bold">ガチャ</h1>
-          <div className="flex items-center space-x-2">
-            <span className="text-yellow-400">💎</span>
-            <span>{userPoints.total.toLocaleString()}</span>
+    <>
+      <AuthHeader />
+      <main className="min-h-screen bg-gray-900 text-white">
+        {/* ポイント表示ヘッダー */}
+        <div className="bg-gray-800 p-4 border-b border-gray-700">
+          <div className="container mx-auto flex items-center justify-between">
+            <h1 className="text-2xl font-bold">ガチャ</h1>
+            <div className="flex items-center space-x-2">
+              <span className="text-yellow-400">💎</span>
+              <span>{userPoints.total.toLocaleString()}</span>
+            </div>
           </div>
         </div>
-      </header>
 
       {/* エフェクト表示 */}
       {showEffect && (
@@ -292,6 +294,7 @@ export default function GachaPage() {
           </section>
         </div>
       )}
-    </main>
+      </main>
+    </>
   );
 }

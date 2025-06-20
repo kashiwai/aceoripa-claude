@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { DynamicBanner } from '@/components/effects';
+import { AuthHeader } from '@/components/layout';
 
 interface UserStats {
   totalCards: number;
@@ -56,17 +57,9 @@ export default function MyPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white">
-      {/* ヘッダー */}
-      <header className="bg-gray-800 p-4">
-        <div className="container mx-auto flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold">Aceoripa TCG</Link>
-          <h1 className="text-2xl font-bold">マイページ</h1>
-          <Link href="/settings" className="text-gray-400 hover:text-white">
-            ⚙️
-          </Link>
-        </div>
-      </header>
+    <>
+      <AuthHeader />
+      <main className="min-h-screen bg-gray-900 text-white">
 
       {/* プロフィールヘッダー */}
       <section className="bg-gradient-to-r from-purple-900 to-pink-900 p-8">
@@ -399,6 +392,7 @@ export default function MyPage() {
           </div>
         )}
       </section>
-    </main>
+      </main>
+    </>
   );
 }

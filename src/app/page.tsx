@@ -1,6 +1,7 @@
 'use client';
 
 import { BannerCarousel, DynamicBanner } from '@/components/effects';
+import { AuthHeader } from '@/components/layout';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
@@ -15,7 +16,9 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-900">
+    <>
+      <AuthHeader />
+      <main className="min-h-screen bg-gray-900">
       {/* ヒーローセクション */}
       <section className="relative overflow-hidden">
         <BannerCarousel 
@@ -122,5 +125,6 @@ export default function Home() {
         </div>
       </footer>
     </main>
+    </>
   );
 }

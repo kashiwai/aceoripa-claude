@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import { SoundEffectManager } from './SoundEffectSystem';
 
 interface EffectConfig {
   duration: number;
@@ -57,18 +58,33 @@ export const GachaEffectSystem = ({ rarity, onComplete }: GachaEffectSystemProps
   const [effectConfig, setEffectConfig] = useState<EffectConfig | null>(null);
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const soundManagerRef = useRef<any>(null);
 
   useEffect(() => {
+    // サウンドマネージャーの初期化
+    soundManagerRef.current = new SoundEffectManager();
+    soundManagerRef.current.loadSounds();
+
     // エフェクト設定の読み込み
     fetch('/assets/effects/effects-config.json')
       .then(res => res.json())
       .then(data => {
         setEffectConfig(data[rarity]);
       });
+
+    return () => {
+      soundManagerRef.current?.cleanup();
+    };
   }, [rarity]);
 
   useEffect(() => {
     if (!effectConfig) return;
+
+    // 音声再生
+    if (effectConfig.sound && soundManagerRef.current) {
+      const soundKey = effectConfig.sound.replace('.mp3', '');
+      soundManagerRef.current.playSound(soundKey);
+    }
 
     // バイブレーション
     if (effectConfig.vibration && 'vibrate' in navigator) {

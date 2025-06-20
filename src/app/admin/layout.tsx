@@ -10,8 +10,9 @@ export default async function AdminLayout({
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Admin認証チェック（仮実装：実際はroleチェックを追加）
-  if (!user || user.email !== 'admin@aceoripa.com') {
+  // Admin認証チェック（環境変数から取得）
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@aceoripa.com'
+  if (!user || user.email !== adminEmail) {
     redirect('/')
   }
 
