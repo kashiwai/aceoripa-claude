@@ -29,6 +29,7 @@ export default function HomePage() {
   useEffect(() => {
     fetchGachaProducts()
     initializeNotifications()
+    registerServiceWorker()
     
     // 初回訪問チェック
     const isFirstVisit = !localStorage.getItem('hasVisited')
@@ -36,7 +37,21 @@ export default function HomePage() {
       showWelcomeNotification()
       localStorage.setItem('hasVisited', 'true')
     }
+
+    // 画像生成エンジンの初期化
+    initializeImageGeneration()
   }, [])
+
+  const registerServiceWorker = async () => {
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.register('/sw.js')
+        console.log('Service Worker registered:', registration)
+      } catch (error) {
+        console.error('Service Worker registration failed:', error)
+      }
+    }
+  }
 
   const fetchGachaProducts = async () => {
     try {
@@ -116,6 +131,25 @@ export default function HomePage() {
     setCurrentNotification(null)
   }
 
+  const initializeImageGeneration = async () => {
+    // 画像が不足している場合、自動生成を提案
+    const hasGeneratedImages = localStorage.getItem('hasGeneratedImages')
+    if (!hasGeneratedImages) {
+      setTimeout(() => {
+        const autoGenerateNotification = {
+          id: 'auto-generate',
+          title: '🎨 AI画像生成エンジン',
+          content: '<p>サイトの画像をAIで自動生成しますか？<br/><strong>ガチャバナー</strong>や<strong>PRバナー</strong>を高品質で作成できます！</p>',
+          type: 'info',
+          priority: 'medium'
+        }
+        setCurrentNotification(autoGenerateNotification)
+        setShowNotificationModal(true)
+        localStorage.setItem('hasGeneratedImages', 'true')
+      }, 3000)
+    }
+  }
+
   // PRバナーのダミーデータ
   const prBanners = [
     { id: 1, imageUrl: '/api/placeholder/400/400', title: 'PRバナー1' },
@@ -185,6 +219,9 @@ export default function HomePage() {
               </Link>
               <Link href="/collection" className="text-gray-700 hover:text-gray-900">
                 コレクション
+              </Link>
+              <Link href="/admin/image-generator" className="text-gray-700 hover:text-gray-900">
+                画像生成
               </Link>
             </nav>
           </div>
