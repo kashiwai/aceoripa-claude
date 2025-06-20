@@ -19,7 +19,7 @@ const defaultBanners: BannerData[] = [
     id: 'banner-1',
     title: 'レジェンドガチャ',
     subtitle: 'SSR確率2倍アップ！',
-    backgroundImage: '/assets/banners/gacha-banner-1.png',
+    backgroundImage: '/api/placeholder/banners/gacha-banner-1',
     featured: true,
     gachaType: 'legend'
   },
@@ -27,14 +27,14 @@ const defaultBanners: BannerData[] = [
     id: 'banner-2',
     title: '期間限定イベント',
     subtitle: '新キャラ登場',
-    backgroundImage: '/assets/banners/gacha-banner-2.png',
+    backgroundImage: '/api/placeholder/banners/gacha-banner-2',
     gachaType: 'event'
   },
   {
     id: 'banner-3',
     title: 'デイリーガチャ',
     subtitle: '毎日1回無料',
-    backgroundImage: '/assets/banners/gacha-banner-3.png',
+    backgroundImage: '/api/placeholder/banners/gacha-banner-3',
     gachaType: 'daily'
   },
   {
@@ -138,7 +138,10 @@ export const BannerCarousel = ({
             className="absolute inset-0"
           >
             <DynamicBanner
-              config={banners[currentIndex]}
+              title={banners[currentIndex].title}
+              subtitle={banners[currentIndex].subtitle}
+              imageUrl={banners[currentIndex].backgroundImage}
+              backgroundColor={banners[currentIndex].backgroundColor}
               onClick={() => handleBannerClick(banners[currentIndex])}
             />
           </motion.div>
@@ -180,3 +183,5 @@ export const BannerCarousel = ({
     </div>
   );
 };
+
+export default BannerCarousel;

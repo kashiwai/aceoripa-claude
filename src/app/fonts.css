@@ -1,0 +1,156 @@
+/* 日本語フォントの設定 */
+
+/* Google Fonts から日本語フォントをインポート */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@100;300;400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sawarabi+Gothic&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Stick&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&display=swap');
+
+/* フォントクラス定義 */
+.font-noto {
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.font-mplus-rounded {
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+
+.font-kosugi {
+  font-family: 'Kosugi Maru', sans-serif;
+}
+
+.font-sawarabi {
+  font-family: 'Sawarabi Gothic', sans-serif;
+}
+
+.font-zen-maru {
+  font-family: 'Zen Maru Gothic', sans-serif;
+}
+
+.font-kiwi {
+  font-family: 'Kiwi Maru', serif;
+}
+
+.font-yusei {
+  font-family: 'Yusei Magic', sans-serif;
+}
+
+.font-dela {
+  font-family: 'Dela Gothic One', cursive;
+}
+
+.font-rock {
+  font-family: 'RocknRoll One', sans-serif;
+}
+
+.font-stick {
+  font-family: 'Stick', sans-serif;
+}
+
+.font-dot {
+  font-family: 'DotGothic16', sans-serif;
+}
+
+.font-hachi {
+  font-family: 'Hachi Maru Pop', cursive;
+}
+
+/* 文字スタイル */
+.text-gradient-rainbow {
+  background: linear-gradient(90deg, 
+    #ff0000 0%, 
+    #ff7f00 14%, 
+    #ffff00 28%, 
+    #00ff00 42%, 
+    #0000ff 56%, 
+    #4b0082 70%, 
+    #9400d3 84%, 
+    #ff0000 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rainbow-move 3s linear infinite;
+}
+
+@keyframes rainbow-move {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.text-glow {
+  text-shadow: 
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 30px currentColor,
+    0 0 40px currentColor;
+}
+
+.text-stroke-white {
+  -webkit-text-stroke: 2px white;
+  text-stroke: 2px white;
+}
+
+.text-stroke-black {
+  -webkit-text-stroke: 2px black;
+  text-stroke: 2px black;
+}
+
+.text-3d {
+  text-shadow: 
+    1px 1px 0 #000,
+    2px 2px 0 #000,
+    3px 3px 0 #000,
+    4px 4px 0 #000,
+    5px 5px 0 #000,
+    6px 6px 8px rgba(0,0,0,0.5);
+}
+
+.text-neon {
+  text-shadow: 
+    0 0 5px #fff,
+    0 0 10px #fff,
+    0 0 15px #fff,
+    0 0 20px currentColor,
+    0 0 35px currentColor,
+    0 0 40px currentColor,
+    0 0 50px currentColor,
+    0 0 75px currentColor;
+}
+
+/* アニメーション文字 */
+.text-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.text-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+.text-shake {
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
