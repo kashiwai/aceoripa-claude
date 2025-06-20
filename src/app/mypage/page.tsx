@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import { useNotificationPermission } from '@/hooks/useNotificationPermission'
 
 interface UserInfo {
   id: string
@@ -28,6 +29,192 @@ interface GachaHistory {
     rarity: string
     imageUrl: string
   }[]
+}
+
+function SettingsTab() {
+  const {
+    permission,
+    subscription,
+    isSupported,
+    isLoading,
+    requestPermission,
+    unsubscribe,
+    sendTestNotification
+  } = useNotificationPermission()
+
+  const [settings, setSettings] = useState({
+    notifications: true,
+    gachaAlerts: true,
+    campaignAlerts: true,
+    maintenanceAlerts: true,
+    soundEnabled: true,
+    vibrationEnabled: true
+  })
+
+  const toggleSetting = (key: string) => {
+    setSettings(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }))
+  }
+
+  const getPermissionStatus = () => {
+    switch (permission) {
+      case 'granted': return { text: '許可済み', color: 'text-green-600', bg: 'bg-green-100' }
+      case 'denied': return { text: '拒否済み', color: 'text-red-600', bg: 'bg-red-100' }
+      default: return { text: '未設定', color: 'text-gray-600', bg: 'bg-gray-100' }
+    }
+  }
+
+  const status = getPermissionStatus()
+
+  return (
+    <div className="p-6">
+      <h3 className="text-2xl font-bold text-gray-900 mb-6">設定</h3>
+      
+      {/* プッシュ通知設定 */}
+      <div className="space-y-6">
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h4 className="text-lg font-semibold text-gray-900 mb-4">🔔 プッシュ通知</h4>
+          
+          {!isSupported ? (
+            <div className="text-center py-4">
+              <p className="text-gray-600">お使いのブラウザはプッシュ通知に対応していません</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-gray-900">通知の許可状況</p>
+                  <p className="text-sm text-gray-600">ブラウザの通知許可設定</p>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${status.bg} ${status.color}`}>
+                  {status.text}
+                </span>
+              </div>
+
+              {permission !== 'granted' && (
+                <button
+                  onClick={requestPermission}
+                  disabled={isLoading}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition"
+                >
+                  {isLoading ? '設定中...' : '通知を許可する'}
+                </button>
+              )}
+
+              {permission === 'granted' && subscription && (
+                <div className="space-y-3">
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={sendTestNotification}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition"
+                    >
+                      テスト通知
+                    </button>
+                    <button
+                      onClick={unsubscribe}
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition"
+                    >
+                      通知を停止
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 通知の種類設定 */}
+        {permission === 'granted' && (
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h4 className="text-lg font-semibold text-gray-900 mb-4">📢 通知の種類</h4>
+            <div className="space-y-4">
+              {[
+                { key: 'gachaAlerts', label: '新ガチャ情報', desc: '新しいガチャの登場をお知らせ' },
+                { key: 'campaignAlerts', label: 'キャンペーン情報', desc: 'お得なキャンペーンをお知らせ' },
+                { key: 'maintenanceAlerts', label: 'メンテナンス情報', desc: 'サーバーメンテナンスをお知らせ' }
+              ].map((item) => (
+                <div key={item.key} className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-gray-900">{item.label}</p>
+                    <p className="text-sm text-gray-600">{item.desc}</p>
+                  </div>
+                  <button
+                    onClick={() => toggleSetting(item.key)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                      settings[item.key as keyof typeof settings] ? 'bg-blue-600' : 'bg-gray-300'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                        settings[item.key as keyof typeof settings] ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* その他の設定 */}
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h4 className="text-lg font-semibold text-gray-900 mb-4">⚙️ その他</h4>
+          <div className="space-y-4">
+            {[
+              { key: 'soundEnabled', label: 'サウンド効果', desc: 'ガチャやボタンのサウンド' },
+              { key: 'vibrationEnabled', label: 'バイブレーション', desc: '通知時の振動（モバイル）' }
+            ].map((item) => (
+              <div key={item.key} className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-gray-900">{item.label}</p>
+                  <p className="text-sm text-gray-600">{item.desc}</p>
+                </div>
+                <button
+                  onClick={() => toggleSetting(item.key)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
+                    settings[item.key as keyof typeof settings] ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                      settings[item.key as keyof typeof settings] ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* アカウント管理 */}
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h4 className="text-lg font-semibold text-gray-900 mb-4">👤 アカウント</h4>
+          <div className="space-y-3">
+            <button className="w-full text-left bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-4 transition">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-gray-900">プロフィール編集</span>
+                <span className="text-gray-400">→</span>
+              </div>
+            </button>
+            <button className="w-full text-left bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-4 transition">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-gray-900">パスワード変更</span>
+                <span className="text-gray-400">→</span>
+              </div>
+            </button>
+            <button className="w-full text-left bg-white hover:bg-red-50 border border-red-200 rounded-lg p-4 transition text-red-600">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">ログアウト</span>
+                <span className="text-red-400">→</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function MyPage() {
