@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACEORIPA バナーサンプル</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #FFD700;
+            margin-bottom: 40px;
+        }
+        .banner-section {
+            margin-bottom: 60px;
+        }
+        .banner-section h2 {
+            color: #FF6B6B;
+            border-bottom: 2px solid #FF6B6B;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        .banner-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .banner-item {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid #333;
+        }
+        .banner-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .banner-item h3 {
+            color: #4ECDC4;
+            margin: 15px 0 10px 0;
+        }
+        .banner-item p {
+            color: #ccc;
+            font-size: 14px;
+        }
+        .line-banner {
+            width: 100%;
+            max-width: 375px;
+            margin: 0 auto;
+        }
+        .card-banner {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .campaign-banner {
+            width: 100%;
+            max-width: 375px;
+            margin: 0 auto;
+        }
+        .sns-banner {
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+        .usage-example {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #FFD700;
+        }
+        .mobile-demo {
+            background: #333;
+            max-width: 375px;
+            margin: 20px auto;
+            border-radius: 20px;
+            padding: 10px;
+            border: 8px solid #000;
+        }
+        .mobile-screen {
+            background: #000;
+            border-radius: 15px;
+            padding: 10px;
+            min-height: 600px;
+        }
+        code {
+            background: #444;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #FFD700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 ACEORIPA オリパサイト バナーサンプル</h1>
+        
+        <div class="banner-section">
+            <h2>📱 LINE友達登録キャンペーンバナー</h2>
+            <div class="banner-grid">
+                <div class="banner-item">
+                    <img src="sample-banners/line-campaign.png" alt="LINE友達登録バナー" class="line-banner">
+                    <h3>LINE友達登録バナー</h3>
+                    <p>サイズ: 375×80px<br>
+                    用途: ヘッダー下の固定キャンペーン表示<br>
+                    特徴: LINE公式カラー、クーポン強調</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="banner-section">
+            <h2>🎴 オリパカードバナー (400×600px)</h2>
+            <div class="banner-grid">
+                <div class="banner-item">
+                    <img src="sample-banners/pokemon-151-oripa.png" alt="ポケモン151オリパ" class="card-banner">
+                    <h3>ポケモンカード151オリパ</h3>
+                    <p>カテゴリー: ポケモン<br>
+                    価格: 1口100円〜<br>
+                    残り枚数表示付き</p>
+                </div>
+                <div class="banner-item">
+                    <img src="sample-banners/onepiece-summit-war.png" alt="ワンピース頂上決戦" class="card-banner">
+                    <h3>ワンピース頂上決戦オリパ</h3>
+                    <p>カテゴリー: ワンピース<br>
+                    価格: 1口500円〜<br>
+                    人気シリーズ</p>
+                </div>
+                <div class="banner-item">
+                    <img src="sample-banners/yugioh-rarity.png" alt="遊戯王レアコレ" class="card-banner">
+                    <h3>遊戯王レアリティコレクション</h3>
+                    <p>カテゴリー: 遊戯王<br>
+                    価格: 1口300円〜<br>
+                    レアカード多数</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="banner-section">
+            <h2>🎊 キャンペーン・プロモーションバナー</h2>
+            <div class="banner-grid">
+                <div class="banner-item">
+                    <img src="sample-banners/main-campaign.png" alt="メインキャンペーン" class="campaign-banner">
+                    <h3>メインキャンペーンバナー</h3>
+                    <p>サイズ: 375×200px<br>
+                    用途: トップページメインビジュアル<br>
+                    特徴: SSR確率UP訴求</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="banner-section">
+            <h2>🏆 SNS当選報告サンプル</h2>
+            <div class="banner-grid">
+                <div class="banner-item">
+                    <img src="sample-banners/sns-winner-sample.png" alt="SNS当選報告" class="sns-banner">
+                    <h3>SNS当選報告カード</h3>
+                    <p>サイズ: 200×200px<br>
+                    用途: スライダー表示<br>
+                    特徴: 当選カード画像、ユーザー名表示</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="banner-section">
+            <h2>📱 モバイル表示イメージ</h2>
+            <div class="mobile-demo">
+                <div class="mobile-screen">
+                    <!-- ヘッダー -->
+                    <div style="background: linear-gradient(45deg, #8B5CF6, #EC4899); padding: 10px; text-align: center; color: white; font-weight: bold; margin-bottom: 5px; border-radius: 10px;">
+                        ACEORIPA
+                    </div>
+                    
+                    <!-- LINE友達登録バナー -->
+                    <img src="sample-banners/line-campaign.png" alt="LINE友達登録" style="width: 100%; margin-bottom: 10px; border-radius: 10px;">
+                    
+                    <!-- キャンペーンバナー -->
+                    <img src="sample-banners/main-campaign.png" alt="キャンペーン" style="width: 100%; margin-bottom: 15px; border-radius: 10px;">
+                    
+                    <!-- オリパカード (2列グリッド) -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <img src="sample-banners/pokemon-151-oripa.png" alt="ポケモン" style="width: 100%; border-radius: 8px;">
+                        <img src="sample-banners/onepiece-summit-war.png" alt="ワンピース" style="width: 100%; border-radius: 8px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="usage-example">
+            <h3>🔧 画像サーバー使用方法</h3>
+            <p>画像生成サーバーが <code>http://localhost:9015</code> で稼働中です。</p>
+            
+            <h4>API エンドポイント:</h4>
+            <ul>
+                <li><code>GET /sample-banners</code> - 全サンプル画像の取得</li>
+                <li><code>POST /generate-banner</code> - カスタムバナー生成</li>
+            </ul>
+            
+            <h4>バナー生成例:</h4>
+            <pre style="background: #444; padding: 15px; border-radius: 5px; overflow-x: auto;">
+fetch('http://localhost:9015/generate-banner', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    type: 'card-pack',
+    text: 'ポケモンカード151',
+    width: 400,
+    height: 600
+  })
+})</pre>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; color: #666;">
+            <p>🎮 これらのバナーはオンラインオリパサイト「DOPA」のデザインを参考に作成されています</p>
+        </div>
+    </div>
+</body>
+</html>

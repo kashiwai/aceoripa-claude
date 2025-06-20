@@ -13,7 +13,7 @@ export default async function AdminLayout({
   // Admin認証チェック（環境変数から取得）
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@aceoripa.com'
   if (!user || user.email !== adminEmail) {
-    redirect('/')
+    redirect('/admin/login')
   }
 
   return (

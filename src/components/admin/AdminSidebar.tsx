@@ -7,6 +7,8 @@ import {
   UsersIcon, 
   CubeIcon, 
   CreditCardIcon,
+  TruckIcon,
+  SpeakerWaveIcon,
   ChartBarIcon,
   CogIcon,
   ArrowLeftIcon
@@ -17,6 +19,8 @@ const navigation = [
   { name: 'ユーザー管理', href: '/admin/users', icon: UsersIcon },
   { name: 'ガチャ管理', href: '/admin/gacha', icon: CubeIcon },
   { name: 'カード管理', href: '/admin/cards', icon: CreditCardIcon },
+  { name: '発送管理', href: '/admin/shipments', icon: TruckIcon },
+  { name: 'お知らせ管理', href: '/admin/announcements', icon: SpeakerWaveIcon },
   { name: '売上統計', href: '/admin/sales', icon: ChartBarIcon },
   { name: 'システム設定', href: '/admin/settings', icon: CogIcon },
 ]
