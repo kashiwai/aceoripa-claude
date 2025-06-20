@@ -1,226 +1,180 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { AuthHeader } from '@/components/layout';
-import Link from 'next/link';
-import Image from 'next/image';
-import { JapaneseBannerSection } from '@/components/home/JapaneseBannerSection';
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Autoplay, Navigation, Pagination } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
 
-// メインバナーのデータ型
-interface MainBanner {
-  id: string;
-  title: string;
-  imageUrl: string;
-  type: 'auto-generated' | 'uploaded';
-  link: string;
+interface GachaProduct {
+  id: string
+  name: string
+  description: string
+  imageUrl: string
+  price: number
 }
 
-export default function Home() {
-  const [mounted, setMounted] = useState(false);
-  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
-  
-  // サンプルバナーデータ（実際はAPIから取得）
-  const mainBanners: MainBanner[] = [
-    {
-      id: '1',
-      title: 'レジェンドガチャ開催中',
-      imageUrl: '/api/placeholder/1024/1024',
-      type: 'auto-generated',
-      link: '/gacha?type=legend'
-    },
-    {
-      id: '2',
-      title: '新キャラ「炎の覇者」登場',
-      imageUrl: '/api/placeholder/1024/1024',
-      type: 'uploaded',
-      link: '/gacha?featured=fire-lord'
-    },
-    {
-      id: '3',
-      title: '期間限定イベント',
-      imageUrl: '/api/placeholder/1024/1024',
-      type: 'auto-generated',
-      link: '/gacha?type=event'
-    }
-  ];
+export default function HomePage() {
+  const [gachaProducts, setGachaProducts] = useState<GachaProduct[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setMounted(true);
-    // バナー自動切り替え
-    const interval = setInterval(() => {
-      setCurrentBannerIndex((prev) => (prev + 1) % mainBanners.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [mainBanners.length]);
+    fetchGachaProducts()
+  }, [])
 
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-2xl">Loading...</div>
-      </div>
-    );
+  const fetchGachaProducts = async () => {
+    try {
+      const response = await fetch('/api/gacha/products')
+      const data = await response.json()
+      setGachaProducts(data.products || [])
+    } catch (error) {
+      console.error('Failed to fetch gacha products:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
+  // PRバナーのダミーデータ
+  const prBanners = [
+    { id: 1, imageUrl: '/api/placeholder/400/400', title: 'キャンペーン1' },
+    { id: 2, imageUrl: '/api/placeholder/400/400', title: 'キャンペーン2' },
+    { id: 3, imageUrl: '/api/placeholder/400/400', title: 'キャンペーン3' },
+    { id: 4, imageUrl: '/api/placeholder/400/400', title: 'キャンペーン4' },
+    { id: 5, imageUrl: '/api/placeholder/400/400', title: 'キャンペーン5' },
+  ]
+
   return (
-    <>
-      <AuthHeader />
-      <main className="min-h-screen bg-gray-900">
-        {/* 日本語フォント重視バナーセクション */}
-        <JapaneseBannerSection />
-        
-        {/* 既存のメインバナーセクション（一時的に非表示） */}
-        <section className="relative w-full bg-black" style={{ display: 'none' }}>
-          <div className="max-w-[1024px] mx-auto">
-            {/* バナー表示エリア（正方形） */}
-            <div className="relative aspect-square w-full">
-              {mainBanners.map((banner, index) => (
-                <Link 
-                  key={banner.id} 
-                  href={banner.link}
-                  className={`absolute inset-0 transition-opacity duration-500 ${
-                    index === currentBannerIndex ? 'opacity-100' : 'opacity-0'
-                  }`}
-                >
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={banner.imageUrl}
-                      alt={banner.title}
-                      fill
-                      priority={index === 0}
-                      className="object-cover"
-                    />
-                    {/* バナータイトルオーバーレイ */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end">
-                      <div className="p-6 md:p-8 w-full">
-                        <h2 className="text-2xl md:text-4xl font-bold text-white mb-2">
-                          {banner.title}
-                        </h2>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs px-2 py-1 rounded ${
-                            banner.type === 'auto-generated' 
-                              ? 'bg-purple-600 text-white' 
-                              : 'bg-green-600 text-white'
-                          }`}>
-                            {banner.type === 'auto-generated' ? 'AI生成' : 'アップロード'}
-                          </span>
-                          <span className="text-white/80 text-sm">タップして詳細を見る</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-              
-              {/* バナーインジケーター */}
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
-                {mainBanners.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentBannerIndex(index)}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      index === currentBannerIndex 
-                        ? 'bg-white w-8' 
-                        : 'bg-white/50'
-                    }`}
+    <div className="min-h-screen bg-gray-50">
+      {/* ヘッダー */}
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <h1 className="text-2xl font-bold text-gray-900">ACEORIPA GACHA</h1>
+            <nav className="flex space-x-4">
+              <Link href="/mypage" className="text-gray-700 hover:text-gray-900">
+                マイページ
+              </Link>
+              <Link href="/collection" className="text-gray-700 hover:text-gray-900">
+                コレクション
+              </Link>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      {/* PRバナースライダー */}
+      <section className="bg-white py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Swiper
+            modules={[Autoplay, Navigation, Pagination]}
+            spaceBetween={20}
+            slidesPerView={1}
+            navigation
+            pagination={{ clickable: true }}
+            autoplay={{
+              delay: 3000,
+              disableOnInteraction: false,
+            }}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              768: { slidesPerView: 3 },
+              1024: { slidesPerView: 4 },
+              1280: { slidesPerView: 5 },
+            }}
+            className="pr-banner-swiper"
+          >
+            {prBanners.map((banner) => (
+              <SwiperSlide key={banner.id}>
+                <div className="relative aspect-square">
+                  <Image
+                    src={banner.imageUrl}
+                    alt={banner.title}
+                    fill
+                    className="object-cover rounded-lg"
                   />
-                ))}
-              </div>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      </section>
+
+      {/* お知らせ */}
+      <section className="bg-yellow-50 py-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="overflow-hidden">
+            <div className="animate-marquee whitespace-nowrap">
+              <span className="text-gray-800 mx-4">
+                🎉 新ガチャ「レジェンドコレクション」登場！
+              </span>
+              <span className="text-gray-800 mx-4">
+                📢 期間限定！SSR確率2倍キャンペーン実施中
+              </span>
+              <span className="text-gray-800 mx-4">
+                🎁 毎日ログインで無料ガチャチケットプレゼント
+              </span>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* メインガチャボタン - スマホファースト */}
-        <section className="px-4 py-8">
-          <Link href="/gacha" className="block max-w-md mx-auto">
-            <button className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white text-2xl font-bold py-6 rounded-2xl shadow-lg transform transition-all hover:scale-105 active:scale-95">
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-4xl">🎰</span>
-                <span>ガチャを引く</span>
-              </div>
-            </button>
-          </Link>
-        </section>
-
-        {/* ガチャタイプ選択 */}
-        <section className="px-4 pb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-            <Link href="/gacha?type=normal" className="block">
-              <div className="bg-gray-800 hover:bg-gray-700 rounded-xl p-6 text-center transition-all">
-                <div className="text-3xl mb-2">🎲</div>
-                <h3 className="text-white font-bold text-lg mb-1">通常ガチャ</h3>
-                <p className="text-gray-400 text-sm">300pt / 回</p>
-              </div>
-            </Link>
-            
-            <Link href="/gacha?type=premium" className="block">
-              <div className="bg-gradient-to-br from-purple-800 to-pink-800 hover:from-purple-700 hover:to-pink-700 rounded-xl p-6 text-center transition-all relative overflow-hidden">
-                <div className="absolute top-2 right-2 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded">
-                  おすすめ
+      {/* ガチャ一覧 */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {gachaProducts.map((gacha, index) => (
+              <div key={gacha.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                {/* ガチャ画像 */}
+                <div className="relative aspect-square max-w-4xl mx-auto">
+                  <Image
+                    src={gacha.imageUrl || `/api/placeholder/1024/1024?text=ガチャ${index + 1}`}
+                    alt={gacha.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-                <div className="text-3xl mb-2">💎</div>
-                <h3 className="text-white font-bold text-lg mb-1">プレミアム10連</h3>
-                <p className="text-white/80 text-sm">2700pt / 10回</p>
-              </div>
-            </Link>
-            
-            <Link href="/gacha?type=legend" className="block">
-              <div className="bg-gradient-to-br from-indigo-800 to-purple-800 hover:from-indigo-700 hover:to-purple-700 rounded-xl p-6 text-center transition-all">
-                <div className="text-3xl mb-2">⭐</div>
-                <h3 className="text-white font-bold text-lg mb-1">レジェンドガチャ</h3>
-                <p className="text-white/80 text-sm">500pt / 回</p>
-              </div>
-            </Link>
-          </div>
-        </section>
-
-        {/* クイックメニュー */}
-        <section className="px-4 pb-8">
-          <div className="grid grid-cols-3 gap-3 max-w-md mx-auto">
-            <Link href="/mypage" className="bg-gray-800 hover:bg-gray-700 rounded-lg p-4 text-center transition-all">
-              <div className="text-2xl mb-1">👤</div>
-              <p className="text-white text-sm">マイページ</p>
-            </Link>
-            <Link href="/history" className="bg-gray-800 hover:bg-gray-700 rounded-lg p-4 text-center transition-all">
-              <div className="text-2xl mb-1">📜</div>
-              <p className="text-white text-sm">履歴</p>
-            </Link>
-            <Link href="/shop" className="bg-gray-800 hover:bg-gray-700 rounded-lg p-4 text-center transition-all">
-              <div className="text-2xl mb-1">🛒</div>
-              <p className="text-white text-sm">ショップ</p>
-            </Link>
-          </div>
-        </section>
-
-        {/* お知らせ */}
-        <section className="px-4 pb-8">
-          <div className="max-w-2xl mx-auto">
-            <h2 className="text-xl font-bold text-white mb-4">お知らせ</h2>
-            <div className="bg-gray-800 rounded-lg p-4 space-y-3">
-              <div className="flex items-start gap-3">
-                <span className="text-yellow-500">📢</span>
-                <div>
-                  <p className="text-white font-semibold">メンテナンスのお知らせ</p>
-                  <p className="text-gray-400 text-sm">12/25 2:00〜6:00</p>
+                
+                {/* ガチャボタン（固定表示） */}
+                <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
+                  <div className="flex justify-center space-x-4">
+                    <Link
+                      href={`/gacha/${gacha.id}?count=1`}
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg transform hover:scale-105 transition"
+                    >
+                      1回
+                    </Link>
+                    <Link
+                      href={`/gacha/${gacha.id}?count=5`}
+                      className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg transform hover:scale-105 transition"
+                    >
+                      5回
+                    </Link>
+                    <Link
+                      href={`/gacha/${gacha.id}?count=10`}
+                      className="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-8 rounded-lg transform hover:scale-105 transition"
+                    >
+                      10回
+                    </Link>
+                    <Link
+                      href={`/gacha/${gacha.id}?count=custom`}
+                      className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-lg transform hover:scale-105 transition"
+                    >
+                      好きな数だけ
+                    </Link>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-start gap-3">
-                <span className="text-blue-500">🎉</span>
-                <div>
-                  <p className="text-white font-semibold">新ガチャ追加</p>
-                  <p className="text-gray-400 text-sm">レジェンドシリーズ開催中</p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
-        </section>
-
-        {/* フッター */}
-        <footer className="bg-gray-800 py-6">
-          <div className="text-center">
-            <p className="text-gray-400 text-sm">© 2024 Aceoripa ガチャ</p>
-          </div>
-        </footer>
+        )}
       </main>
-    </>
-  );
+    </div>
+  )
 }
