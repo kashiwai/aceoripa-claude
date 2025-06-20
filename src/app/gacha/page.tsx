@@ -150,17 +150,27 @@ export default function GachaPage() {
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
               {resultCards.map((card) => (
                 <div 
-                  key={card.id} 
+                  key={card.cardId} 
                   className={`relative rounded-lg overflow-hidden transform transition-all hover:scale-105 ${
                     card.rarity === 'SSR' ? 'ring-4 ring-yellow-400' :
                     card.rarity === 'SR' ? 'ring-4 ring-purple-400' :
                     card.rarity === 'R' ? 'ring-4 ring-blue-400' : ''
                   }`}
                 >
-                  <img src={card.imageUrl} alt={card.name} className="w-full h-full object-cover" />
+                  <img src={card.imageUrl} alt={card.cardName} className="w-full h-full object-cover" />
                   <div className="absolute top-2 right-2 px-2 py-1 rounded bg-black/70 text-xs font-bold">
                     {card.rarity}
                   </div>
+                  {card.isNew && (
+                    <div className="absolute bottom-2 left-2 px-2 py-1 rounded bg-red-600 text-xs font-bold">
+                      NEW!
+                    </div>
+                  )}
+                  {card.isPickup && (
+                    <div className="absolute top-2 left-2 px-2 py-1 rounded bg-yellow-600 text-xs font-bold">
+                      PICKUP
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
