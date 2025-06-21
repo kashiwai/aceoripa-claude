@@ -1,0 +1,30 @@
+{
+  "SSR": {
+    "duration": 8000,
+    "files": ["ssr-rainbow-1.png", "ssr-rainbow-2.png", "ssr-rainbow-3.png"],
+    "animation": "rainbow-spiral",
+    "sound": "ssr-legendary.mp3",
+    "vibration": [200, 100, 200, 100, 200]
+  },
+  "SR": {
+    "duration": 5000,
+    "files": ["sr-fire-1.png", "sr-fire-2.png", "sr-fire-3.png"],
+    "animation": "fire-burst",
+    "sound": "sr-epic.mp3",
+    "vibration": [150, 100, 150]
+  },
+  "R": {
+    "duration": 3000,
+    "files": ["r-water-1.png", "r-water-2.png", "r-water-3.png"],
+    "animation": "water-splash",
+    "sound": "r-rare.mp3",
+    "vibration": [100, 50, 100]
+  },
+  "N": {
+    "duration": 2000,
+    "files": ["n-light-1.png", "n-light-2.png"],
+    "animation": "light-glow",
+    "sound": "n-common.mp3",
+    "vibration": [50]
+  }
+}

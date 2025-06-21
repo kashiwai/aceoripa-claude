@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACEORIPA バナー画像ギャラリー</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #FFD700, #FF6B6B);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .image-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .image-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .image-preview {
+            width: 100%;
+            max-width: 250px;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .image-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #FFD700;
+        }
+        .image-specs {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+        .download-links {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .download-link {
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .png-link {
+            background: linear-gradient(45deg, #4ECDC4, #44A08D);
+            color: white;
+        }
+        .png-link:hover {
+            background: linear-gradient(45deg, #44A08D, #4ECDC4);
+            transform: scale(1.05);
+        }
+        .jpg-link {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+        }
+        .jpg-link:hover {
+            background: linear-gradient(45deg, #FF8E53, #FF6B6B);
+            transform: scale(1.05);
+        }
+        .path-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .bulk-download {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+        .bulk-btn {
+            background: linear-gradient(45deg, #8B5CF6, #EC4899);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        .bulk-btn:hover {
+            background: linear-gradient(45deg, #EC4899, #8B5CF6);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 ACEORIPA バナー画像ギャラリー</h1>
+        <p class="subtitle">メインプロジェクトで使用可能な高品質バナー画像</p>
+        
+        <div class="gallery-grid">
+            <!-- ポケモンカード151オリパ -->
+            <div class="image-card">
+                <img src="ポケモンカード151オリパ.png" alt="ポケモンカード151オリパ" class="image-preview">
+                <div class="image-title">🔥 ポケモンカード151オリパ</div>
+                <div class="image-specs">400×600px | カードパック風デザイン</div>
+                <div class="download-links">
+                    <a href="ポケモンカード151オリパ.png" download class="download-link png-link">PNG</a>
+                    <a href="ポケモンカード151オリパ.jpg" download class="download-link jpg-link">JPG</a>
+                </div>
+            </div>
+
+            <!-- ワンピース頂上決戦オリパ -->
+            <div class="image-card">
+                <img src="ワンピース頂上決戦オリパ.png" alt="ワンピース頂上決戦オリパ" class="image-preview">
+                <div class="image-title">🏴‍☠️ ワンピース頂上決戦オリパ</div>
+                <div class="image-specs">400×600px | 海賊テーマデザイン</div>
+                <div class="download-links">
+                    <a href="ワンピース頂上決戦オリパ.png" download class="download-link png-link">PNG</a>
+                    <a href="ワンピース頂上決戦オリパ.jpg" download class="download-link jpg-link">JPG</a>
+                </div>
+            </div>
+
+            <!-- 遊戯王レアコレオリパ -->
+            <div class="image-card">
+                <img src="遊戯王レアコレオリパ.png" alt="遊戯王レアコレオリパ" class="image-preview">
+                <div class="image-title">🎴 遊戯王レアコレオリパ</div>
+                <div class="image-specs">400×600px | 神秘的デザイン</div>
+                <div class="download-links">
+                    <a href="遊戯王レアコレオリパ.png" download class="download-link png-link">PNG</a>
+                    <a href="遊戯王レアコレオリパ.jpg" download class="download-link jpg-link">JPG</a>
+                </div>
+            </div>
+
+            <!-- メインキャンペーンバナー -->
+            <div class="image-card">
+                <img src="メインキャンペーンバナー.png" alt="メインキャンペーンバナー" class="image-preview">
+                <div class="image-title">🎊 メインキャンペーンバナー</div>
+                <div class="image-specs">375×200px | ヘッダー用横長</div>
+                <div class="download-links">
+                    <a href="メインキャンペーンバナー.png" download class="download-link png-link">PNG</a>
+                    <a href="メインキャンペーンバナー.jpg" download class="download-link jpg-link">JPG</a>
+                </div>
+            </div>
+
+            <!-- LINE友達登録バナー -->
+            <div class="image-card">
+                <img src="LINE友達登録バナー.png" alt="LINE友達登録バナー" class="image-preview">
+                <div class="image-title">📱 LINE友達登録バナー</div>
+                <div class="image-specs">375×80px | プロモーション用</div>
+                <div class="download-links">
+                    <a href="LINE友達登録バナー.png" download class="download-link png-link">PNG</a>
+                    <a href="LINE友達登録バナー.jpg" download class="download-link jpg-link">JPG</a>
+                </div>
+            </div>
+
+            <!-- SNS当選報告サンプル -->
+            <div class="image-card">
+                <img src="SNS当選報告サンプル.png" alt="SNS当選報告サンプル" class="image-preview">
+                <div class="image-title">🏆 SNS当選報告サンプル</div>
+                <div class="image-specs">200×200px | 正方形カード</div>
+                <div class="download-links">
+                    <a href="SNS当選報告サンプル.png" download class="download-link png-link">PNG</a>
+                    <a href="SNS当選報告サンプル.jpg" download class="download-link jpg-link">JPG</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bulk-download">
+            <h3>📦 一括ダウンロード</h3>
+            <button class="bulk-btn" onclick="downloadAllPng()">🖼️ 全PNG画像</button>
+            <button class="bulk-btn" onclick="downloadAllJpg()">📷 全JPG画像</button>
+            <button class="bulk-btn" onclick="downloadAll()">📁 全画像</button>
+        </div>
+
+        <div class="path-info">
+            <h4>📂 ファイルパス情報</h4>
+            <p><strong>メインサイト:</strong> http://localhost:9012</p>
+            <p><strong>画像フォルダ:</strong> /public/images/</p>
+            <p><strong>アクセスURL:</strong> http://localhost:9012/images/[ファイル名]</p>
+            <p><strong>Next.js内での参照:</strong> /images/[ファイル名]</p>
+        </div>
+    </div>
+
+    <script>
+        function downloadAllPng() {
+            const pngFiles = [
+                'ポケモンカード151オリパ.png',
+                'ワンピース頂上決戦オリパ.png',
+                '遊戯王レアコレオリパ.png',
+                'メインキャンペーンバナー.png',
+                'LINE友達登録バナー.png',
+                'SNS当選報告サンプル.png'
+            ];
+            downloadFiles(pngFiles, 'PNG');
+        }
+
+        function downloadAllJpg() {
+            const jpgFiles = [
+                'ポケモンカード151オリパ.jpg',
+                'ワンピース頂上決戦オリパ.jpg',
+                '遊戯王レアコレオリパ.jpg',
+                'メインキャンペーンバナー.jpg',
+                'LINE友達登録バナー.jpg',
+                'SNS当選報告サンプル.jpg'
+            ];
+            downloadFiles(jpgFiles, 'JPG');
+        }
+
+        function downloadAll() {
+            const allFiles = [
+                'ポケモンカード151オリパ.png', 'ポケモンカード151オリパ.jpg',
+                'ワンピース頂上決戦オリパ.png', 'ワンピース頂上決戦オリパ.jpg',
+                '遊戯王レアコレオリパ.png', '遊戯王レアコレオリパ.jpg',
+                'メインキャンペーンバナー.png', 'メインキャンペーンバナー.jpg',
+                'LINE友達登録バナー.png', 'LINE友達登録バナー.jpg',
+                'SNS当選報告サンプル.png', 'SNS当選報告サンプル.jpg'
+            ];
+            downloadFiles(allFiles, '全画像');
+        }
+
+        function downloadFiles(files, type) {
+            files.forEach((filename, index) => {
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = filename;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }, index * 300);
+            });
+            alert(`📥 ${type}ファイル（${files.length}個）のダウンロードを開始しました！`);
+        }
+    </script>
+</body>
+</html>
