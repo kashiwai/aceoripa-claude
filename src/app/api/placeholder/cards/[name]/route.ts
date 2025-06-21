@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 // カード画像のプレースホルダーを生成
 export async function GET(
   request: NextRequest,
-  { params }: { params: { name: string } }
+  { params }: { params: Promise<{ name: string }> }
 ) {
-  const cardName = params.name || 'card';
+  const { name } = await params;
+  const cardName = name || 'card';
   
   // レアリティに基づいた色を決定
   const rarityColors = {

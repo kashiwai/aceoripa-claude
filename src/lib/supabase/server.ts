@@ -9,16 +9,23 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return cookieStore.getAll()
+        get(name: string) {
+          return cookieStore.get(name)?.value
         },
-        setAll(cookiesToSet) {
+        set(name: string, value: string, options?: any) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
+            cookieStore.set(name, value, options)
           } catch {
-            // The `setAll` method is called from Server Components.
+            // The `set` method is called from Server Components.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+        remove(name: string, options?: any) {
+          try {
+            cookieStore.delete(name)
+          } catch {
+            // The `remove` method is called from Server Components.
             // This can be ignored if you have middleware refreshing
             // user sessions.
           }

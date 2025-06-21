@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createBrowserClient } from '@supabase/ssr'
 import { toast } from 'react-hot-toast'
+import { createClient } from '@/lib/supabase/client'
 
 export default function NewGachaPage() {
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   const [isLoading, setIsLoading] = useState(false)
   
   const [formData, setFormData] = useState({

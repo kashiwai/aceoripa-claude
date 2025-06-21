@@ -47,7 +47,7 @@ export default function NotificationsPage() {
   const [formData, setFormData] = useState({
     title: '',
     body: '',
-    target_type: 'all' as const,
+    target_type: 'all' as 'all' | 'specific' | 'segment',
     target_users: [] as string[],
     target_segment: '',
     scheduled_at: ''
@@ -222,7 +222,7 @@ export default function NotificationsPage() {
           id: notification.id,
           title: notification.title,
           body: notification.body,
-          target_type: notification.target_type,
+          target_type: notification.target_type as 'all' | 'specific' | 'segment',
           target_users: notification.target_users,
           target_segment: notification.target_segment
         }),
@@ -297,7 +297,7 @@ export default function NotificationsPage() {
     setFormData({
       title: notification.title,
       body: notification.body,
-      target_type: notification.target_type,
+      target_type: notification.target_type as 'all' | 'specific' | 'segment',
       target_users: notification.target_users || [],
       target_segment: notification.target_segment || '',
       scheduled_at: notification.scheduled_at ? notification.scheduled_at.split('T')[0] : ''

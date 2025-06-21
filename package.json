@@ -24,6 +24,7 @@
     "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.39.0",
     "@tailwindcss/postcss": "^4.1.10",
+    "canvas-confetti": "^1.9.3",
     "framer-motion": "^12.18.1",
     "google-auth-library": "^9.15.0",
     "lottie-react": "^2.4.1",

@@ -32,8 +32,8 @@ export default function AnnouncementsPage() {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    type: 'news' as const,
-    status: 'draft' as const,
+    type: 'news' as 'news' | 'campaign' | 'maintenance' | 'important',
+    status: 'draft' as 'draft' | 'published' | 'archived',
     publish_date: '',
     end_date: '',
     priority: 1,
@@ -139,8 +139,8 @@ export default function AnnouncementsPage() {
     setFormData({
       title: announcement.title,
       content: announcement.content,
-      type: announcement.type,
-      status: announcement.status,
+      type: announcement.type as 'news' | 'campaign' | 'maintenance' | 'important',
+      status: announcement.status as 'draft' | 'published' | 'archived',
       publish_date: announcement.publish_date.split('T')[0],
       end_date: announcement.end_date ? announcement.end_date.split('T')[0] : '',
       priority: announcement.priority,

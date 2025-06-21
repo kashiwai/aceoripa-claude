@@ -13,6 +13,8 @@ interface Banner {
   accentColor: string;
   image?: string;
   featured?: boolean;
+  fontClass?: string;
+  titleClass?: string;
 }
 
 const banners: Banner[] = [

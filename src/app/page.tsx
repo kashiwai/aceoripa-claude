@@ -22,29 +22,29 @@ export default function HomePage() {
       title: 'ポケモンカード151', 
       subtitle: 'リザードンex確率UP!', 
       color: 'bg-gradient-to-r from-red-500 to-orange-500',
-      image: '/api/placeholder/banners/pokemon-151'
+      image: 'https://placehold.co/1200x500/FF6B6B/FFFFFF?text=Pokemon+151+Campaign'
     },
     { 
       id: 2, 
       title: 'シャイニートレジャー', 
       subtitle: 'SSR確定オリパ', 
       color: 'bg-gradient-to-r from-yellow-400 to-red-500',
-      image: '/api/placeholder/banners/shiny-treasure'
+      image: 'https://placehold.co/1200x500/FFD700/333333?text=Shiny+Treasure+SSR'
     },
     { 
       id: 3, 
       title: '期間限定', 
       subtitle: '10連ガチャ20%OFF', 
       color: 'bg-gradient-to-r from-red-600 to-pink-500',
-      image: '/api/placeholder/banners/limited-time'
+      image: 'https://placehold.co/1200x500/FF1493/FFFFFF?text=Limited+Time+20%25+OFF'
     },
   ]
 
   const gachaProducts = [
-    { id: 1, name: 'ポケモン151オリパ', price: 800, image: '/api/placeholder/300/400' },
-    { id: 2, name: 'シャイニートレジャー', price: 1200, image: '/api/placeholder/300/400' },
-    { id: 3, name: 'クラシックオリパ', price: 500, image: '/api/placeholder/300/400' },
-    { id: 4, name: 'プレミアムオリパ', price: 2000, image: '/api/placeholder/300/400' },
+    { id: 1, name: 'ポケモン151オリパ', price: 800, image: 'https://placehold.co/300x400/FF6B6B/FFFFFF?text=Pokemon+151' },
+    { id: 2, name: 'シャイニートレジャー', price: 1200, image: 'https://placehold.co/300x400/FFD700/333333?text=Shiny+Treasure' },
+    { id: 3, name: 'クラシックオリパ', price: 500, image: 'https://placehold.co/300x400/4169E1/FFFFFF?text=Classic+Pack' },
+    { id: 4, name: 'プレミアムオリパ', price: 2000, image: 'https://placehold.co/300x400/9400D3/FFFFFF?text=Premium+Pack' },
   ]
 
   return (

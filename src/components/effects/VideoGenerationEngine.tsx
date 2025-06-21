@@ -13,19 +13,21 @@ export interface GachaResult {
   animationType?: string;
 }
 
+type Transform = {
+  x: number;
+  y: number;
+  scale: number;
+  rotation: number;
+  opacity: number;
+};
+
 interface AnimationLayer {
   type: 'background' | 'object' | 'effect' | 'ui';
   asset: string;
-  transform: {
-    x: number;
-    y: number;
-    scale: number;
-    rotation: number;
-    opacity: number;
-  };
+  transform: Transform;
   animation?: {
-    from: Partial<typeof transform>;
-    to: Partial<typeof transform>;
+    from: Partial<Transform>;
+    to: Partial<Transform>;
     easing: string;
   };
 }

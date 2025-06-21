@@ -148,8 +148,14 @@ export default function GachaPage() {
       {showVideo && (
         <div className="fixed inset-0 z-40 bg-black">
           <GachaVideoPlayer
-            videoUrl="/api/placeholder/video"
-            rarity="SSR"
+            result={{
+              rarity: 'SSR',
+              item: {
+                id: 'temp-id',
+                name: 'テストカード',
+                imageUrl: '/api/placeholder/300/400'
+              }
+            }}
             onComplete={handleVideoComplete}
           />
         </div>

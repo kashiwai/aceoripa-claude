@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createBrowserClient } from '@supabase/ssr'
 import { toast } from 'react-hot-toast'
 
@@ -94,9 +95,9 @@ export default function AdminLogin() {
         </form>
 
         <div className="mt-6 text-center">
-          <a href="/" className="text-sm text-gray-600 hover:text-gray-800">
+          <Link href="/" className="text-sm text-gray-600 hover:text-gray-800">
             ← ユーザー画面に戻る
-          </a>
+          </Link>
         </div>
 
         {/* 開発環境用のヒント */}

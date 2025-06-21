@@ -157,7 +157,7 @@ async function executeGachaDraw(gachaItems: any[], guaranteeSR = false) {
     }
 
     // 選択されたレアリティからランダム選択
-    const availableItems = itemsByRarity[selectedRarity] || []
+    let availableItems = itemsByRarity[selectedRarity] || []
     if (!availableItems.length) {
       // フォールバック：N確定
       selectedRarity = 'N'

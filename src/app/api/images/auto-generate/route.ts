@@ -127,7 +127,7 @@ export async function GET() {
 
     // ガチャ画像とバナー画像を生成
     const allConfigs = [...predefinedGachas, ...bannerConfigs]
-    const results = await batchGenerateImages(allConfigs)
+    const results = await batchGenerateImages(allConfigs as { type: "banner" | "card" | "gacha"; config: any; }[])
 
     return NextResponse.json({
       success: true,

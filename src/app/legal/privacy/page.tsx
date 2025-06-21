@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -254,12 +256,12 @@ export default function PrivacyPage() {
         </div>
 
         <div className="mt-8 text-center">
-          <a
+          <Link
             href="/"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
           >
             ← トップページに戻る
-          </a>
+          </Link>
         </div>
       </div>
     </div>
