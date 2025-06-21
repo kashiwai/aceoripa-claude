@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p $PORT",
+    "gcp-build": "npm run build",
     "lint": "next lint",
     "test": "node tests/api.test.js",
     "test:frontend": "open tests/frontend.test.html",
