@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // output: 'standalone', // Netlifyでは不要
   reactStrictMode: true,
   // 画像の外部ドメイン許可（AI生成画像用）
   images: {
