@@ -54,9 +54,10 @@ async function getStats() {
 export default async function CardsPage({
   searchParams
 }: {
-  searchParams: { page?: string }
+  searchParams: Promise<{ page?: string }>
 }) {
-  const currentPage = Number(searchParams.page) || 1
+  const resolvedSearchParams = await searchParams
+  const currentPage = Number(resolvedSearchParams.page) || 1
   const { cards, totalCount, totalPages } = await getCards(currentPage)
   const stats = await getStats()
   

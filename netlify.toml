@@ -1,11 +1,9 @@
-# netlify.toml - Netlify デプロイ設定
 [build]
   command = "npm run build"
   publish = ".next"
-  
+
 [build.environment]
-  NODE_VERSION = "18"
-  NPM_VERSION = "9"
+  NEXT_TELEMETRY_DISABLED = "1"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -15,17 +13,14 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
-[dev]
-  command = "npm run dev"
-  port = 9000
-  publish = "dist"
-
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.squareup.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://connect.squareup.com ws://localhost:* wss://localhost:*;"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["src/**"]

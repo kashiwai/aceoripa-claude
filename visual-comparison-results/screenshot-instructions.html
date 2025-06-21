@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スクリーンショット撮影手順</title>
+  <style>
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #f9f9f9;
+    }
+    .instruction-card {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .step {
+      background: #FF0033;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 15px;
+    }
+    code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .important {
+      background: #fffbeb;
+      border: 2px solid #FFD700;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>📸 画像レポート用スクリーンショット撮影手順</h1>
+  
+  <div class="instruction-card">
+    <h2><span class="step">1</span>DOPAサイト撮影</h2>
+    <p>1. ブラウザで <code>https://dopa-game.jp/</code> を開く</p>
+    <p>2. ページが完全に読み込まれるまで待機</p>
+    <p>3. <kbd>Command + Shift + 4</kbd> を押す</p>
+    <p>4. カーソルが十字になったら、画面全体をドラッグして選択</p>
+    <p>5. ファイル名: <code>dopa-site-screenshot.png</code></p>
+  </div>
+  
+  <div class="instruction-card">
+    <h2><span class="step">2</span>ACEORIPAサイト撮影</h2>
+    <p>1. ブラウザで <code>http://localhost:3001</code> を開く</p>
+    <p>2. ページが完全に読み込まれるまで待機（パーティクルエフェクト確認）</p>
+    <p>3. <kbd>Command + Shift + 4</kbd> を押す</p>
+    <p>4. カーソルが十字になったら、画面全体をドラッグして選択</p>
+    <p>5. ファイル名: <code>aceoripa-site-screenshot.png</code></p>
+  </div>
+  
+  <div class="instruction-card">
+    <h2><span class="step">3</span>ファイル保存</h2>
+    <p>撮影した画像を以下のフォルダに保存:</p>
+    <code>/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/visual-comparison-results/</code>
+  </div>
+  
+  <div class="important">
+    <h3>🎯 重要: 撮影タイミング</h3>
+    <p>• DOPAサイト: メインページが完全表示された状態</p>
+    <p>• ACEORIPAサイト: ローディング完了後、パーティクルエフェクトが動作している状態</p>
+    <p>• 両方とも同じようなサイズ・位置で撮影</p>
+  </div>
+  
+  <h2>📊 撮影完了後</h2>
+  <p>スクリーンショット撮影完了後、以下を実行:</p>
+  <code>node scripts/finalize-visual-report.js</code>
+  
+</body>
+</html>
+  

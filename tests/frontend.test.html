@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フロントエンド テストページ</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        .test-button:hover {
+            transform: scale(1.05);
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success {
+            background: rgba(34, 197, 94, 0.2);
+            border-left: 4px solid #22c55e;
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            border-left: 4px solid #ef4444;
+        }
+        .info {
+            background: rgba(59, 130, 246, 0.2);
+            border-left: 4px solid #3b82f6;
+        }
+        .device-simulator {
+            border: 2px solid #333;
+            border-radius: 10px;
+            margin: 10px;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .device-simulator iframe {
+            border: none;
+        }
+        .device-label {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-size: 12px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Aceoripa ポケモンガチャサイト フロントエンドテスト</h1>
+        
+        <!-- テスト統計 -->
+        <div class="test-section">
+            <h2>📊 テスト統計</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalTests">0</div>
+                    <div>総テスト数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="passedTests">0</div>
+                    <div>成功</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="failedTests">0</div>
+                    <div>失敗</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="successRate">0%</div>
+                    <div>成功率</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- レスポンシブテスト -->
+        <div class="test-section">
+            <h2>📱 TC-F002: レスポンシブデザインテスト</h2>
+            <p>各デバイスサイズでのサイト表示を確認します</p>
+            
+            <button class="test-button" onclick="testResponsive()">レスポンシブテスト開始</button>
+            <button class="test-button" onclick="clearDevices()">画面クリア</button>
+            
+            <div id="deviceContainer"></div>
+            <div id="responsiveResults"></div>
+        </div>
+
+        <!-- パフォーマンステスト -->
+        <div class="test-section">
+            <h2>⚡ TC-P001: パフォーマンステスト</h2>
+            <p>ページの読み込み速度とレンダリング性能を測定します</p>
+            
+            <button class="test-button" onclick="testPerformance()">パフォーマンステスト開始</button>
+            <div id="performanceResults"></div>
+        </div>
+
+        <!-- DOM要素テスト -->
+        <div class="test-section">
+            <h2>🔍 TC-F003: DOM要素存在テスト</h2>
+            <p>重要なUI要素の存在を確認します</p>
+            
+            <button class="test-button" onclick="testDOMElements()">DOM要素テスト開始</button>
+            <div id="domResults"></div>
+        </div>
+
+        <!-- 通知システムテスト -->
+        <div class="test-section">
+            <h2>🔔 TC-F005: 通知システムテスト</h2>
+            <p>プッシュ通知の動作を確認します</p>
+            
+            <button class="test-button" onclick="testNotifications()">通知テスト開始</button>
+            <div id="notificationResults"></div>
+        </div>
+
+        <!-- アニメーションテスト -->
+        <div class="test-section">
+            <h2>✨ アニメーション・エフェクトテスト</h2>
+            <p>CSS アニメーションとトランジションの動作を確認します</p>
+            
+            <button class="test-button" onclick="testAnimations()">アニメーションテスト開始</button>
+            <div id="animationResults"></div>
+        </div>
+
+        <!-- アクセシビリティテスト -->
+        <div class="test-section">
+            <h2>♿ アクセシビリティテスト</h2>
+            <p>キーボードナビゲーションと ARIA 属性を確認します</p>
+            
+            <button class="test-button" onclick="testAccessibility()">アクセシビリティテスト開始</button>
+            <div id="accessibilityResults"></div>
+        </div>
+    </div>
+
+    <script>
+        let testStats = {
+            total: 0,
+            passed: 0,
+            failed: 0
+        };
+
+        // 結果表示関数
+        function showResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = `
+                <strong>${new Date().toLocaleTimeString()}</strong> - ${message}
+            `;
+            container.appendChild(resultDiv);
+            
+            // 統計更新
+            testStats.total++;
+            if (type === 'success') testStats.passed++;
+            if (type === 'error') testStats.failed++;
+            updateStats();
+        }
+
+        // 統計更新
+        function updateStats() {
+            document.getElementById('totalTests').textContent = testStats.total;
+            document.getElementById('passedTests').textContent = testStats.passed;
+            document.getElementById('failedTests').textContent = testStats.failed;
+            const rate = testStats.total > 0 ? Math.round((testStats.passed / testStats.total) * 100) : 0;
+            document.getElementById('successRate').textContent = rate + '%';
+        }
+
+        // TC-F002: レスポンシブデザインテスト
+        function testResponsive() {
+            const devices = [
+                { name: 'iPhone SE', width: 375, height: 667 },
+                { name: 'iPhone 12 Pro', width: 414, height: 896 },
+                { name: 'iPad', width: 768, height: 1024 },
+                { name: 'Desktop', width: 1024, height: 768 },
+                { name: 'Large Desktop', width: 1280, height: 800 }
+            ];
+
+            const container = document.getElementById('deviceContainer');
+            container.innerHTML = '';
+
+            devices.forEach(device => {
+                const deviceDiv = document.createElement('div');
+                deviceDiv.className = 'device-simulator';
+                deviceDiv.innerHTML = `
+                    <div class="device-label">${device.name} (${device.width}×${device.height})</div>
+                    <iframe 
+                        src="http://localhost:3000" 
+                        width="${device.width}" 
+                        height="${device.height}"
+                        style="transform: scale(0.3); transform-origin: top left; width: ${device.width / 0.3}px; height: ${device.height / 0.3}px;"
+                    ></iframe>
+                `;
+                container.appendChild(deviceDiv);
+                
+                showResult('responsiveResults', `${device.name} (${device.width}×${device.height}) の表示テスト完了`, 'success');
+            });
+        }
+
+        function clearDevices() {
+            document.getElementById('deviceContainer').innerHTML = '';
+        }
+
+        // TC-P001: パフォーマンステスト
+        async function testPerformance() {
+            try {
+                // Performance API を使用してページパフォーマンスを測定
+                const perfData = performance.getEntriesByType('navigation')[0];
+                
+                if (perfData) {
+                    const loadTime = perfData.loadEventEnd - perfData.loadEventStart;
+                    const domContentLoaded = perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart;
+                    const firstPaint = performance.getEntriesByType('paint')[0]?.startTime || 0;
+                    
+                    showResult('performanceResults', `ページ読み込み時間: ${loadTime.toFixed(2)}ms`, loadTime < 3000 ? 'success' : 'error');
+                    showResult('performanceResults', `DOM構築時間: ${domContentLoaded.toFixed(2)}ms`, domContentLoaded < 1000 ? 'success' : 'error');
+                    showResult('performanceResults', `First Paint: ${firstPaint.toFixed(2)}ms`, firstPaint < 1500 ? 'success' : 'error');
+                } else {
+                    showResult('performanceResults', 'Performance API データが取得できませんでした', 'error');
+                }
+
+                // メモリ使用量（対応ブラウザのみ）
+                if (performance.memory) {
+                    const memoryMB = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
+                    showResult('performanceResults', `メモリ使用量: ${memoryMB}MB`, memoryMB < 50 ? 'success' : 'error');
+                }
+
+            } catch (error) {
+                showResult('performanceResults', `パフォーマンステストエラー: ${error.message}`, 'error');
+            }
+        }
+
+        // TC-F003: DOM要素存在テスト
+        function testDOMElements() {
+            const targetUrl = 'http://localhost:3000';
+            const iframe = document.createElement('iframe');
+            iframe.src = targetUrl;
+            iframe.style.display = 'none';
+            
+            iframe.onload = function() {
+                try {
+                    const doc = iframe.contentDocument || iframe.contentWindow.document;
+                    
+                    // 重要な要素のセレクタ
+                    const criticalElements = [
+                        { selector: 'header', name: 'ヘッダー' },
+                        { selector: 'h1', name: 'メインタイトル' },
+                        { selector: '[class*="swiper"]', name: 'バナースライダー' },
+                        { selector: '[class*="marquee"]', name: 'マーキーテキスト' },
+                        { selector: 'main', name: 'メインコンテンツ' },
+                        { selector: 'footer', name: 'フッター' },
+                        { selector: 'button', name: 'ボタン要素' }
+                    ];
+
+                    criticalElements.forEach(element => {
+                        const found = doc.querySelector(element.selector);
+                        if (found) {
+                            showResult('domResults', `✅ ${element.name}が見つかりました`, 'success');
+                        } else {
+                            showResult('domResults', `❌ ${element.name}が見つかりません`, 'error');
+                        }
+                    });
+
+                    // ポケモン関連テキストの確認
+                    const bodyText = doc.body.textContent || '';
+                    const pokemonKeywords = ['ポケモン', 'ガチャ', 'オリパ', 'カード'];
+                    
+                    pokemonKeywords.forEach(keyword => {
+                        if (bodyText.includes(keyword)) {
+                            showResult('domResults', `✅ キーワード「${keyword}」が見つかりました`, 'success');
+                        } else {
+                            showResult('domResults', `❌ キーワード「${keyword}」が見つかりません`, 'error');
+                        }
+                    });
+
+                } catch (error) {
+                    showResult('domResults', `DOM要素テストエラー: ${error.message}`, 'error');
+                } finally {
+                    document.body.removeChild(iframe);
+                }
+            };
+
+            iframe.onerror = function() {
+                showResult('domResults', 'サイトへの接続に失敗しました', 'error');
+                document.body.removeChild(iframe);
+            };
+
+            document.body.appendChild(iframe);
+        }
+
+        // TC-F005: 通知システムテスト
+        async function testNotifications() {
+            try {
+                // Service Worker サポートチェック
+                if ('serviceWorker' in navigator) {
+                    showResult('notificationResults', '✅ Service Worker サポート確認', 'success');
+                } else {
+                    showResult('notificationResults', '❌ Service Worker がサポートされていません', 'error');
+                    return;
+                }
+
+                // 通知許可状態チェック
+                if ('Notification' in window) {
+                    const permission = Notification.permission;
+                    showResult('notificationResults', `通知許可状態: ${permission}`, permission === 'granted' ? 'success' : 'info');
+                    
+                    if (permission === 'default') {
+                        showResult('notificationResults', '通知許可をリクエストしています...', 'info');
+                        const result = await Notification.requestPermission();
+                        showResult('notificationResults', `通知許可結果: ${result}`, result === 'granted' ? 'success' : 'error');
+                    }
+
+                    // テスト通知の送信
+                    if (Notification.permission === 'granted') {
+                        new Notification('🎮 Aceoripa テスト通知', {
+                            body: 'フロントエンドテストが正常に動作しています！',
+                            icon: '/favicon.ico',
+                            tag: 'test-notification'
+                        });
+                        showResult('notificationResults', '✅ テスト通知を送信しました', 'success');
+                    }
+                } else {
+                    showResult('notificationResults', '❌ Notification API がサポートされていません', 'error');
+                }
+
+            } catch (error) {
+                showResult('notificationResults', `通知テストエラー: ${error.message}`, 'error');
+            }
+        }
+
+        // アニメーションテスト
+        function testAnimations() {
+            try {
+                // CSS Animation サポートチェック
+                const testElement = document.createElement('div');
+                testElement.style.animation = 'test 1s';
+                
+                if (testElement.style.animation) {
+                    showResult('animationResults', '✅ CSS Animation サポート確認', 'success');
+                } else {
+                    showResult('animationResults', '❌ CSS Animation がサポートされていません', 'error');
+                }
+
+                // CSS Transform サポートチェック
+                testElement.style.transform = 'scale(1.5)';
+                if (testElement.style.transform) {
+                    showResult('animationResults', '✅ CSS Transform サポート確認', 'success');
+                } else {
+                    showResult('animationResults', '❌ CSS Transform がサポートされていません', 'error');
+                }
+
+                // Intersection Observer サポートチェック
+                if ('IntersectionObserver' in window) {
+                    showResult('animationResults', '✅ Intersection Observer サポート確認', 'success');
+                } else {
+                    showResult('animationResults', '❌ Intersection Observer がサポートされていません', 'error');
+                }
+
+                // requestAnimationFrame サポートチェック
+                if ('requestAnimationFrame' in window) {
+                    showResult('animationResults', '✅ requestAnimationFrame サポート確認', 'success');
+                } else {
+                    showResult('animationResults', '❌ requestAnimationFrame がサポートされていません', 'error');
+                }
+
+            } catch (error) {
+                showResult('animationResults', `アニメーションテストエラー: ${error.message}`, 'error');
+            }
+        }
+
+        // アクセシビリティテスト
+        function testAccessibility() {
+            try {
+                const iframe = document.createElement('iframe');
+                iframe.src = 'http://localhost:3000';
+                iframe.style.display = 'none';
+                
+                iframe.onload = function() {
+                    try {
+                        const doc = iframe.contentDocument || iframe.contentWindow.document;
+                        
+                        // Alt属性チェック
+                        const images = doc.querySelectorAll('img');
+                        let imagesWithAlt = 0;
+                        images.forEach(img => {
+                            if (img.alt) imagesWithAlt++;
+                        });
+                        
+                        if (images.length > 0) {
+                            const altPercentage = Math.round((imagesWithAlt / images.length) * 100);
+                            showResult('accessibilityResults', 
+                                `画像のAlt属性: ${imagesWithAlt}/${images.length} (${altPercentage}%)`,
+                                altPercentage >= 80 ? 'success' : 'error'
+                            );
+                        }
+
+                        // ヘッディング構造チェック
+                        const headings = doc.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                        showResult('accessibilityResults', 
+                            `ヘッディング数: ${headings.length}`,
+                            headings.length > 0 ? 'success' : 'error'
+                        );
+
+                        // フォーカス可能要素チェック
+                        const focusableElements = doc.querySelectorAll(
+                            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                        );
+                        showResult('accessibilityResults', 
+                            `フォーカス可能要素: ${focusableElements.length}`,
+                            focusableElements.length > 0 ? 'success' : 'error'
+                        );
+
+                        // ARIA属性チェック
+                        const ariaElements = doc.querySelectorAll('[aria-label], [aria-labelledby], [aria-describedby], [role]');
+                        showResult('accessibilityResults', 
+                            `ARIA属性要素: ${ariaElements.length}`,
+                            ariaElements.length > 0 ? 'success' : 'info'
+                        );
+
+                    } catch (error) {
+                        showResult('accessibilityResults', `アクセシビリティテストエラー: ${error.message}`, 'error');
+                    } finally {
+                        document.body.removeChild(iframe);
+                    }
+                };
+
+                iframe.onerror = function() {
+                    showResult('accessibilityResults', 'サイトへの接続に失敗しました', 'error');
+                    document.body.removeChild(iframe);
+                };
+
+                document.body.appendChild(iframe);
+
+            } catch (error) {
+                showResult('accessibilityResults', `アクセシビリティテストエラー: ${error.message}`, 'error');
+            }
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            showResult('domResults', 'フロントエンドテストページが読み込まれました', 'success');
+            updateStats();
+        });
+    </script>
+</body>
+</html>

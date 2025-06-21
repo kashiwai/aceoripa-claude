@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { toast } from 'react-hot-toast'
-import { TruckIcon, PackageIcon, CheckCircleIcon, XCircleIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import { TruckIcon, ArchiveBoxIcon, CheckCircleIcon, XCircleIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 interface Shipment {
   id: string
@@ -309,7 +309,7 @@ export default function ShipmentsPage() {
           onClick={exportShipments}
           className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center gap-2"
         >
-          <PackageIcon className="h-5 w-5" />
+          <ArchiveBoxIcon className="h-5 w-5" />
           CSVエクスポート
         </button>
       </div>
@@ -366,8 +366,8 @@ export default function ShipmentsPage() {
             <div key={status} className="bg-white p-4 rounded-lg shadow">
               <div className="flex items-center">
                 <div className={`p-2 rounded-full ${getStatusColor(status)}`}>
-                  {status === 'pending' && <PackageIcon className="h-6 w-6" />}
-                  {status === 'preparing' && <PackageIcon className="h-6 w-6" />}
+                  {status === 'pending' && <ArchiveBoxIcon className="h-6 w-6" />}
+                  {status === 'preparing' && <ArchiveBoxIcon className="h-6 w-6" />}
                   {status === 'shipped' && <TruckIcon className="h-6 w-6" />}
                   {status === 'delivered' && <CheckCircleIcon className="h-6 w-6" />}
                 </div>

@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { dimensions: string[] } }
+  { params }: { params: Promise<{ dimensions: string[] }> }
 ) {
-  const dimensions = params.dimensions;
+  const resolvedParams = await params
+  const dimensions = resolvedParams.dimensions;
   const width = parseInt(dimensions[0]) || 400;
   const height = parseInt(dimensions[1]) || 400;
   const text = request.nextUrl.searchParams.get('text') || 'Image';

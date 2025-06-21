@@ -1,10 +1,18 @@
-import './globals.css'
+
 import type { Metadata } from 'next'
+import { Inter, Noto_Sans_JP } from 'next/font/google'
+import './globals.css'
 import { Toaster } from 'react-hot-toast'
 
+const inter = Inter({ subsets: ['latin'] })
+const notoSansJP = Noto_Sans_JP({ 
+  subsets: ['latin'],
+  weight: ['400', '700', '900']
+})
+
 export const metadata: Metadata = {
-  title: 'Aceoripa Claude - ガチャ演出システム',
-  description: 'AI生成デザイン・演出システム',
+  title: 'Aceoripa - オンラインオリパ',
+  description: 'DOPAスタイル オンラインオリパサイト',
 }
 
 export default function RootLayout({
@@ -13,16 +21,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ja">
-      <body>
+    <html lang="ja" className={notoSansJP.className}>
+      <body className="bg-white">
         <Toaster 
           position="top-center"
           toastOptions={{
             duration: 4000,
             style: {
-              background: '#1f2937',
+              background: '#FF0033',
               color: '#fff',
-              border: '1px solid #374151',
+              border: '2px solid #FF6B6B',
             },
           }}
         />
@@ -31,3 +39,4 @@ export default function RootLayout({
     </html>
   )
 }
+  

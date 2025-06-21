@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import webpush from 'web-push'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-// Configure VAPID keys (should be in environment variables)
+// Configure VAPID keys from environment variables
 const vapidKeys = {
-  publicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BEl62iUYgUivxIkv69yViEuiBIa40HI80NM9LjW3AUlPE6a6qOHe7JOmfOYqN9WbRcq_NcKvH_O2VgqKwqJxsrU',
-  privateKey: process.env.VAPID_PRIVATE_KEY || 'YXNkZmFzZGZzYWRmc2FkZnNhZGZzYWRmc2Fk'
+  publicKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
+  privateKey: process.env.VAPID_PRIVATE_KEY || ''
 }
 
 webpush.setVapidDetails(
@@ -16,6 +16,15 @@ webpush.setVapidDetails(
 
 export async function POST(request: NextRequest) {
   try {
+    // VAPID keysチェック
+    if (!vapidKeys.publicKey || !vapidKeys.privateKey) {
+      console.error('VAPID keys not configured');
+      return NextResponse.json(
+        { error: 'Push notification service not configured' },
+        { status: 503 }
+      )
+    }
+
     const body = await request.json()
     const { subscription, title, message, icon, url, sendToAll = false } = body
 

@@ -1,0 +1,109 @@
+{
+  "timestamp": "2025-06-21T02:23:28.959Z",
+  "tests": [
+    {
+      "name": "Homepage Connectivity",
+      "passed": true,
+      "details": "Status: 200",
+      "timestamp": "2025-06-21T02:23:29.475Z"
+    },
+    {
+      "name": "AI Card Generation",
+      "passed": true,
+      "details": "Image generation API responsive",
+      "timestamp": "2025-06-21T02:23:37.741Z"
+    },
+    {
+      "name": "AI Banner Generation",
+      "passed": true,
+      "details": "Banner generation API responsive",
+      "timestamp": "2025-06-21T02:23:45.843Z"
+    },
+    {
+      "name": "Gacha Effects Page",
+      "passed": true,
+      "details": "Gacha page loads successfully",
+      "timestamp": "2025-06-21T02:23:46.159Z"
+    },
+    {
+      "name": "Static Asset: /sw.js",
+      "passed": true,
+      "details": "Asset loads successfully",
+      "timestamp": "2025-06-21T02:23:46.164Z"
+    },
+    {
+      "name": "Static Asset: /api/placeholder/400/400",
+      "passed": true,
+      "details": "Asset loads successfully",
+      "timestamp": "2025-06-21T02:23:46.264Z"
+    },
+    {
+      "name": "Push Notification API",
+      "passed": true,
+      "details": "Notification API responsive",
+      "timestamp": "2025-06-21T02:23:46.562Z"
+    },
+    {
+      "name": "Admin Notifications Page",
+      "passed": true,
+      "details": "Admin page redirects properly (307)",
+      "timestamp": "2025-06-21T02:23:46.566Z"
+    },
+    {
+      "name": "Placeholder Image 400/400",
+      "passed": true,
+      "details": "Image generates successfully",
+      "timestamp": "2025-06-21T02:23:46.575Z"
+    },
+    {
+      "name": "Placeholder Image 1024/1024",
+      "passed": true,
+      "details": "Image generates successfully",
+      "timestamp": "2025-06-21T02:23:46.582Z"
+    },
+    {
+      "name": "Placeholder Image 200/200",
+      "passed": true,
+      "details": "Image generates successfully",
+      "timestamp": "2025-06-21T02:23:46.587Z"
+    },
+    {
+      "name": "MyPage with Settings",
+      "passed": true,
+      "details": "MyPage loads with notification settings",
+      "timestamp": "2025-06-21T02:23:46.807Z"
+    },
+    {
+      "name": "Response Time: /",
+      "passed": true,
+      "details": "46ms (Target: <3000ms)",
+      "timestamp": "2025-06-21T02:23:46.853Z"
+    },
+    {
+      "name": "Response Time: /mypage",
+      "passed": true,
+      "details": "19ms (Target: <3000ms)",
+      "timestamp": "2025-06-21T02:23:46.872Z"
+    },
+    {
+      "name": "Response Time: /gacha/pokemon-151",
+      "passed": true,
+      "details": "24ms (Target: <3000ms)",
+      "timestamp": "2025-06-21T02:23:46.896Z"
+    },
+    {
+      "name": "Concurrent Requests",
+      "passed": true,
+      "details": "10/10 successful in 183ms",
+      "timestamp": "2025-06-21T02:23:47.081Z"
+    }
+  ],
+  "summary": {
+    "passed": 16,
+    "failed": 0,
+    "warnings": 0,
+    "totalTests": 16,
+    "successRate": 100,
+    "executionTime": 18121
+  }
+}

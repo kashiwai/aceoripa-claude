@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACEORIPA バナー画像ダウンロード</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #FFD700, #FF6B6B);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .download-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .download-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #FFD700;
+        }
+        .card-description {
+            margin-bottom: 20px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        .download-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .download-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .btn-png {
+            background: linear-gradient(45deg, #4ECDC4, #44A08D);
+            color: white;
+        }
+        .btn-png:hover {
+            background: linear-gradient(45deg, #44A08D, #4ECDC4);
+            transform: scale(1.05);
+        }
+        .btn-jpg {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+        }
+        .btn-jpg:hover {
+            background: linear-gradient(45deg, #FF8E53, #FF6B6B);
+            transform: scale(1.05);
+        }
+        .preview-image {
+            width: 100%;
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .file-info {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+        .bulk-download {
+            text-align: center;
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+        .bulk-download h3 {
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+        .bulk-btn {
+            background: linear-gradient(45deg, #8B5CF6, #EC4899);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .bulk-btn:hover {
+            background: linear-gradient(45deg, #EC4899, #8B5CF6);
+            transform: scale(1.05);
+        }
+        .specs {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+        .usage-note {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        .usage-note h4 {
+            color: #FFC107;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 ACEORIPA バナー画像</h1>
+        <p class="subtitle">オリパサイト用の高品質バナー画像をダウンロード</p>
+        
+        <div class="download-grid">
+            <!-- ポケモンカード151オリパ -->
+            <div class="download-card">
+                <div class="card-title">🔥 ポケモンカード151オリパ</div>
+                <div class="card-description">
+                    人気のポケモンカード151シリーズのオリパバナー。<br>
+                    カードパック風デザインで残り枚数表示付き。
+                </div>
+                <div class="specs">
+                    📐 サイズ: 400×600px<br>
+                    🎨 カラー: レッド〜イエロー〜ターコイズ<br>
+                    💎 用途: メインガチャバナー
+                </div>
+                <div class="download-buttons">
+                    <a href="downloads/ポケモンカード151オリパ.png" download class="download-btn btn-png">
+                        PNG (88KB)
+                    </a>
+                    <a href="downloads/ポケモンカード151オリパ.jpg" download class="download-btn btn-jpg">
+                        JPG (32KB)
+                    </a>
+                </div>
+            </div>
+
+            <!-- ワンピース頂上決戦オリパ -->
+            <div class="download-card">
+                <div class="card-title">🏴‍☠️ ワンピース頂上決戦オリパ</div>
+                <div class="card-description">
+                    ワンピースカードの人気シリーズ頂上決戦のオリパバナー。<br>
+                    海賊らしい力強いカラーリング。
+                </div>
+                <div class="specs">
+                    📐 サイズ: 400×600px<br>
+                    🎨 カラー: レッド〜オレンジ〜ダーク<br>
+                    💎 用途: メインガチャバナー
+                </div>
+                <div class="download-buttons">
+                    <a href="downloads/ワンピース頂上決戦オリパ.png" download class="download-btn btn-png">
+                        PNG (101KB)
+                    </a>
+                    <a href="downloads/ワンピース頂上決戦オリパ.jpg" download class="download-btn btn-jpg">
+                        JPG (41KB)
+                    </a>
+                </div>
+            </div>
+
+            <!-- 遊戯王レアコレオリパ -->
+            <div class="download-card">
+                <div class="card-title">🎴 遊戯王レアコレオリパ</div>
+                <div class="card-description">
+                    遊戯王レアリティコレクションのオリパバナー。<br>
+                    神秘的なパープル系グラデーション。
+                </div>
+                <div class="specs">
+                    📐 サイズ: 400×600px<br>
+                    🎨 カラー: パープル〜シアン〜イエロー<br>
+                    💎 用途: メインガチャバナー
+                </div>
+                <div class="download-buttons">
+                    <a href="downloads/遊戯王レアコレオリパ.png" download class="download-btn btn-png">
+                        PNG (106KB)
+                    </a>
+                    <a href="downloads/遊戯王レアコレオリパ.jpg" download class="download-btn btn-jpg">
+                        JPG (41KB)
+                    </a>
+                </div>
+            </div>
+
+            <!-- メインキャンペーンバナー -->
+            <div class="download-card">
+                <div class="card-title">🎊 メインキャンペーンバナー</div>
+                <div class="card-description">
+                    トップページ用のメインキャンペーンバナー。<br>
+                    SSR確率UP等のキャンペーン告知に最適。
+                </div>
+                <div class="specs">
+                    📐 サイズ: 375×200px<br>
+                    🎨 カラー: パープル〜ピンク〜オレンジ<br>
+                    💎 用途: ヘッダーキャンペーンバナー
+                </div>
+                <div class="download-buttons">
+                    <a href="downloads/メインキャンペーンバナー.png" download class="download-btn btn-png">
+                        PNG (41KB)
+                    </a>
+                    <a href="downloads/メインキャンペーンバナー.jpg" download class="download-btn btn-jpg">
+                        JPG (12KB)
+                    </a>
+                </div>
+            </div>
+
+            <!-- LINE友達登録バナー -->
+            <div class="download-card">
+                <div class="card-title">📱 LINE友達登録バナー</div>
+                <div class="card-description">
+                    LINE公式アカウント友達登録促進バナー。<br>
+                    70%OFFクーポンを強調したデザイン。
+                </div>
+                <div class="specs">
+                    📐 サイズ: 375×80px<br>
+                    🎨 カラー: LINEグリーン<br>
+                    💎 用途: 固定プロモーションバナー
+                </div>
+                <div class="download-buttons">
+                    <a href="downloads/LINE友達登録バナー.png" download class="download-btn btn-png">
+                        PNG (13KB)
+                    </a>
+                    <a href="downloads/LINE友達登録バナー.jpg" download class="download-btn btn-jpg">
+                        JPG (8KB)
+                    </a>
+                </div>
+            </div>
+
+            <!-- SNS当選報告サンプル -->
+            <div class="download-card">
+                <div class="card-title">🏆 SNS当選報告サンプル</div>
+                <div class="card-description">
+                    SNSでの当選報告表示用のサンプルカード。<br>
+                    ユーザーの当選実績をアピール。
+                </div>
+                <div class="specs">
+                    📐 サイズ: 200×200px<br>
+                    🎨 カラー: ダーク〜ゴールド<br>
+                    💎 用途: SNS当選報告スライダー
+                </div>
+                <div class="download-buttons">
+                    <a href="downloads/SNS当選報告サンプル.png" download class="download-btn btn-png">
+                        PNG (23KB)
+                    </a>
+                    <a href="downloads/SNS当選報告サンプル.jpg" download class="download-btn btn-jpg">
+                        JPG (10KB)
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bulk-download">
+            <h3>📦 一括ダウンロード</h3>
+            <p>全てのバナー画像をまとめてダウンロード</p>
+            <button class="bulk-btn" onclick="downloadAll()">
+                🗂️ 全画像をZIPでダウンロード
+            </button>
+        </div>
+
+        <div class="usage-note">
+            <h4>📋 使用上の注意</h4>
+            <ul>
+                <li><strong>PNG形式:</strong> 高画質、透過対応、ファイルサイズ大</li>
+                <li><strong>JPG形式:</strong> 軽量、ウェブ表示に最適</li>
+                <li><strong>商用利用:</strong> ACEORIPA プロジェクト内でのみ使用可能</li>
+                <li><strong>カスタマイズ:</strong> テキストや色の変更は画像生成サーバーで対応可</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function downloadAll() {
+            const files = [
+                'ポケモンカード151オリパ.png',
+                'ワンピース頂上決戦オリパ.png', 
+                '遊戯王レアコレオリパ.png',
+                'メインキャンペーンバナー.png',
+                'LINE友達登録バナー.png',
+                'SNS当選報告サンプル.png',
+                'ポケモンカード151オリパ.jpg',
+                'ワンピース頂上決戦オリパ.jpg',
+                '遊戯王レアコレオリパ.jpg', 
+                'メインキャンペーンバナー.jpg',
+                'LINE友達登録バナー.jpg',
+                'SNS当選報告サンプル.jpg'
+            ];
+
+            files.forEach((filename, index) => {
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.href = `downloads/${filename}`;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }, index * 500); // 0.5秒間隔でダウンロード
+            });
+
+            alert('📥 全12ファイルのダウンロードを開始しました！');
+        }
+    </script>
+</body>
+</html>

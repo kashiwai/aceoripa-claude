@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; font-family: 'Noto Sans JP', sans-serif; }
+    .container {
+      width: 375px;
+      height: 812px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .site-name {
+      font-size: 24px;
+      font-weight: bold;
+      text-shadow: 0 0 20px rgba(255,255,255,0.5);
+      margin-bottom: 20px;
+    }
+    .url {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    .viewport-info {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 14px;
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .purple-glow {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(139,92,246,0.8) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    .cards-preview {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 30px;
+    }
+    .card {
+      width: 80px;
+      height: 107px;
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+    .ssr-card {
+      background: linear-gradient(45deg, #FF1493, #00CED1, #FFD700);
+      animation: rainbow 3s linear infinite;
+    }
+    @keyframes rainbow {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="purple-glow" style="top: -150px; left: -150px;"></div>
+    <div class="purple-glow" style="bottom: -150px; right: -150px;"></div>
+    
+    <div class="site-name">DOPA GAME</div>
+    <div class="url">https://dopa-game.jp/</div>
+    
+    <div class="viewport-info">
+      375 x 812
+    </div>
+    
+    
+  </div>
+</body>
+</html>
+  
