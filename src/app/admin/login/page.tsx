@@ -97,6 +97,10 @@ export default function AdminLogin() {
           <a href="/" className="text-sm text-gray-600 hover:text-gray-800">
             ← ユーザー画面に戻る
           </a>
+          <span className="mx-2 text-gray-400">|</span>
+          <a href="/admin/login/demo" className="text-sm text-blue-600 hover:text-blue-800">
+            デモモードで試す
+          </a>
         </div>
 
         {/* 開発環境用のヒント */}
