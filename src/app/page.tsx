@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
@@ -11,6 +12,7 @@ import 'swiper/css/pagination'
 
 export default function HomePage() {
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000)
@@ -19,6 +21,7 @@ export default function HomePage() {
   const banners = [
     { 
       id: 1, 
+      gachaId: '1',
       title: 'ポケモンカード151', 
       subtitle: 'リザードンex確率UP!', 
       color: 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B]',
@@ -26,6 +29,7 @@ export default function HomePage() {
     },
     { 
       id: 2, 
+      gachaId: '2',
       title: 'シャイニートレジャー', 
       subtitle: 'SSR確定オリパ', 
       color: 'bg-gradient-to-r from-[#FF0033] to-[#FFD700]',
@@ -33,6 +37,7 @@ export default function HomePage() {
     },
     { 
       id: 3, 
+      gachaId: '3',
       title: '期間限定キャンペーン', 
       subtitle: '10連ガチャ20%OFF', 
       color: 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B]',
@@ -139,7 +144,10 @@ export default function HomePage() {
                 <div className="text-center text-white relative z-10">
                   <h2 className="text-6xl font-black mb-4 drop-shadow-lg dopa-gaming-title">{banner.title}</h2>
                   <p className="text-3xl font-bold drop-shadow-md">{banner.subtitle}</p>
-                  <button className="mt-8 dopa-gacha-button">
+                  <button 
+                    onClick={() => router.push(`/gacha/${banner.gachaId}`)}
+                    className="mt-8 dopa-gacha-button"
+                  >
                     今すぐ引く！
                   </button>
                 </div>

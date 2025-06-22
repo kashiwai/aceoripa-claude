@@ -11,7 +11,9 @@ import {
   SpeakerWaveIcon,
   ChartBarIcon,
   CogIcon,
-  ArrowLeftIcon
+  ArrowLeftIcon,
+  PhotoIcon,
+  VideoCameraIcon
 } from '@heroicons/react/24/outline'
 
 const navigation = [
@@ -19,6 +21,8 @@ const navigation = [
   { name: 'ユーザー管理', href: '/admin/users', icon: UsersIcon },
   { name: 'ガチャ管理', href: '/admin/gacha', icon: CubeIcon },
   { name: 'カード管理', href: '/admin/cards', icon: CreditCardIcon },
+  { name: 'AI生成管理', href: '/admin/ai-generator', icon: PhotoIcon },
+  { name: '動画演出管理', href: '/admin/video-effects', icon: VideoCameraIcon },
   { name: '発送管理', href: '/admin/shipments', icon: TruckIcon },
   { name: 'お知らせ管理', href: '/admin/announcements', icon: SpeakerWaveIcon },
   { name: '売上統計', href: '/admin/sales', icon: ChartBarIcon },

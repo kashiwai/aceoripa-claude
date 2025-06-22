@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import PointConfirmDialog from '@/components/ui/PointConfirmDialog'
+import { useAuth } from '@/hooks/useAuth'
 
 interface Card {
   id: string
@@ -51,6 +53,10 @@ export default function GachaDetailPage() {
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(true)
   const [customCount, setCustomCount] = useState('')
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [selectedCount, setSelectedCount] = useState(1)
+  
+  const { user } = useAuth()
 
   // ダミーデータを設定（実際のAPIが整うまで）
   useEffect(() => {
@@ -106,8 +112,20 @@ export default function GachaDetailPage() {
   }, {} as { [key: string]: Card[] })
 
   const handleGacha = (count: number) => {
+    if (!user) {
+      // ログインしていない場合はログインページへ
+      router.push('/login')
+      return
+    }
+    
+    // 確認ダイアログを表示
+    setSelectedCount(count)
+    setShowConfirmDialog(true)
+  }
+  
+  const handleConfirmGacha = () => {
     // ガチャ実行ページへ遷移
-    router.push(`/gacha/${gachaId}/play?count=${count}`)
+    router.push(`/gacha/${gachaId}/play?count=${selectedCount}`)
   }
 
   if (loading) {
@@ -192,22 +210,28 @@ export default function GachaDetailPage() {
               <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => handleGacha(1)}
-                  className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white font-black py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-xl"
+                  className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white font-black py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-xl relative group"
                 >
-                  1回
+                  <span className="block">1回</span>
+                  <span className="text-xs opacity-80">¥{gacha?.price || 800}</span>
                 </button>
                 <button
                   onClick={() => handleGacha(5)}
-                  className="bg-gradient-to-r from-[#00C853] to-[#00E676] text-white font-black py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-xl"
+                  className="bg-gradient-to-r from-[#00C853] to-[#00E676] text-white font-black py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-xl relative group"
                 >
-                  5回
+                  <span className="block">5回</span>
+                  <span className="text-xs opacity-80">¥{(gacha?.price || 800) * 5}</span>
                 </button>
                 <button
                   onClick={() => handleGacha(10)}
-                  className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-white font-black py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-xl relative overflow-hidden"
+                  className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-white font-black py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-xl relative overflow-hidden group"
                 >
-                  <span className="relative z-10">10連</span>
+                  <span className="relative z-10">
+                    <span className="block">10連</span>
+                    <span className="text-xs opacity-80">¥{(gacha?.price || 800) * 10}</span>
+                  </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                  <div className="absolute top-0 right-0 bg-red-500 text-xs px-2 py-1 rounded-bl-lg font-bold">SR確定</div>
                 </button>
               </div>
               
@@ -242,6 +266,40 @@ export default function GachaDetailPage() {
               <p className="text-gray-300 whitespace-pre-line">
                 {gacha?.description || 'このガチャの説明文です。'}
               </p>
+            </div>
+            
+            {/* 確率表示 */}
+            <div className="mt-4 bg-gray-900 rounded-xl p-6">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                提供割合
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-yellow-400/20 to-red-500/20 rounded-lg">
+                  <span className="font-bold text-yellow-400">SSR</span>
+                  <span className="text-white font-bold">3%</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-lg">
+                  <span className="font-bold text-purple-400">SR</span>
+                  <span className="text-white font-bold">12%</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-lg">
+                  <span className="font-bold text-blue-400">R</span>
+                  <span className="text-white font-bold">35%</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-700/50 rounded-lg">
+                  <span className="font-bold text-gray-400">N</span>
+                  <span className="text-white font-bold">50%</span>
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                <p className="text-xs text-yellow-400">
+                  ※ 10連ガチャの場合、SR以上1枚確定<br/>
+                  ※ SSR内でのピックアップ確率: 50%
+                </p>
+              </div>
             </div>
           </div>
 
@@ -310,6 +368,17 @@ export default function GachaDetailPage() {
           </div>
         </div>
       </div>
+      
+      {/* ポイント確認ダイアログ */}
+      <PointConfirmDialog
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={handleConfirmGacha}
+        productName={gacha?.name || ''}
+        count={selectedCount}
+        price={gacha?.price || 800}
+        totalCost={(gacha?.price || 800) * selectedCount}
+      />
     </div>
   )
 }

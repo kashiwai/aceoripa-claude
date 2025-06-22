@@ -1,0 +1,271 @@
+/**
+ * GachaUI スタイルシート
+ */
+
+.gacha-ui-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+/* バナー */
+.gacha-banner {
+  width: 100%;
+  max-width: 1024px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+  position: relative;
+}
+
+.gacha-banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: bannerPulse 3s ease-in-out infinite;
+}
+
+@keyframes bannerPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* ガチャボタン */
+.gacha-buttons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.gacha-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.gacha-button:hover:not(:disabled) {
+  transform: translateY(-5px);
+  filter: brightness(1.1);
+}
+
+.gacha-button:active:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.gacha-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.gacha-button img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.gacha-button.single img,
+.gacha-button.ten img {
+  width: 300px;
+  height: 80px;
+}
+
+.gacha-button.custom img {
+  width: 600px;
+  height: 100px;
+}
+
+/* カスタムガチャコンテナ */
+.custom-gacha-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.custom-count-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f0f0f0;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.custom-count-input button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: #FF6B6B;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.custom-count-input button:hover:not(:disabled) {
+  background: #ff5252;
+  transform: scale(1.1);
+}
+
+.custom-count-input button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.custom-count-input input {
+  width: 80px;
+  height: 40px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 0 10px;
+}
+
+/* レアリティ情報 */
+.rarity-info {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 800px;
+}
+
+.rarity-info h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.rarity-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+}
+
+.rarity-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f8f8f8;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.rarity-item:hover {
+  background: #e8e8e8;
+  transform: translateY(-2px);
+}
+
+.rarity-item img {
+  width: 40px;
+  height: 40px;
+}
+
+.rarity-item span {
+  font-weight: bold;
+  color: #555;
+}
+
+/* ローディングオーバーレイ */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.loading-spinner {
+  text-align: center;
+  color: white;
+}
+
+.loading-spinner img {
+  width: 80px;
+  height: 80px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spinner p {
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .gacha-ui-container {
+    padding: 10px;
+    gap: 20px;
+  }
+
+  .gacha-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .gacha-button.single img,
+  .gacha-button.ten img {
+    width: 250px;
+    height: 70px;
+  }
+
+  .gacha-button.custom img {
+    width: 100%;
+    max-width: 400px;
+    height: 80px;
+  }
+
+  .rarity-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* カード公開アニメーション用のグローバルスタイル */
+.gacha-card-reveal {
+  z-index: 10001;
+}
+
+/* エフェクト用パーティクル */
+.gacha-particle {
+  position: absolute;
+  pointer-events: none;
+}

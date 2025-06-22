@@ -6,6 +6,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
+import { useGacha } from '@/hooks/useGacha'
+import { useAuth } from '@/hooks/useAuth'
+import { toast } from 'react-hot-toast'
 
 interface Card {
   id: string
@@ -47,57 +50,94 @@ export default function GachaPlayPage() {
   const gachaId = params.id as string
   const count = parseInt(searchParams.get('count') || '1')
   
+  const { user, points } = useAuth()
+  const { executeGacha, loading: gachaLoading } = useGacha()
+  
   const [isAnimating, setIsAnimating] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [results, setResults] = useState<Card[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [skipAnimation, setSkipAnimation] = useState(false)
   const [revealStage, setRevealStage] = useState<'animation' | 'rarity' | 'card'>('animation')
+  const [error, setError] = useState<string | null>(null)
+  const [executingGacha, setExecutingGacha] = useState(false)
 
-  // ダミーのガチャ結果生成
-  const generateResults = () => {
-    const dummyCards: Card[] = []
-    const rarityProbabilities = [
-      { rarity: 'SSR', probability: 3, cards: [
-        { id: '1', name: 'リザードンex', imageUrl: '/api/placeholder/400/400?text=リザードンex' },
-        { id: '2', name: 'ミュウex', imageUrl: '/api/placeholder/400/400?text=ミュウex' },
-        { id: '3', name: 'ピカチュウex', imageUrl: '/api/placeholder/400/400?text=ピカチュウex' }
-      ]},
-      { rarity: 'SR', probability: 12, cards: [
-        { id: '4', name: 'フシギバナex', imageUrl: '/api/placeholder/400/400?text=フシギバナex' },
-        { id: '5', name: 'カメックスex', imageUrl: '/api/placeholder/400/400?text=カメックスex' },
-        { id: '6', name: 'フリーザーex', imageUrl: '/api/placeholder/400/400?text=フリーザーex' }
-      ]},
-      { rarity: 'R', probability: 25, cards: [
-        { id: '8', name: 'ニドクイン', imageUrl: '/api/placeholder/400/400?text=ニドクイン' },
-        { id: '9', name: 'ニドキング', imageUrl: '/api/placeholder/400/400?text=ニドキング' },
-        { id: '10', name: 'ゴルダック', imageUrl: '/api/placeholder/400/400?text=ゴルダック' }
-      ]},
-      { rarity: 'N', probability: 60, cards: [
-        { id: '13', name: 'フシギダネ', imageUrl: '/api/placeholder/400/400?text=フシギダネ' },
-        { id: '14', name: 'ヒトカゲ', imageUrl: '/api/placeholder/400/400?text=ヒトカゲ' },
-        { id: '15', name: 'ゼニガメ', imageUrl: '/api/placeholder/400/400?text=ゼニガメ' }
-      ]}
-    ]
-
-    for (let i = 0; i < count; i++) {
-      const random = Math.random() * 100
-      let accumulated = 0
-      
-      for (const tier of rarityProbabilities) {
-        accumulated += tier.probability
-        if (random <= accumulated) {
-          const card = tier.cards[Math.floor(Math.random() * tier.cards.length)]
-          dummyCards.push({ ...card, rarity: tier.rarity })
-          break
-        }
-      }
+  // ユーザー認証とポイントチェック
+  useEffect(() => {
+    if (!user) {
+      toast.error('ログインが必要です')
+      router.push('/login')
+      return
     }
 
-    return dummyCards
+    // 必要ポイント計算（仮の価格: 800ポイント/回）
+    const requiredPoints = 800 * count
+    if (points < requiredPoints) {
+      setError(`ポイントが不足しています。必要: ${requiredPoints}pt / 現在: ${points}pt`)
+    }
+  }, [user, points, count, router])
+
+  const startGacha = async () => {
+    if (error) {
+      // ポイント不足の場合は課金ページへ
+      toast.error(error)
+      router.push('/purchase')
+      return
+    }
+
+    setExecutingGacha(true)
+    setError(null)
+
+    try {
+      // APIでガチャ実行
+      const gachaResults = await executeGacha(gachaId, count)
+      
+      if (gachaResults && gachaResults.length > 0) {
+        // 結果を変換
+        const formattedResults = gachaResults.map((result: any) => ({
+          id: result.card_id,
+          name: result.card_name,
+          rarity: result.rarity.toUpperCase(),
+          imageUrl: result.card_image || `/api/placeholder/400/400?text=${result.card_name}`
+        }))
+        
+        setResults(formattedResults)
+        setIsAnimating(true)
+        setRevealStage('animation')
+        
+        // SSR獲得時は即座に紙吹雪
+        if (formattedResults.some((card: Card) => card.rarity === 'SSR')) {
+          setTimeout(() => {
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 }
+            })
+          }, 2000)
+        }
+      } else {
+        throw new Error('ガチャ結果の取得に失敗しました')
+      }
+    } catch (err: any) {
+      console.error('Gacha execution error:', err)
+      
+      // エラーメッセージの判定
+      if (err.message?.includes('ポイント不足')) {
+        toast.error('ポイントが不足しています')
+        router.push('/purchase')
+      } else if (err.message?.includes('認証')) {
+        toast.error('ログインが必要です')
+        router.push('/login')
+      } else {
+        toast.error('ガチャの実行に失敗しました。もう一度お試しください。')
+        setError(err.message || 'エラーが発生しました')
+      }
+    } finally {
+      setExecutingGacha(false)
+    }
   }
 
-  const startGacha = () => {
+  const startGachaAnimation = () => {
     setIsAnimating(true)
     setShowResults(false)
     setCurrentIndex(0)
