@@ -175,6 +175,16 @@ body {
   }
 }
 
+/* プログレスバーのシマーアニメーション */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
 /* レアリティ演出強化 */
 .dopa-rarity-ssr {
   background: linear-gradient(45deg, #FFD700, #FFA500, #FF6B6B, #FF0033);

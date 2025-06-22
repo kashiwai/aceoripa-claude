@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACEorIPA アニメーション・演出システムテスト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #FF0033;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #cc0029;
+        }
+        .rarity-button {
+            flex: 1;
+        }
+        .SSR { background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3); }
+        .SR { background: #ff4500; }
+        .R { background: #4169e1; }
+        .N { background: #808080; }
+        
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #video-canvas {
+            width: 100%;
+            height: auto;
+        }
+        .effect-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #FF0033;
+            transition: width 0.3s ease;
+        }
+        .test-results {
+            margin-top: 20px;
+        }
+        .test-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .test-pass {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .test-fail {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .test-pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 ACEorIPA アニメーション・演出システムテスト</h1>
+        
+        <!-- ガチャ演出テスト -->
+        <div class="test-section">
+            <h2>1. ガチャ演出システムテスト</h2>
+            <div class="test-controls">
+                <button class="rarity-button SSR" onclick="testGachaEffect('SSR')">SSR演出</button>
+                <button class="rarity-button SR" onclick="testGachaEffect('SR')">SR演出</button>
+                <button class="rarity-button R" onclick="testGachaEffect('R')">R演出</button>
+                <button class="rarity-button N" onclick="testGachaEffect('N')">N演出</button>
+            </div>
+            <div id="effect-container" style="position: relative; min-height: 400px;">
+                <!-- エフェクトがここに表示されます -->
+            </div>
+        </div>
+
+        <!-- 動画生成テスト -->
+        <div class="test-section">
+            <h2>2. 動画生成エンジンテスト</h2>
+            <div class="test-controls">
+                <button onclick="testVideoGeneration('SSR')">SSR動画生成</button>
+                <button onclick="testVideoGeneration('SR')">SR動画生成</button>
+            </div>
+            <div id="canvas-container">
+                <canvas id="video-canvas" width="1920" height="1080"></canvas>
+            </div>
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="status" id="video-status">準備完了</div>
+        </div>
+
+        <!-- 音声システムテスト -->
+        <div class="test-section">
+            <h2>3. 音声システムテスト</h2>
+            <div class="test-controls">
+                <button onclick="testSound('chest-open')">宝箱オープン</button>
+                <button onclick="testSound('coin-drop')">コインドロップ</button>
+                <button onclick="testSound('magic-sparkle')">魔法キラキラ</button>
+                <button onclick="testSound('victory')">勝利ファンファーレ</button>
+            </div>
+            <div class="status" id="sound-status">音声システム準備完了</div>
+        </div>
+
+        <!-- テスト結果 -->
+        <div class="test-section">
+            <h2>4. システムテスト結果</h2>
+            <div class="test-results" id="test-results">
+                <div class="test-item test-pending">
+                    <span>✓ Canvas API対応</span>
+                    <span id="canvas-test">テスト中...</span>
+                </div>
+                <div class="test-item test-pending">
+                    <span>✓ Web Audio API対応</span>
+                    <span id="audio-test">テスト中...</span>
+                </div>
+                <div class="test-item test-pending">
+                    <span>✓ MediaRecorder対応</span>
+                    <span id="recorder-test">テスト中...</span>
+                </div>
+                <div class="test-item test-pending">
+                    <span>✓ Vibration API対応</span>
+                    <span id="vibration-test">テスト中...</span>
+                </div>
+                <div class="test-item test-pending">
+                    <span>✓ パフォーマンス（FPS）</span>
+                    <span id="fps-test">計測中...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // システムテスト
+        window.onload = function() {
+            // Canvas API
+            const canvasTest = document.getElementById('canvas-test');
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    canvasTest.textContent = 'OK';
+                    canvasTest.parentElement.className = 'test-item test-pass';
+                }
+            } catch (e) {
+                canvasTest.textContent = 'NG';
+                canvasTest.parentElement.className = 'test-item test-fail';
+            }
+
+            // Web Audio API
+            const audioTest = document.getElementById('audio-test');
+            if (window.AudioContext || window.webkitAudioContext) {
+                audioTest.textContent = 'OK';
+                audioTest.parentElement.className = 'test-item test-pass';
+            } else {
+                audioTest.textContent = 'NG';
+                audioTest.parentElement.className = 'test-item test-fail';
+            }
+
+            // MediaRecorder
+            const recorderTest = document.getElementById('recorder-test');
+            if (window.MediaRecorder) {
+                recorderTest.textContent = 'OK';
+                recorderTest.parentElement.className = 'test-item test-pass';
+            } else {
+                recorderTest.textContent = 'NG';
+                recorderTest.parentElement.className = 'test-item test-fail';
+            }
+
+            // Vibration API
+            const vibrationTest = document.getElementById('vibration-test');
+            if ('vibrate' in navigator) {
+                vibrationTest.textContent = 'OK';
+                vibrationTest.parentElement.className = 'test-item test-pass';
+            } else {
+                vibrationTest.textContent = 'NG (モバイルのみ)';
+                vibrationTest.parentElement.className = 'test-item test-fail';
+            }
+
+            // FPS測定
+            measureFPS();
+        };
+
+        // FPS測定
+        let lastTime = performance.now();
+        let fps = 0;
+        let frameCount = 0;
+        
+        function measureFPS() {
+            const currentTime = performance.now();
+            frameCount++;
+            
+            if (currentTime >= lastTime + 1000) {
+                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                document.getElementById('fps-test').textContent = fps + ' FPS';
+                
+                const fpsElement = document.getElementById('fps-test').parentElement;
+                if (fps >= 30) {
+                    fpsElement.className = 'test-item test-pass';
+                } else if (fps >= 20) {
+                    fpsElement.className = 'test-item test-pending';
+                } else {
+                    fpsElement.className = 'test-item test-fail';
+                }
+                
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            
+            requestAnimationFrame(measureFPS);
+        }
+
+        // ガチャエフェクトテスト
+        function testGachaEffect(rarity) {
+            const container = document.getElementById('effect-container');
+            container.innerHTML = '';
+            
+            // エフェクトコンテナ作成
+            const effectDiv = document.createElement('div');
+            effectDiv.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 300px;
+                height: 300px;
+                background: radial-gradient(circle, ${getRarityColor(rarity)}, transparent);
+                border-radius: 50%;
+                animation: ${rarity}Effect 2s ease-out;
+            `;
+            
+            // レアリティテキスト
+            const rarityText = document.createElement('div');
+            rarityText.textContent = rarity;
+            rarityText.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 48px;
+                font-weight: bold;
+                color: white;
+                text-shadow: 0 0 20px rgba(0,0,0,0.8);
+                animation: textPop 1s ease-out;
+            `;
+            
+            container.appendChild(effectDiv);
+            container.appendChild(rarityText);
+            
+            // サウンド再生
+            playTestSound(rarity.toLowerCase());
+            
+            // バイブレーション（モバイルのみ）
+            if ('vibrate' in navigator) {
+                const patterns = {
+                    SSR: [200, 100, 200, 100, 400],
+                    SR: [150, 50, 150],
+                    R: [100],
+                    N: [50]
+                };
+                navigator.vibrate(patterns[rarity]);
+            }
+            
+            // アニメーション終了後にクリーンアップ
+            setTimeout(() => {
+                effectDiv.style.opacity = '0';
+                rarityText.style.opacity = '0';
+            }, 2000);
+        }
+
+        function getRarityColor(rarity) {
+            const colors = {
+                SSR: '#ffd700',
+                SR: '#ff4500',
+                R: '#4169e1',
+                N: '#808080'
+            };
+            return colors[rarity];
+        }
+
+        // 動画生成テスト
+        async function testVideoGeneration(rarity) {
+            const canvas = document.getElementById('video-canvas');
+            const ctx = canvas.getContext('2d');
+            const status = document.getElementById('video-status');
+            const progressFill = document.getElementById('progress-fill');
+            
+            status.textContent = `${rarity}動画生成中...`;
+            progressFill.style.width = '0%';
+            
+            // シンプルな動画生成デモ
+            const duration = rarity === 'SSR' ? 3000 : 2000;
+            const fps = 30;
+            const frames = duration / (1000 / fps);
+            let currentFrame = 0;
+            
+            const animate = () => {
+                if (currentFrame >= frames) {
+                    status.textContent = '動画生成完了！';
+                    return;
+                }
+                
+                // 背景
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // アニメーション
+                const progress = currentFrame / frames;
+                progressFill.style.width = `${progress * 100}%`;
+                
+                // レアリティに応じたエフェクト
+                if (rarity === 'SSR') {
+                    // 虹色の円
+                    const gradient = ctx.createRadialGradient(960, 540, 0, 960, 540, 300);
+                    const hue = (currentFrame * 5) % 360;
+                    gradient.addColorStop(0, `hsla(${hue}, 100%, 50%, 0.8)`);
+                    gradient.addColorStop(1, 'transparent');
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                } else {
+                    // 単色の円
+                    ctx.fillStyle = getRarityColor(rarity);
+                    ctx.globalAlpha = 0.5;
+                    ctx.beginPath();
+                    ctx.arc(960, 540, 100 + Math.sin(currentFrame * 0.1) * 50, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+                
+                // テキスト
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 72px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(rarity, 960, 540);
+                
+                currentFrame++;
+                requestAnimationFrame(animate);
+            };
+            
+            animate();
+        }
+
+        // 音声テスト
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function testSound(type) {
+            const status = document.getElementById('sound-status');
+            status.textContent = `${type}音声再生中...`;
+            
+            // 簡単な音声生成
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // 音の種類に応じて周波数を変更
+            const frequencies = {
+                'chest-open': [523, 659, 784], // ドミソ
+                'coin-drop': [1047, 1319, 1568], // 高いドミソ
+                'magic-sparkle': [784, 988, 1175], // ソシレ
+                'victory': [523, 659, 784, 988] // ドミソシ
+            };
+            
+            const notes = frequencies[type] || [440];
+            let noteIndex = 0;
+            
+            const playNote = () => {
+                if (noteIndex >= notes.length) {
+                    status.textContent = '音声再生完了';
+                    return;
+                }
+                
+                oscillator.frequency.value = notes[noteIndex];
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+                
+                noteIndex++;
+                setTimeout(playNote, 150);
+            };
+            
+            playNote();
+        }
+
+        function playTestSound(rarity) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // レアリティに応じた音
+            const frequencies = {
+                ssr: 880, // A5
+                sr: 659,  // E5
+                r: 523,   // C5
+                n: 440    // A4
+            };
+            
+            oscillator.frequency.value = frequencies[rarity];
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+    </script>
+
+    <style>
+        @keyframes SSREffect {
+            0% {
+                transform: translate(-50%, -50%) scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.5) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1) rotate(360deg);
+                opacity: 0.8;
+            }
+        }
+        
+        @keyframes SREffect {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.8;
+            }
+        }
+        
+        @keyframes REffect {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.6;
+            }
+        }
+        
+        @keyframes NEffect {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.4;
+            }
+        }
+        
+        @keyframes textPop {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+    </style>
+</body>
+</html>

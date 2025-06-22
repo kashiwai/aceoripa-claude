@@ -1,0 +1,56 @@
+{
+  "timestamp": "2025-06-21T19:50:38.102Z",
+  "count": 10,
+  "fonts": [
+    {
+      "family": "Dela_Gothic_One_1",
+      "file": "Dela_Gothic_One_1.ttf",
+      "usage": "font: \"bold 72px 'Dela_Gothic_One_1'\""
+    },
+    {
+      "family": "MOBO-Font11_1",
+      "file": "MOBO-Font11_1.otf",
+      "usage": "font: \"bold 72px 'MOBO-Font11_1'\""
+    },
+    {
+      "family": "MOBO-Font11_2",
+      "file": "MOBO-Font11_2.otf",
+      "usage": "font: \"bold 72px 'MOBO-Font11_2'\""
+    },
+    {
+      "family": "MOBO-Font11_3",
+      "file": "MOBO-Font11_3.otf",
+      "usage": "font: \"bold 72px 'MOBO-Font11_3'\""
+    },
+    {
+      "family": "MOBO-Font11_4",
+      "file": "MOBO-Font11_4.otf",
+      "usage": "font: \"bold 72px 'MOBO-Font11_4'\""
+    },
+    {
+      "family": "SourceHanSans-Heavy",
+      "file": "SourceHanSans-Heavy.otf",
+      "usage": "font: \"bold 72px 'SourceHanSans-Heavy'\""
+    },
+    {
+      "family": "YDW_bananaslip_plus_240809_1",
+      "file": "YDW_bananaslip_plus_240809_1.otf",
+      "usage": "font: \"bold 72px 'YDW_bananaslip_plus_240809_1'\""
+    },
+    {
+      "family": "craftmincho_2",
+      "file": "craftmincho_2.otf",
+      "usage": "font: \"bold 72px 'craftmincho_2'\""
+    },
+    {
+      "family": "kinkaku_1",
+      "file": "kinkaku_1.otf",
+      "usage": "font: \"bold 72px 'kinkaku_1'\""
+    },
+    {
+      "family": "kinkaku_2",
+      "file": "kinkaku_2.ttf",
+      "usage": "font: \"bold 72px 'kinkaku_2'\""
+    }
+  ]
+}

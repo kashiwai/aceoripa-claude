@@ -33,17 +33,35 @@ export default async function UsersPage({
   const { users, totalCount, totalPages } = await getUsers(currentPage)
   
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800">ユーザー管理</h1>
-        <div className="flex items-center space-x-2 text-sm text-gray-600">
-          <span>総ユーザー数:</span>
-          <span className="font-semibold">{totalCount.toLocaleString()}</span>
+    <div className="space-y-8">
+      {/* ヘッダーセクション */}
+      <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">ユーザー管理</h1>
+            <p className="text-gray-600">登録ユーザーの情報を管理できます</p>
+          </div>
+          <div className="text-right">
+            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-3 rounded-xl">
+              <span className="text-sm text-gray-600">総ユーザー数</span>
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                {totalCount.toLocaleString()}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
       
-      <div className="bg-white rounded-lg shadow">
-        <Suspense fallback={<div className="p-8 text-center">読み込み中...</div>}>
+      {/* ユーザーテーブル */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <Suspense fallback={
+          <div className="p-20 text-center">
+            <div className="inline-flex items-center space-x-2">
+              <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+              <span className="text-gray-600">ユーザーデータを読み込んでいます...</span>
+            </div>
+          </div>
+        }>
           <UserTable 
             users={users} 
             currentPage={currentPage}

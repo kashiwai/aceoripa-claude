@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced ガチャ演出テスト - サンプル動画対応</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gacha-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .gacha-btn {
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .gacha-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .gacha-btn.ssr {
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            color: white;
+            animation: rainbow-pulse 2s infinite;
+        }
+        
+        .gacha-btn.sr {
+            background: linear-gradient(45deg, #ff4500, #ff6347, #ffa500);
+            color: white;
+        }
+        
+        .gacha-btn.r {
+            background: linear-gradient(45deg, #4169e1, #00bfff, #87ceeb);
+            color: white;
+        }
+        
+        .gacha-btn.n {
+            background: linear-gradient(45deg, #808080, #a9a9a9, #c0c0c0);
+            color: black;
+        }
+        
+        @keyframes rainbow-pulse {
+            0%, 100% { filter: brightness(1) saturate(1); }
+            50% { filter: brightness(1.3) saturate(1.5); }
+        }
+        
+        .pokemon-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .pokemon-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .pokemon-card:hover {
+            border-color: #feca57;
+            transform: scale(1.05);
+        }
+        
+        .pokemon-card.selected {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.2);
+        }
+        
+        .settings-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .setting-group label {
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        input, select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .video-info {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .video-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .video-preview {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .status-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 300px;
+        }
+        
+        .effect-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: #000;
+            display: none;
+        }
+        
+        .effect-overlay.active {
+            display: block;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Enhanced ガチャ演出テスト</h1>
+        
+        <!-- サンプル動画情報 -->
+        <div class="test-section">
+            <h2>📹 利用可能なサンプル動画</h2>
+            <div class="video-info">
+                <p>8つのサンプル動画が<code>/public/samplemovie/</code>に格納されています</p>
+                <div id="video-list" class="video-grid">
+                    <!-- 動画リストが動的に生成されます -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ポケモン選択 -->
+        <div class="test-section">
+            <h2>🎯 ポケモン選択</h2>
+            <div class="pokemon-selector" id="pokemon-selector">
+                <!-- ポケモンカードが動的に生成されます -->
+            </div>
+        </div>
+
+        <!-- 設定パネル -->
+        <div class="test-section">
+            <h2>⚙️ 演出設定</h2>
+            <div class="settings-panel">
+                <div class="setting-group">
+                    <label>演出モード</label>
+                    <select id="effect-mode">
+                        <option value="single">シングル演出</option>
+                        <option value="multi">マルチ演出（SSR/SR）</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>音声</label>
+                    <input type="checkbox" id="audio-enabled" checked>
+                </div>
+                <div class="setting-group">
+                    <label>バイブレーション</label>
+                    <input type="checkbox" id="vibration-enabled" checked>
+                </div>
+            </div>
+        </div>
+
+        <!-- ガチャボタン -->
+        <div class="test-section">
+            <h2>🎰 ガチャ実行</h2>
+            <div class="gacha-buttons">
+                <button class="gacha-btn ssr" onclick="executeGacha('SSR')">
+                    ✨ SSR ガチャ
+                    <div style="font-size: 12px; margin-top: 5px;">レジェンド演出</div>
+                </button>
+                <button class="gacha-btn sr" onclick="executeGacha('SR')">
+                    🔥 SR ガチャ
+                    <div style="font-size: 12px; margin-top: 5px;">炎エフェクト</div>
+                </button>
+                <button class="gacha-btn r" onclick="executeGacha('R')">
+                    💧 R ガチャ
+                    <div style="font-size: 12px; margin-top: 5px;">水エフェクト</div>
+                </button>
+                <button class="gacha-btn n" onclick="executeGacha('N')">
+                    ⚪ N ガチャ
+                    <div style="font-size: 12px; margin-top: 5px;">標準演出</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 演出オーバーレイ -->
+    <div id="effect-overlay" class="effect-overlay">
+        <button class="close-btn" onclick="closeEffect()">✕ 閉じる</button>
+        <video id="effect-video" style="width: 100%; height: 100%; object-fit: cover;"></video>
+        
+        <!-- カード表示オーバーレイ -->
+        <div id="card-overlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none;">
+            <div id="pokemon-card" style="width: 300px; height: 400px; background: linear-gradient(45deg, #ffd700, #ffed4e); border-radius: 20px; padding: 20px; box-shadow: 0 0 50px rgba(255,215,0,0.8);">
+                <div id="card-content" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                    <!-- カード内容 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- レアリティテキスト -->
+        <div id="rarity-text" style="position: absolute; top: 100px; left: 50%; transform: translateX(-50%); font-size: 80px; font-weight: bold; display: none;">
+            <!-- レアリティテキスト -->
+        </div>
+    </div>
+
+    <!-- ステータス表示 -->
+    <div class="status-display" id="status">
+        <div>ステータス: 待機中</div>
+        <div id="current-pokemon">選択: なし</div>
+        <div id="current-video">動画: なし</div>
+    </div>
+
+    <script>
+        // サンプル動画の定義
+        const sampleVideos = [
+            {
+                rarity: 'SSR',
+                filename: '4nqylI1QZNsBBP70FCr711ZfUzFLFQYD98gLzcOw.mp4',
+                description: 'SSR レジェンド演出',
+                duration: 8,
+                type: 'celebration'
+            },
+            {
+                rarity: 'SSR',
+                filename: 'HxjlmOx8efWFbeynxqr2PR5vKv6lBcT6rD0RhVqD.mp4',
+                description: 'SSR パック開封演出',
+                duration: 10,
+                type: 'opening'
+            },
+            {
+                rarity: 'SR',
+                filename: 'Ivhz3TieIc2XzA2LJyLfIdN59bTVspCY5pEr9eMK.mp4',
+                description: 'SR 炎エフェクト',
+                duration: 6,
+                type: 'effect'
+            },
+            {
+                rarity: 'SR',
+                filename: 'U6KTRGJhrgVXoxMdCAkikd7GkLpYvWN0m1gV7Gee.mp4',
+                description: 'SR カード出現',
+                duration: 5,
+                type: 'reveal'
+            },
+            {
+                rarity: 'R',
+                filename: 'YTpfPjkUK8Yldpa7JznXgN4kiXHBek7n6hYuToyY.mp4',
+                description: 'R 水エフェクト',
+                duration: 4,
+                type: 'effect'
+            },
+            {
+                rarity: 'R',
+                filename: 'aoOQpdFxr1Im58SFYZbSKgmU34aHNRoBKsPtORwh.mp4',
+                description: 'R 標準演出',
+                duration: 3,
+                type: 'reveal'
+            },
+            {
+                rarity: 'N',
+                filename: 'hMIdEcguForZnsWOqmC27Gwwwio8XpelgS920QXJ.mp4',
+                description: 'N シンプル演出',
+                duration: 2,
+                type: 'reveal'
+            },
+            {
+                rarity: 'N',
+                filename: 'vvCggB2zveAraxH1WkGIHOIXgpjra5vtcPByLt43.mp4',
+                description: 'N 基本エフェクト',
+                duration: 2,
+                type: 'effect'
+            }
+        ];
+
+        // ポケモンデータ
+        const pokemonData = [
+            { name: 'リザードン', type: 'fire', emoji: '🔥' },
+            { name: 'ピカチュウ', type: 'electric', emoji: '⚡' },
+            { name: 'フシギダネ', type: 'grass', emoji: '🌱' },
+            { name: 'ゼニガメ', type: 'water', emoji: '💧' },
+            { name: 'イーブイ', type: 'normal', emoji: '✨' },
+            { name: 'ルカリオ', type: 'fighting', emoji: '👊' },
+            { name: 'ガルデvoir', type: 'psychic', emoji: '🔮' },
+            { name: 'ボクレー', type: 'ghost', emoji: '👻' }
+        ];
+
+        let selectedPokemon = pokemonData[0];
+        let currentVideoSequence = [];
+        let currentVideoIndex = 0;
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderVideoList();
+            renderPokemonSelector();
+            updateStatus();
+        });
+
+        // 動画リスト表示
+        function renderVideoList() {
+            const container = document.getElementById('video-list');
+            container.innerHTML = sampleVideos.map(video => `
+                <div class="video-item">
+                    <video class="video-preview" controls>
+                        <source src="/samplemovie/${video.filename}" type="video/mp4">
+                    </video>
+                    <div style="font-weight: bold; color: ${getRarityColor(video.rarity)}">${video.rarity}</div>
+                    <div style="font-size: 14px; margin: 5px 0;">${video.description}</div>
+                    <div style="font-size: 12px; color: #ccc;">${video.duration}秒 - ${video.type}</div>
+                </div>
+            `).join('');
+        }
+
+        // ポケモン選択UI
+        function renderPokemonSelector() {
+            const container = document.getElementById('pokemon-selector');
+            container.innerHTML = pokemonData.map((pokemon, index) => `
+                <div class="pokemon-card ${index === 0 ? 'selected' : ''}" onclick="selectPokemon(${index})">
+                    <div style="font-size: 30px; margin-bottom: 10px;">${pokemon.emoji}</div>
+                    <div style="font-weight: bold;">${pokemon.name}</div>
+                    <div style="font-size: 12px; color: #ccc;">${pokemon.type}</div>
+                </div>
+            `).join('');
+        }
+
+        // ポケモン選択
+        function selectPokemon(index) {
+            document.querySelectorAll('.pokemon-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('.pokemon-card')[index].classList.add('selected');
+            selectedPokemon = pokemonData[index];
+            updateStatus();
+        }
+
+        // ガチャ実行
+        function executeGacha(rarity) {
+            const effectMode = document.getElementById('effect-mode').value;
+            const audioEnabled = document.getElementById('audio-enabled').checked;
+            const vibrationEnabled = document.getElementById('vibration-enabled').checked;
+
+            // 動画シーケンス準備
+            if (effectMode === 'multi' && (rarity === 'SSR' || rarity === 'SR')) {
+                currentVideoSequence = sampleVideos.filter(v => v.rarity === rarity);
+            } else {
+                const randomVideo = sampleVideos.filter(v => v.rarity === rarity);
+                currentVideoSequence = randomVideo.length > 0 ? [randomVideo[Math.floor(Math.random() * randomVideo.length)]] : [];
+            }
+
+            if (currentVideoSequence.length === 0) {
+                alert(`${rarity}の動画が見つかりません`);
+                return;
+            }
+
+            currentVideoIndex = 0;
+            playVideoSequence();
+
+            // 音声・バイブレーション
+            if (audioEnabled) playAudioEffect(rarity);
+            if (vibrationEnabled) triggerVibration(rarity);
+        }
+
+        // 動画シーケンス再生
+        function playVideoSequence() {
+            if (currentVideoIndex >= currentVideoSequence.length) {
+                showCardReveal();
+                return;
+            }
+
+            const video = currentVideoSequence[currentVideoIndex];
+            const videoElement = document.getElementById('effect-video');
+            const overlay = document.getElementById('effect-overlay');
+
+            videoElement.src = `/samplemovie/${video.filename}`;
+            overlay.classList.add('active');
+            
+            videoElement.onended = () => {
+                currentVideoIndex++;
+                setTimeout(() => {
+                    playVideoSequence();
+                }, 500);
+            };
+
+            videoElement.play();
+            updateStatus(`再生中: ${video.description}`);
+        }
+
+        // カード表示
+        function showCardReveal() {
+            const cardOverlay = document.getElementById('card-overlay');
+            const cardContent = document.getElementById('card-content');
+            const rarityText = document.getElementById('rarity-text');
+            const currentVideo = currentVideoSequence[0];
+
+            // カード内容
+            cardContent.innerHTML = `
+                <div style="font-size: 60px; margin-bottom: 20px;">${selectedPokemon.emoji}</div>
+                <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">${selectedPokemon.name}</div>
+                <div style="font-size: 16px; color: #333;">${selectedPokemon.type.toUpperCase()}</div>
+            `;
+
+            // レアリティテキスト
+            rarityText.innerHTML = currentVideo.rarity;
+            rarityText.style.color = getRarityColor(currentVideo.rarity);
+            rarityText.style.textShadow = `0 0 20px ${getRarityColor(currentVideo.rarity)}`;
+
+            // 表示アニメーション
+            setTimeout(() => {
+                cardOverlay.style.display = 'block';
+                cardOverlay.style.animation = 'cardReveal 1.5s ease-out';
+            }, 500);
+
+            setTimeout(() => {
+                rarityText.style.display = 'block';
+                rarityText.style.animation = 'rarityReveal 1s ease-out';
+            }, 1000);
+
+            // 自動終了
+            setTimeout(() => {
+                closeEffect();
+            }, 5000);
+        }
+
+        // エフェクト終了
+        function closeEffect() {
+            const overlay = document.getElementById('effect-overlay');
+            const cardOverlay = document.getElementById('card-overlay');
+            const rarityText = document.getElementById('rarity-text');
+            const videoElement = document.getElementById('effect-video');
+
+            overlay.classList.remove('active');
+            cardOverlay.style.display = 'none';
+            rarityText.style.display = 'none';
+            videoElement.pause();
+            videoElement.src = '';
+
+            updateStatus('待機中');
+        }
+
+        // 音声エフェクト
+        function playAudioEffect(rarity) {
+            if (!window.AudioContext) return;
+
+            const audioContext = new AudioContext();
+            const frequencies = {
+                SSR: [523, 659, 784, 988, 1175],
+                SR: [440, 554, 659, 831],
+                R: [349, 440, 523],
+                N: [262, 330]
+            };
+
+            const notes = frequencies[rarity];
+            let noteIndex = 0;
+
+            const playNote = () => {
+                if (noteIndex >= notes.length) return;
+
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.setValueAtTime(notes[noteIndex], audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+
+                noteIndex++;
+                if (noteIndex < notes.length) {
+                    setTimeout(playNote, 200);
+                }
+            };
+
+            playNote();
+        }
+
+        // バイブレーション
+        function triggerVibration(rarity) {
+            if (!('vibrate' in navigator)) return;
+
+            const patterns = {
+                SSR: [200, 100, 200, 100, 400, 100, 200],
+                SR: [150, 50, 150, 50, 300],
+                R: [100, 50, 100],
+                N: [50]
+            };
+
+            navigator.vibrate(patterns[rarity]);
+        }
+
+        // ステータス更新
+        function updateStatus(status = '待機中') {
+            document.getElementById('status').innerHTML = `
+                <div>ステータス: ${status}</div>
+                <div>選択: ${selectedPokemon.name} (${selectedPokemon.type})</div>
+                <div>動画数: ${currentVideoSequence.length}</div>
+            `;
+        }
+
+        // レアリティ色取得
+        function getRarityColor(rarity) {
+            const colors = {
+                SSR: '#ffd700',
+                SR: '#ff4500',
+                R: '#4169e1',
+                N: '#808080'
+            };
+            return colors[rarity] || '#ffffff';
+        }
+
+        // CSS アニメーション追加
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes cardReveal {
+                0% {
+                    transform: translate(-50%, -50%) scale(0) rotateY(180deg);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translate(-50%, -50%) scale(1) rotateY(0deg);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes rarityReveal {
+                0% {
+                    transform: translateX(-50%) translateY(-100px) scale(0);
+                    opacity: 0;
+                }
+                50% {
+                    transform: translateX(-50%) translateY(0) scale(1.2);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateX(-50%) translateY(0) scale(1);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

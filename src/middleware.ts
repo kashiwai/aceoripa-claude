@@ -10,13 +10,8 @@ export async function middleware(request: NextRequest) {
 
   // /admin/* へのアクセス制御
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    // ログインページは許可
-    if (request.nextUrl.pathname.startsWith('/admin/login')) {
-      return NextResponse.next()
-    }
-
-    // それ以外はログインページへリダイレクト
-    return NextResponse.redirect(new URL('/admin/login', request.url))
+    // 一時的に全てのadminページへのアクセスを許可（デモ用）
+    return NextResponse.next()
   }
 
   return NextResponse.next()

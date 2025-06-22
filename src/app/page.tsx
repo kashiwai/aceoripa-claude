@@ -41,10 +41,42 @@ export default function HomePage() {
   ]
 
   const gachaProducts = [
-    { id: 1, name: 'ポケモン151オリパ', price: 800, image: '/images/ポケモンカード151オリパ.png' },
-    { id: 2, name: 'シャイニートレジャー', price: 1200, image: '/images/メインキャンペーンバナー.png' },
-    { id: 3, name: 'ワンピース頂上決戦', price: 1500, image: '/images/ワンピース頂上決戦オリパ.png' },
-    { id: 4, name: '遊戯王レアコレ', price: 2000, image: '/images/遊戯王レアコレオリパ.png' },
+    { 
+      id: 1, 
+      name: 'ポケモン151オリパ', 
+      price: 800, 
+      image: '/images/ポケモンカード151オリパ.png',
+      remaining: 1100,
+      total: 3000,
+      status: 'active'
+    },
+    { 
+      id: 2, 
+      name: 'シャイニートレジャー', 
+      price: 1200, 
+      image: '/images/メインキャンペーンバナー.png',
+      remaining: 450,
+      total: 2000,
+      status: 'active'
+    },
+    { 
+      id: 3, 
+      name: 'ワンピース頂上決戦', 
+      price: 1500, 
+      image: '/images/ワンピース頂上決戦オリパ.png',
+      remaining: 50,
+      total: 1500,
+      status: 'ending_soon'
+    },
+    { 
+      id: 4, 
+      name: '遊戯王レアコレ', 
+      price: 2000, 
+      image: '/images/遊戯王レアコレオリパ.png',
+      remaining: 0,
+      total: 1000,
+      status: 'sold_out'
+    },
   ]
 
   return (
@@ -140,9 +172,104 @@ export default function HomePage() {
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-dopa-dark mb-2">{product.name}</h3>
                     <p className="text-3xl font-black text-dopa-red">¥{product.price}</p>
-                    <button className="mt-4 w-full dopa-gacha-button text-lg">
-                      ガチャを引く
-                    </button>
+                    
+                    {/* 残り枚数と進行状況バー */}
+                    <div className="mt-4 mb-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-bold text-gray-700">
+                          残り {product.remaining.toLocaleString()}枚 / {product.total.toLocaleString()}枚中
+                        </span>
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                          product.status === 'sold_out' ? 'bg-gray-200 text-gray-600' :
+                          product.status === 'ending_soon' ? 'bg-red-100 text-red-600 animate-pulse' :
+                          'bg-green-100 text-green-600'
+                        }`}>
+                          {product.status === 'sold_out' ? '完売' :
+                           product.status === 'ending_soon' ? '残りわずか！' :
+                           '販売中'}
+                        </span>
+                      </div>
+                      
+                      {/* プログレスバー */}
+                      <div className="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`absolute top-0 left-0 h-full transition-all duration-500 ease-out ${
+                            product.status === 'sold_out' ? 'bg-gray-400' :
+                            product.status === 'ending_soon' ? 'bg-gradient-to-r from-red-500 to-red-600' :
+                            'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B]'
+                          }`}
+                          style={{ width: `${(product.remaining / product.total) * 100}%` }}
+                        >
+                          {/* キラキラアニメーション */}
+                          {product.status !== 'sold_out' && (
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                          )}
+                        </div>
+                        
+                        {/* パーセンテージ表示 */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-sm font-bold text-gray-700">
+                            {Math.round((product.remaining / product.total) * 100)}%
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* 完売近い場合の警告 */}
+                      {product.status === 'ending_soon' && (
+                        <p className="text-xs text-red-600 font-bold mt-2 text-center animate-pulse">
+                          ⚠️ まもなく完売！お早めに！
+                        </p>
+                      )}
+                    </div>
+                    
+                    {/* ガチャボタン */}
+                    <div className="space-y-2">
+                      {/* 1行目: 1回と10連 */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <button 
+                          className={`text-center font-bold py-3 px-4 rounded-full transition ${
+                            product.status === 'sold_out' 
+                              ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                              : 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white hover:scale-105'
+                          }`}
+                          disabled={product.status === 'sold_out'}
+                        >
+                          1回
+                        </button>
+                        <button 
+                          className={`text-center font-bold py-3 px-4 rounded-full transition ${
+                            product.status === 'sold_out' 
+                              ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                              : 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-white hover:scale-105'
+                          }`}
+                          disabled={product.status === 'sold_out'}
+                        >
+                          10連
+                        </button>
+                      </div>
+                      
+                      {/* 2行目: 指定数ガチャ */}
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="999"
+                          placeholder="回数"
+                          className="flex-1 px-3 py-2 border-2 border-gray-300 rounded-lg text-center font-bold focus:border-[#FF0033] focus:outline-none disabled:bg-gray-100"
+                          disabled={product.status === 'sold_out'}
+                        />
+                        <button 
+                          className={`flex-1 text-center font-bold py-2 px-4 rounded-full transition ${
+                            product.status === 'sold_out' 
+                              ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                              : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:scale-105'
+                          }`}
+                          disabled={product.status === 'sold_out'}
+                        >
+                          指定数ガチャ
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Link>

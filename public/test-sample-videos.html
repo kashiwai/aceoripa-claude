@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サンプル動画ギャラリー</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+        
+        .video-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 177.78%; /* 9:16 アスペクト比 */
+            background: black;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-title {
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .video-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .status {
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            min-height: 20px;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        
+        .success {
+            color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            color: white;
+            text-align: center;
+        }
+        
+        .info-panel h2 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .info-panel p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 サンプル動画ギャラリー (9:16 縦型)</h1>
+        
+        <div class="info-panel">
+            <h2>📹 サンプル動画について</h2>
+            <p>これらは9:16（縦型）フォーマットのポケモンガチャ演出サンプル動画です</p>
+            <p>各動画は異なるレアリティとエフェクトパターンを表現しています</p>
+            <p>動画が再生されない場合は、ブラウザの自動再生設定を確認してください</p>
+        </div>
+        
+        <div class="video-grid" id="videoGrid">
+            <!-- 動画カードはJavaScriptで動的に生成 -->
+        </div>
+    </div>
+
+    <script>
+        // サンプル動画リスト
+        const sampleVideos = [
+            '4nqylI1QZNsBBP70FCr711ZfUzFLFQYD98gLzcOw.mp4',
+            'HxjlmOx8efWFbeynxqr2PR5vKv6lBcT6rD0RhVqD.mp4',
+            'Ivhz3TieIc2XzA2LJyLfIdN59bTVspCY5pEr9eMK.mp4',
+            'U6KTRGJhrgVXoxMdCAkikd7GkLpYvWN0m1gV7Gee.mp4',
+            'YTpfPjkUK8Yldpa7JznXgN4kiXHBek7n6hYuToyY.mp4',
+            'aoOQpdFxr1Im58SFYZbSKgmU34aHNRoBKsPtORwh.mp4',
+            'hMIdEcguForZnsWOqmC27Gwwwio8XpelgS920QXJ.mp4',
+            'vvCggB2zveAraxH1WkGIHOIXgpjra5vtcPByLt43.mp4'
+        ];
+
+        const videoGrid = document.getElementById('videoGrid');
+
+        // 各動画のカードを生成
+        sampleVideos.forEach((filename, index) => {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            
+            const videoPath = `/samplemovie/${filename}`;
+            
+            card.innerHTML = `
+                <div class="video-title">サンプル動画 ${index + 1}</div>
+                <div class="video-container">
+                    <video id="video${index}" 
+                           src="${videoPath}" 
+                           controls 
+                           preload="metadata"
+                           playsinline
+                           poster="">
+                    </video>
+                </div>
+                <div class="video-controls">
+                    <button onclick="playVideo(${index})">▶️ 再生</button>
+                    <button onclick="pauseVideo(${index})">⏸️ 一時停止</button>
+                    <button onclick="muteToggle(${index})">🔇 ミュート切替</button>
+                </div>
+                <div class="status" id="status${index}"></div>
+            `;
+            
+            videoGrid.appendChild(card);
+            
+            // 動画イベントリスナー設定
+            const video = document.getElementById(`video${index}`);
+            const status = document.getElementById(`status${index}`);
+            
+            video.addEventListener('loadstart', () => {
+                status.innerHTML = '<span class="loading"></span> 読み込み中...';
+            });
+            
+            video.addEventListener('loadedmetadata', () => {
+                status.innerHTML = `<span class="success">✅ 準備完了 (${video.videoWidth}x${video.videoHeight})</span>`;
+            });
+            
+            video.addEventListener('error', (e) => {
+                console.error(`Video ${index} error:`, e);
+                status.innerHTML = `<span class="error">❌ エラー: ${getErrorMessage(video.error)}</span>`;
+            });
+            
+            video.addEventListener('play', () => {
+                status.innerHTML = '▶️ 再生中...';
+            });
+            
+            video.addEventListener('pause', () => {
+                status.innerHTML = '⏸️ 一時停止';
+            });
+            
+            video.addEventListener('ended', () => {
+                status.innerHTML = '✅ 再生完了';
+            });
+        });
+
+        // 動画制御関数
+        function playVideo(index) {
+            const video = document.getElementById(`video${index}`);
+            video.play().catch(error => {
+                const status = document.getElementById(`status${index}`);
+                status.innerHTML = `<span class="error">❌ 再生エラー: ${error.message}</span>`;
+                console.error('Play error:', error);
+            });
+        }
+
+        function pauseVideo(index) {
+            const video = document.getElementById(`video${index}`);
+            video.pause();
+        }
+
+        function muteToggle(index) {
+            const video = document.getElementById(`video${index}`);
+            video.muted = !video.muted;
+            const status = document.getElementById(`status${index}`);
+            status.textContent = video.muted ? '🔇 ミュート中' : '🔊 音声ON';
+        }
+
+        // エラーメッセージ取得
+        function getErrorMessage(error) {
+            if (!error) return '不明なエラー';
+            
+            switch(error.code) {
+                case 1: return 'MEDIA_ERR_ABORTED - 読み込みが中断されました';
+                case 2: return 'MEDIA_ERR_NETWORK - ネットワークエラー';
+                case 3: return 'MEDIA_ERR_DECODE - デコードエラー';
+                case 4: return 'MEDIA_ERR_SRC_NOT_SUPPORTED - 非対応フォーマット';
+                default: return `エラーコード: ${error.code}`;
+            }
+        }
+
+        // ページ読み込み完了時の処理
+        window.addEventListener('load', () => {
+            console.log('🎬 サンプル動画ギャラリー初期化完了');
+            console.log(`動画数: ${sampleVideos.length}`);
+        });
+
+        // デバッグ情報
+        console.log('サンプル動画パス例:', `/samplemovie/${sampleVideos[0]}`);
+    </script>
+</body>
+</html>

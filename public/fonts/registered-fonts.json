@@ -1,0 +1,53 @@
+{
+  "timestamp": "2025-06-21T19:57:47.275Z",
+  "systemFonts": [
+    {
+      "family": "HiraginoBold",
+      "path": "/System/Library/Fonts/ヒラギノ角ゴシック W9.ttc",
+      "type": "system"
+    },
+    {
+      "family": "HelveticaBold",
+      "path": "/System/Library/Fonts/Helvetica.ttc",
+      "type": "system"
+    }
+  ],
+  "customFonts": [
+    {
+      "family": "Dela_Gothic_One",
+      "path": "/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/public/fonts/Dela_Gothic_One.ttf",
+      "originalName": "Dela_Gothic_One",
+      "fileName": "Dela_Gothic_One.ttf",
+      "type": "custom"
+    },
+    {
+      "family": "MOBO_Font11",
+      "path": "/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/public/fonts/MOBO-Font11_4.otf",
+      "originalName": "MOBO-Font11",
+      "fileName": "MOBO-Font11_4.otf",
+      "type": "custom"
+    },
+    {
+      "family": "YDW_bananaslip_plus_240809",
+      "path": "/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/public/fonts/YDW_bananaslip_plus_240809.otf",
+      "originalName": "YDW_bananaslip_plus_240809",
+      "fileName": "YDW_bananaslip_plus_240809.otf",
+      "type": "custom"
+    },
+    {
+      "family": "craftmincho",
+      "path": "/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/public/fonts/craftmincho_2.otf",
+      "originalName": "craftmincho",
+      "fileName": "craftmincho_2.otf",
+      "type": "custom"
+    },
+    {
+      "family": "kinkaku",
+      "path": "/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/public/fonts/kinkaku_2.ttf",
+      "originalName": "kinkaku",
+      "fileName": "kinkaku_2.ttf",
+      "type": "custom"
+    }
+  ],
+  "totalCount": 7
+}

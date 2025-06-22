@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>縦型ガチャ演出テスト (9:16)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .video-test {
+            margin-bottom: 20px;
+        }
+        
+        .video-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .video-preview {
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 9/16;
+            background: #000;
+            border-radius: 8px;
+            margin: 0 auto 10px auto;
+        }
+        
+        .gacha-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .gacha-btn {
+            padding: 20px 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .gacha-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        
+        .gacha-btn.ssr {
+            background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            color: white;
+            animation: rainbow-pulse 2s infinite;
+        }
+        
+        .gacha-btn.sr {
+            background: linear-gradient(45deg, #ff4500, #ff6347, #ffa500);
+            color: white;
+        }
+        
+        .gacha-btn.r {
+            background: linear-gradient(45deg, #4169e1, #00bfff, #87ceeb);
+            color: white;
+        }
+        
+        .gacha-btn.n {
+            background: linear-gradient(45deg, #808080, #a9a9a9, #c0c0c0);
+            color: black;
+        }
+        
+        @keyframes rainbow-pulse {
+            0%, 100% { filter: brightness(1) saturate(1); }
+            50% { filter: brightness(1.3) saturate(1.5); }
+        }
+        
+        .pokemon-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .pokemon-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pokemon-card:hover {
+            border-color: #feca57;
+            transform: scale(1.05);
+        }
+        
+        .pokemon-card.selected {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.2);
+        }
+        
+        .settings {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        input, select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 11px;
+            max-width: 200px;
+            z-index: 100;
+        }
+        
+        /* 縦型動画エフェクト用スタイル */
+        .effect-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: #000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .effect-overlay.active {
+            display: flex;
+        }
+        
+        .vertical-video-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .vertical-video {
+            width: auto;
+            height: 100vh;
+            max-width: 100vw;
+            object-fit: cover;
+            object-position: center;
+        }
+        
+        /* モバイル対応 */
+        @media (max-width: 600px) {
+            .vertical-video {
+                width: 100vw;
+                height: auto;
+                max-height: 100vh;
+            }
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 1001;
+            font-size: 16px;
+        }
+        
+        .skip-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            z-index: 1001;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card-reveal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1002;
+            display: none;
+        }
+        
+        .pokemon-card-3d {
+            width: 280px;
+            height: 380px;
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 50px rgba(255,215,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+        
+        .rarity-banner {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1003;
+            display: none;
+        }
+        
+        .rarity-text {
+            font-size: 60px;
+            font-weight: bold;
+            text-shadow: 0 0 20px currentColor;
+            animation: rarityPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes rarityPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 縦型ガチャ演出テスト</h1>
+        
+        <!-- 動画テスト -->
+        <div class="test-section">
+            <h3>🎬 動画ファイル確認</h3>
+            <div id="video-status" class="loading">
+                <div class="loading-spinner"></div>
+                <div>動画ファイルをチェック中...</div>
+            </div>
+            <div id="video-list"></div>
+        </div>
+
+        <!-- ポケモン選択 -->
+        <div class="test-section">
+            <h3>🎯 ポケモン選択</h3>
+            <div class="pokemon-grid" id="pokemon-grid">
+                <!-- 動的生成 -->
+            </div>
+        </div>
+
+        <!-- 設定 -->
+        <div class="test-section">
+            <h3>⚙️ 設定</h3>
+            <div class="settings">
+                <div class="setting-row">
+                    <label>音声</label>
+                    <input type="checkbox" id="audio-enabled" checked>
+                </div>
+                <div class="setting-row">
+                    <label>バイブレーション</label>
+                    <input type="checkbox" id="vibration-enabled" checked>
+                </div>
+                <div class="setting-row">
+                    <label>演出モード</label>
+                    <select id="effect-mode">
+                        <option value="single">シングル</option>
+                        <option value="sequence">シーケンス</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- ガチャボタン -->
+        <div class="test-section">
+            <h3>🎰 ガチャ実行</h3>
+            <div class="gacha-buttons">
+                <button class="gacha-btn ssr" onclick="executeGacha('SSR')">
+                    ✨<br>SSR
+                </button>
+                <button class="gacha-btn sr" onclick="executeGacha('SR')">
+                    🔥<br>SR
+                </button>
+                <button class="gacha-btn r" onclick="executeGacha('R')">
+                    💧<br>R
+                </button>
+                <button class="gacha-btn n" onclick="executeGacha('N')">
+                    ⚪<br>N
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- エフェクトオーバーレイ -->
+    <div id="effect-overlay" class="effect-overlay">
+        <button class="close-btn" onclick="closeEffect()">✕</button>
+        <button class="skip-btn" onclick="skipToCard()" style="display: none;">スキップ →</button>
+        
+        <div class="vertical-video-container">
+            <video id="effect-video" class="vertical-video" 
+                   autoplay 
+                   muted 
+                   playsinline 
+                   onended="onVideoEnd()"
+                   onerror="onVideoError()">
+            </video>
+        </div>
+        
+        <!-- カード表示 -->
+        <div id="card-reveal" class="card-reveal">
+            <div id="pokemon-card-3d" class="pokemon-card-3d">
+                <!-- 動的生成 -->
+            </div>
+        </div>
+        
+        <!-- レアリティバナー -->
+        <div id="rarity-banner" class="rarity-banner">
+            <div id="rarity-text" class="rarity-text">
+                <!-- 動的生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ステータス -->
+    <div class="status" id="status">
+        <div>待機中</div>
+    </div>
+
+    <script>
+        // 動画ファイルリスト（実際のファイル名）
+        const videoFiles = [
+            '4nqylI1QZNsBBP70FCr711ZfUzFLFQYD98gLzcOw.mp4',
+            'aoOQpdFxr1Im58SFYZbSKgmU34aHNRoBKsPtORwh.mp4',
+            'hMIdEcguForZnsWOqmC27Gwwwio8XpelgS920QXJ.mp4',
+            'HxjlmOx8efWFbeynxqr2PR5vKv6lBcT6rD0RhVqD.mp4',
+            'Ivhz3TieIc2XzA2LJyLfIdN59bTVspCY5pEr9eMK.mp4',
+            'U6KTRGJhrgVXoxMdCAkikd7GkLpYvWN0m1gV7Gee.mp4',
+            'vvCggB2zveAraxH1WkGIHOIXgpjra5vtcPByLt43.mp4',
+            'YTpfPjkUK8Yldpa7JznXgN4kiXHBek7n6hYuToyY.mp4'
+        ];
+
+        // レアリティ別動画マッピング
+        const videoMapping = {
+            'SSR': ['4nqylI1QZNsBBP70FCr711ZfUzFLFQYD98gLzcOw.mp4', 'HxjlmOx8efWFbeynxqr2PR5vKv6lBcT6rD0RhVqD.mp4'],
+            'SR': ['Ivhz3TieIc2XzA2LJyLfIdN59bTVspCY5pEr9eMK.mp4', 'U6KTRGJhrgVXoxMdCAkikd7GkLpYvWN0m1gV7Gee.mp4'],
+            'R': ['YTpfPjkUK8Yldpa7JznXgN4kiXHBek7n6hYuToyY.mp4', 'aoOQpdFxr1Im58SFYZbSKgmU34aHNRoBKsPtORwh.mp4'],
+            'N': ['hMIdEcguForZnsWOqmC27Gwwwio8XpelgS920QXJ.mp4', 'vvCggB2zveAraxH1WkGIHOIXgpjra5vtcPByLt43.mp4']
+        };
+
+        // ポケモンデータ
+        const pokemonData = [
+            { name: 'リザードン', type: 'fire', emoji: '🔥' },
+            { name: 'ピカチュウ', type: 'electric', emoji: '⚡' },
+            { name: 'フシギダネ', type: 'grass', emoji: '🌱' },
+            { name: 'ゼニガメ', type: 'water', emoji: '💧' },
+            { name: 'イーブイ', type: 'normal', emoji: '✨' },
+            { name: 'ルカリオ', type: 'fighting', emoji: '👊' }
+        ];
+
+        let selectedPokemon = pokemonData[0];
+        let currentSequence = [];
+        let currentIndex = 0;
+        let availableVideos = [];
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            checkVideoFiles();
+            renderPokemonGrid();
+            updateStatus();
+        });
+
+        // 動画ファイル存在確認
+        async function checkVideoFiles() {
+            const videoList = document.getElementById('video-list');
+            const videoStatus = document.getElementById('video-status');
+            
+            videoStatus.innerHTML = '<div class="loading-spinner"></div><div>動画ファイルをチェック中...</div>';
+            
+            for (const filename of videoFiles) {
+                try {
+                    const response = await fetch(`./samplemovie/${filename}`, { method: 'HEAD' });
+                    if (response.ok) {
+                        availableVideos.push(filename);
+                        console.log(`✅ ${filename} - OK`);
+                    } else {
+                        console.log(`❌ ${filename} - Not Found`);
+                    }
+                } catch (error) {
+                    console.log(`❌ ${filename} - Error: ${error.message}`);
+                }
+            }
+            
+            videoStatus.innerHTML = `
+                <div>✅ 利用可能な動画: ${availableVideos.length}/${videoFiles.length}</div>
+                ${availableVideos.length === 0 ? '<div style="color: #ff6b6b;">⚠️ 動画ファイルが見つかりません</div>' : ''}
+            `;
+            
+            // 利用可能な動画のリストを表示
+            if (availableVideos.length > 0) {
+                videoList.innerHTML = availableVideos.map(filename => `
+                    <div class="video-item">
+                        <video class="video-preview" controls preload="metadata">
+                            <source src="./samplemovie/${filename}" type="video/mp4">
+                            ブラウザが動画をサポートしていません
+                        </video>
+                        <div style="font-size: 12px; color: #ccc; margin-top: 5px;">${filename}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // ポケモングリッド表示
+        function renderPokemonGrid() {
+            const grid = document.getElementById('pokemon-grid');
+            grid.innerHTML = pokemonData.map((pokemon, index) => `
+                <div class="pokemon-card ${index === 0 ? 'selected' : ''}" onclick="selectPokemon(${index})">
+                    <div style="font-size: 24px; margin-bottom: 5px;">${pokemon.emoji}</div>
+                    <div style="font-size: 12px; font-weight: bold;">${pokemon.name}</div>
+                </div>
+            `).join('');
+        }
+
+        // ポケモン選択
+        function selectPokemon(index) {
+            document.querySelectorAll('.pokemon-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('.pokemon-card')[index].classList.add('selected');
+            selectedPokemon = pokemonData[index];
+            updateStatus();
+        }
+
+        // ガチャ実行
+        function executeGacha(rarity) {
+            if (availableVideos.length === 0) {
+                alert('動画ファイルが見つかりません。samplemovie フォルダを確認してください。');
+                return;
+            }
+
+            const effectMode = document.getElementById('effect-mode').value;
+            const audioEnabled = document.getElementById('audio-enabled').checked;
+            const vibrationEnabled = document.getElementById('vibration-enabled').checked;
+
+            // 動画シーケンス準備
+            const rarityVideos = videoMapping[rarity].filter(v => availableVideos.includes(v));
+            
+            if (rarityVideos.length === 0) {
+                alert(`${rarity}用の動画が見つかりません`);
+                return;
+            }
+
+            if (effectMode === 'sequence') {
+                currentSequence = rarityVideos;
+            } else {
+                currentSequence = [rarityVideos[Math.floor(Math.random() * rarityVideos.length)]];
+            }
+
+            currentIndex = 0;
+            playVideoSequence(rarity);
+
+            // エフェクト
+            if (audioEnabled) playAudioEffect(rarity);
+            if (vibrationEnabled) triggerVibration(rarity);
+            
+            updateStatus(`${rarity}ガチャ実行中`);
+        }
+
+        // 動画シーケンス再生
+        function playVideoSequence(rarity) {
+            if (currentIndex >= currentSequence.length) {
+                showCardReveal(rarity);
+                return;
+            }
+
+            const filename = currentSequence[currentIndex];
+            const video = document.getElementById('effect-video');
+            const overlay = document.getElementById('effect-overlay');
+            const skipBtn = document.querySelector('.skip-btn');
+
+            video.src = `./samplemovie/${filename}`;
+            overlay.classList.add('active');
+            skipBtn.style.display = 'block';
+            
+            // 動画読み込み完了まで待機
+            video.onloadeddata = () => {
+                video.play().catch(error => {
+                    console.error('Video play failed:', error);
+                    onVideoError();
+                });
+            };
+            
+            updateStatus(`動画再生中: ${currentIndex + 1}/${currentSequence.length}`);
+        }
+
+        // 動画終了時
+        function onVideoEnd() {
+            currentIndex++;
+            setTimeout(() => {
+                if (currentIndex < currentSequence.length) {
+                    // 次の動画を再生する前に現在のレアリティを取得
+                    const currentRarity = getCurrentRarity();
+                    playVideoSequence(currentRarity);
+                } else {
+                    const currentRarity = getCurrentRarity();
+                    showCardReveal(currentRarity);
+                }
+            }, 500);
+        }
+
+        // 現在のレアリティを取得
+        function getCurrentRarity() {
+            const currentVideo = currentSequence[0];
+            for (const [rarity, videos] of Object.entries(videoMapping)) {
+                if (videos.includes(currentVideo)) {
+                    return rarity;
+                }
+            }
+            return 'N';
+        }
+
+        // 動画エラー時
+        function onVideoError() {
+            console.error('Video playback error');
+            alert('動画の再生に失敗しました。ファイルを確認してください。');
+            closeEffect();
+        }
+
+        // カードにスキップ
+        function skipToCard() {
+            const currentRarity = getCurrentRarity();
+            showCardReveal(currentRarity);
+        }
+
+        // カード表示
+        function showCardReveal(rarity) {
+            const video = document.getElementById('effect-video');
+            const cardReveal = document.getElementById('card-reveal');
+            const rarityBanner = document.getElementById('rarity-banner');
+            const skipBtn = document.querySelector('.skip-btn');
+            
+            // 動画を隠す
+            video.style.opacity = '0';
+            skipBtn.style.display = 'none';
+            
+            // カード内容生成
+            const cardContent = `
+                <div style="font-size: 50px; margin-bottom: 15px;">${selectedPokemon.emoji}</div>
+                <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333;">${selectedPokemon.name}</div>
+                <div style="font-size: 16px; color: #555; text-transform: uppercase;">${selectedPokemon.type} TYPE</div>
+            `;
+            
+            document.getElementById('pokemon-card-3d').innerHTML = cardContent;
+            
+            // レアリティテキスト
+            const rarityText = document.getElementById('rarity-text');
+            rarityText.textContent = rarity;
+            rarityText.style.color = getRarityColor(rarity);
+            
+            // カード背景色変更
+            const card = document.getElementById('pokemon-card-3d');
+            card.style.background = getRarityGradient(rarity);
+            card.style.boxShadow = `0 0 50px ${getRarityColor(rarity)}`;
+            
+            // アニメーション表示
+            setTimeout(() => {
+                cardReveal.style.display = 'block';
+                cardReveal.style.animation = 'cardReveal 1.5s ease-out forwards';
+            }, 300);
+            
+            setTimeout(() => {
+                rarityBanner.style.display = 'block';
+                rarityBanner.style.animation = 'rarityReveal 1s ease-out forwards';
+            }, 800);
+            
+            // 自動終了
+            setTimeout(() => {
+                closeEffect();
+            }, 4000);
+            
+            updateStatus(`${rarity} ${selectedPokemon.name} 獲得！`);
+        }
+
+        // エフェクト終了
+        function closeEffect() {
+            const overlay = document.getElementById('effect-overlay');
+            const video = document.getElementById('effect-video');
+            const cardReveal = document.getElementById('card-reveal');
+            const rarityBanner = document.getElementById('rarity-banner');
+            
+            overlay.classList.remove('active');
+            cardReveal.style.display = 'none';
+            rarityBanner.style.display = 'none';
+            video.style.opacity = '1';
+            video.pause();
+            video.src = '';
+            
+            updateStatus('待機中');
+        }
+
+        // 派手な音声エフェクト
+        function playAudioEffect(rarity) {
+            if (!window.AudioContext) return;
+
+            const audioContext = new AudioContext();
+            
+            // レアリティ別の派手な音響設定
+            const soundConfigs = {
+                'SSR': {
+                    mainNotes: [523, 659, 784, 988, 1175, 1397, 1568], // ドミソシレファ#ソ
+                    harmony: [261, 329, 392, 494, 587], // 低音和音
+                    effects: ['bell', 'sparkle', 'fanfare'],
+                    duration: 3000,
+                    volume: 0.4
+                },
+                'SR': {
+                    mainNotes: [440, 554, 659, 831, 988], // ラドミソシ
+                    harmony: [220, 277, 330], // 低音和音
+                    effects: ['explosion', 'fire'],
+                    duration: 2000,
+                    volume: 0.3
+                },
+                'R': {
+                    mainNotes: [349, 440, 523, 659], // ファラドミ
+                    harmony: [174, 220], // 低音
+                    effects: ['water'],
+                    duration: 1500,
+                    volume: 0.25
+                },
+                'N': {
+                    mainNotes: [262, 330, 392], // ドミソ
+                    harmony: [131], // 低音
+                    effects: ['simple'],
+                    duration: 1000,
+                    volume: 0.2
+                }
+            };
+
+            const config = soundConfigs[rarity] || soundConfigs['N'];
+            
+            // メインメロディー
+            playMelody(audioContext, config.mainNotes, config.volume, 0);
+            
+            // ハーモニー（和音）
+            if (config.harmony.length > 0) {
+                setTimeout(() => {
+                    playHarmony(audioContext, config.harmony, config.volume * 0.6, config.duration / 2);
+                }, 200);
+            }
+            
+            // 特殊エフェクト
+            config.effects.forEach((effect, index) => {
+                setTimeout(() => {
+                    playSpecialEffect(audioContext, effect, config.volume);
+                }, index * 300);
+            });
+        }
+
+        // メロディー再生
+        function playMelody(audioContext, notes, volume, delay) {
+            notes.forEach((frequency, index) => {
+                setTimeout(() => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    const filterNode = audioContext.createBiquadFilter();
+                    
+                    // エフェクトチェーン
+                    oscillator.connect(filterNode);
+                    filterNode.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    // 波形設定（より豊かな音色）
+                    oscillator.type = 'sawtooth';
+                    filterNode.type = 'lowpass';
+                    filterNode.frequency.setValueAtTime(frequency * 2, audioContext.currentTime);
+                    filterNode.Q.setValueAtTime(10, audioContext.currentTime);
+                    
+                    // 音量エンベロープ
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(volume, audioContext.currentTime + 0.05);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.4);
+                }, delay + index * 150);
+            });
+        }
+
+        // ハーモニー再生
+        function playHarmony(audioContext, notes, volume, duration) {
+            notes.forEach(frequency => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration / 1000);
+            });
+        }
+
+        // 特殊エフェクト
+        function playSpecialEffect(audioContext, effectType, volume) {
+            switch (effectType) {
+                case 'bell':
+                    // 鐘の音エフェクト
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(() => {
+                            const osc = audioContext.createOscillator();
+                            const gain = audioContext.createGain();
+                            
+                            osc.connect(gain);
+                            gain.connect(audioContext.destination);
+                            
+                            osc.type = 'sine';
+                            osc.frequency.setValueAtTime(1000 + Math.random() * 500, audioContext.currentTime);
+                            gain.gain.setValueAtTime(volume * 0.3, audioContext.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+                            
+                            osc.start(audioContext.currentTime);
+                            osc.stop(audioContext.currentTime + 0.8);
+                        }, i * 100);
+                    }
+                    break;
+                    
+                case 'sparkle':
+                    // キラキラ音エフェクト
+                    for (let i = 0; i < 10; i++) {
+                        setTimeout(() => {
+                            const osc = audioContext.createOscillator();
+                            const gain = audioContext.createGain();
+                            
+                            osc.connect(gain);
+                            gain.connect(audioContext.destination);
+                            
+                            osc.type = 'triangle';
+                            osc.frequency.setValueAtTime(1500 + Math.random() * 1000, audioContext.currentTime);
+                            gain.gain.setValueAtTime(volume * 0.2, audioContext.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                            
+                            osc.start(audioContext.currentTime);
+                            osc.stop(audioContext.currentTime + 0.2);
+                        }, i * 50);
+                    }
+                    break;
+                    
+                case 'fanfare':
+                    // ファンファーレ
+                    const fanfareNotes = [523, 659, 784, 1047];
+                    fanfareNotes.forEach((freq, index) => {
+                        setTimeout(() => {
+                            const osc = audioContext.createOscillator();
+                            const gain = audioContext.createGain();
+                            
+                            osc.connect(gain);
+                            gain.connect(audioContext.destination);
+                            
+                            osc.type = 'square';
+                            osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+                            gain.gain.setValueAtTime(volume * 0.4, audioContext.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+                            
+                            osc.start(audioContext.currentTime);
+                            osc.stop(audioContext.currentTime + 0.6);
+                        }, index * 100);
+                    });
+                    break;
+                    
+                case 'explosion':
+                    // 爆発音
+                    const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.3, audioContext.sampleRate);
+                    const data = noiseBuffer.getChannelData(0);
+                    for (let i = 0; i < data.length; i++) {
+                        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
+                    }
+                    
+                    const noiseSource = audioContext.createBufferSource();
+                    const noiseGain = audioContext.createGain();
+                    const filter = audioContext.createBiquadFilter();
+                    
+                    noiseSource.buffer = noiseBuffer;
+                    noiseSource.connect(filter);
+                    filter.connect(noiseGain);
+                    noiseGain.connect(audioContext.destination);
+                    
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(200, audioContext.currentTime);
+                    noiseGain.gain.setValueAtTime(volume * 0.5, audioContext.currentTime);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    
+                    noiseSource.start(audioContext.currentTime);
+                    break;
+                    
+                case 'fire':
+                    // 炎の音
+                    for (let i = 0; i < 8; i++) {
+                        setTimeout(() => {
+                            const osc = audioContext.createOscillator();
+                            const gain = audioContext.createGain();
+                            const filter = audioContext.createBiquadFilter();
+                            
+                            osc.connect(filter);
+                            filter.connect(gain);
+                            gain.connect(audioContext.destination);
+                            
+                            osc.type = 'sawtooth';
+                            osc.frequency.setValueAtTime(80 + Math.random() * 40, audioContext.currentTime);
+                            filter.type = 'bandpass';
+                            filter.frequency.setValueAtTime(300 + Math.random() * 200, audioContext.currentTime);
+                            gain.gain.setValueAtTime(volume * 0.1, audioContext.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                            
+                            osc.start(audioContext.currentTime);
+                            osc.stop(audioContext.currentTime + 0.4);
+                        }, i * 30);
+                    }
+                    break;
+                    
+                case 'water':
+                    // 水の音
+                    for (let i = 0; i < 6; i++) {
+                        setTimeout(() => {
+                            const osc = audioContext.createOscillator();
+                            const gain = audioContext.createGain();
+                            
+                            osc.connect(gain);
+                            gain.connect(audioContext.destination);
+                            
+                            osc.type = 'sine';
+                            osc.frequency.setValueAtTime(200 + Math.random() * 300, audioContext.currentTime);
+                            gain.gain.setValueAtTime(volume * 0.15, audioContext.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                            
+                            osc.start(audioContext.currentTime);
+                            osc.stop(audioContext.currentTime + 0.5);
+                        }, i * 80);
+                    }
+                    break;
+                    
+                case 'simple':
+                default:
+                    // シンプルな音
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, audioContext.currentTime);
+                    gain.gain.setValueAtTime(volume, audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    
+                    osc.start(audioContext.currentTime);
+                    osc.stop(audioContext.currentTime + 0.3);
+                    break;
+            }
+        }
+
+        // バイブレーション
+        function triggerVibration(rarity) {
+            if (!('vibrate' in navigator)) return;
+
+            const patterns = {
+                'SSR': [200, 100, 200, 100, 400, 100, 200],
+                'SR': [150, 50, 150, 50, 300],
+                'R': [100, 50, 100],
+                'N': [50]
+            };
+
+            navigator.vibrate(patterns[rarity] || patterns['N']);
+        }
+
+        // ステータス更新
+        function updateStatus(message = '待機中') {
+            document.getElementById('status').innerHTML = `
+                <div>${message}</div>
+                <div>ポケモン: ${selectedPokemon.name}</div>
+                <div>動画: ${availableVideos.length}個</div>
+            `;
+        }
+
+        // レアリティ色
+        function getRarityColor(rarity) {
+            const colors = {
+                'SSR': '#ffd700',
+                'SR': '#ff4500',
+                'R': '#4169e1',
+                'N': '#808080'
+            };
+            return colors[rarity] || colors['N'];
+        }
+
+        // レアリティグラデーション
+        function getRarityGradient(rarity) {
+            const gradients = {
+                'SSR': 'linear-gradient(45deg, #ffd700, #ffed4e, #ffd700)',
+                'SR': 'linear-gradient(45deg, #ff4500, #ff6347, #ffa500)',
+                'R': 'linear-gradient(45deg, #4169e1, #00bfff, #87ceeb)',
+                'N': 'linear-gradient(45deg, #808080, #a9a9a9, #c0c0c0)'
+            };
+            return gradients[rarity] || gradients['N'];
+        }
+
+        // CSS アニメーション
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes cardReveal {
+                0% {
+                    transform: translate(-50%, -50%) scale(0) rotateY(180deg);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translate(-50%, -50%) scale(1) rotateY(0deg);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes rarityReveal {
+                0% {
+                    transform: translateX(-50%) translateY(-50px) scale(0);
+                    opacity: 0;
+                }
+                50% {
+                    transform: translateX(-50%) translateY(0) scale(1.2);
+                }
+                100% {
+                    transform: translateX(-50%) translateY(0) scale(1);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

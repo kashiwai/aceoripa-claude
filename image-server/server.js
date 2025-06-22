@@ -2,12 +2,63 @@ const express = require('express');
 const cors = require('cors');
 const { createCanvas, registerFont } = require('canvas');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = 9015;
 
 app.use(cors());
 app.use(express.json());
+
+// フォント登録
+function registerFonts() {
+  const fontsDir = path.join(__dirname, '..', 'public', 'fonts');
+  
+  // システムフォント登録
+  const systemFonts = [
+    { path: '/System/Library/Fonts/ヒラギノ角ゴシック W9.ttc', family: 'HiraginoBold' },
+    { path: '/System/Library/Fonts/Helvetica.ttc', family: 'HelveticaBold' },
+    { path: '/Library/Fonts/Arial Black.ttf', family: 'ArialBlack' }
+  ];
+  
+  systemFonts.forEach(font => {
+    if (fs.existsSync(font.path)) {
+      try {
+        registerFont(font.path, { family: font.family });
+        console.log(`✅ システムフォント登録: ${font.family}`);
+      } catch (err) {
+        console.error(`❌ システムフォント登録失敗: ${font.family}`, err.message);
+      }
+    }
+  });
+  
+  // カスタムフォント登録
+  const customFonts = [
+    { file: 'Dela_Gothic_One.ttf', family: 'Dela_Gothic_One' },
+    { file: 'MOBO-Font11_4.otf', family: 'MOBO_Font11' },
+    { file: 'YDW_bananaslip_plus_240809.otf', family: 'YDW_bananaslip' },
+    { file: 'craftmincho_2.otf', family: 'craftmincho' },
+    { file: 'kinkaku_2.ttf', family: 'kinkaku' },
+    { file: 'Mplus1p-Black.ttf', family: 'Mplus1p-Black' },
+    { file: 'RoundedMplus1c-Black.ttf', family: 'RoundedMplus1c-Black' },
+    { file: 'SourceHanSans-Heavy.otf', family: 'SourceHanSans-Heavy' }
+  ];
+  
+  customFonts.forEach(font => {
+    const fontPath = path.join(fontsDir, font.file);
+    if (fs.existsSync(fontPath)) {
+      try {
+        registerFont(fontPath, { family: font.family });
+        console.log(`✅ カスタムフォント登録: ${font.family}`);
+      } catch (err) {
+        console.error(`❌ カスタムフォント登録失敗: ${font.family}`, err.message);
+      }
+    }
+  });
+}
+
+// フォントを登録
+registerFonts();
 
 // バナー生成エンドポイント
 app.post('/generate-banner', async (req, res) => {
@@ -88,13 +139,13 @@ function drawLineCampaignBanner(ctx, width, height, text) {
   
   // メインテキスト
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 16px Arial';
+  ctx.font = 'bold 16px "Mplus1p-Black", "HiraginoBold", Arial';
   ctx.textAlign = 'left';
   ctx.fillText('LINE友達登録で', 80, height/2 - 10);
   
   // 割引テキスト
   ctx.fillStyle = '#FFFF00';
-  ctx.font = 'bold 24px Arial';
+  ctx.font = 'bold 24px "Dela_Gothic_One", "HiraginoBold", Arial';
   ctx.fillText('最大70%OFF', 80, height/2 + 15);
   
   // 矢印
@@ -128,7 +179,7 @@ function drawMainGachaBanner(ctx, width, height, text) {
   
   // メインテキスト
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 48px Arial';
+  ctx.font = 'bold 48px "MOBO_Font11", "Dela_Gothic_One", "HiraginoBold", Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   
@@ -141,7 +192,7 @@ function drawMainGachaBanner(ctx, width, height, text) {
   ctx.fillText(text || '超絶ガチャ', width/2, height/2 - 20);
   
   // サブテキスト
-  ctx.font = 'bold 24px Arial';
+  ctx.font = 'bold 24px "YDW_bananaslip", "MOBO_Font11", "HiraginoBold", Arial';
   ctx.fillStyle = '#FFFF00';
   ctx.fillText('爆誕！', width/2, height/2 + 30);
 }
@@ -167,7 +218,7 @@ function drawCampaignBanner(ctx, width, height, text) {
   
   // メインテキスト
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 28px Arial';
+  ctx.font = 'bold 28px "RoundedMplus1c-Black", "Dela_Gothic_One", "HiraginoBold", Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(text || '期間限定キャンペーン', width/2, height/2);
@@ -207,7 +258,7 @@ function drawSnsWinnerBanner(ctx, width, height, text) {
   
   // テキスト
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 20px Arial';
+  ctx.font = 'bold 20px "YDW_bananaslip", "Mplus1p-Black", "HiraginoBold", Arial';
   ctx.fillText(text || '当選おめでとう！', width/2, height/2 + 30);
 }
 
@@ -242,7 +293,7 @@ function drawCardPackBanner(ctx, width, height, text) {
   
   // テキスト
   ctx.fillStyle = '#333333';
-  ctx.font = 'bold 24px Arial';
+  ctx.font = 'bold 24px "craftmincho", "kinkaku", "HiraginoBold", Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(text || 'カードパック', width/2, height/2);
@@ -264,7 +315,7 @@ function drawDefaultBanner(ctx, width, height, text) {
   ctx.fillRect(0, 0, width, height);
   
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 24px Arial';
+  ctx.font = 'bold 24px "SourceHanSans-Heavy", "HiraginoBold", Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(text || 'ACEORIPA', width/2, height/2);
@@ -317,6 +368,32 @@ app.get('/sample-banners', async (req, res) => {
   res.json({ samples: results });
 });
 
+// フォント情報エンドポイント
+app.get('/font-info', (req, res) => {
+  const fontInfo = {
+    registered: true,
+    systemFonts: [
+      'HiraginoBold',
+      'HelveticaBold',
+      'ArialBlack'
+    ],
+    customFonts: [
+      'Dela_Gothic_One',
+      'MOBO_Font11',
+      'YDW_bananaslip',
+      'craftmincho',
+      'kinkaku',
+      'Mplus1p-Black',
+      'RoundedMplus1c-Black',
+      'SourceHanSans-Heavy'
+    ],
+    testText: '日本語テスト Japanese Test 123'
+  };
+  
+  res.json(fontInfo);
+});
+
 app.listen(PORT, () => {
   console.log(`Image generation server running on http://localhost:${PORT}`);
+  console.log(`Font test available at: http://localhost:${PORT}/font-info`);
 });
