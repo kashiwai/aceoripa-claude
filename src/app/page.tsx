@@ -230,54 +230,32 @@ export default function HomePage() {
                       )}
                     </div>
                     
-                    {/* ガチャボタン */}
-                    <div className="space-y-2">
-                      {/* 1行目: 1回と10連 */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <button 
-                          className={`text-center font-bold py-3 px-4 rounded-full transition ${
-                            product.status === 'sold_out' 
-                              ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
-                              : 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white hover:scale-105'
-                          }`}
-                          disabled={product.status === 'sold_out'}
-                        >
-                          1回
-                        </button>
-                        <button 
-                          className={`text-center font-bold py-3 px-4 rounded-full transition ${
-                            product.status === 'sold_out' 
-                              ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
-                              : 'bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-white hover:scale-105'
-                          }`}
-                          disabled={product.status === 'sold_out'}
-                        >
-                          10連
-                        </button>
-                      </div>
-                      
-                      {/* 2行目: 指定数ガチャ */}
-                      <div className="flex items-center gap-2">
-                        <input 
-                          type="number" 
-                          min="1" 
-                          max="999"
-                          placeholder="回数"
-                          className="flex-1 px-3 py-2 border-2 border-gray-300 rounded-lg text-center font-bold focus:border-[#FF0033] focus:outline-none disabled:bg-gray-100"
-                          disabled={product.status === 'sold_out'}
-                        />
-                        <button 
-                          className={`flex-1 text-center font-bold py-2 px-4 rounded-full transition ${
-                            product.status === 'sold_out' 
-                              ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
-                              : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:scale-105'
-                          }`}
-                          disabled={product.status === 'sold_out'}
-                        >
-                          指定数ガチャ
-                        </button>
+                    {/* 価格表示（DOPAスタイル） */}
+                    <div className="mb-3">
+                      <div className="flex items-baseline justify-between">
+                        <div className="flex items-baseline">
+                          <span className="text-sm text-gray-600">1口</span>
+                          <span className="text-3xl font-black text-dopa-dark mx-2">{product.price.toLocaleString()}</span>
+                          <span className="text-sm text-gray-600">PT</span>
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          残 {product.remaining.toLocaleString()} / {product.total.toLocaleString()}
+                        </div>
                       </div>
                     </div>
+                    
+                    {/* ガチャボタン（DOPAスタイル - 大きな10連ボタン） */}
+                    <button 
+                      className={`w-full text-center font-black py-4 rounded-xl transition text-xl ${
+                        product.status === 'sold_out' 
+                          ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                          : 'bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white hover:scale-105 shadow-lg'
+                      }`}
+                      disabled={product.status === 'sold_out'}
+                      onClick={() => router.push(`/gacha/${product.id}`)}
+                    >
+                      {product.status === 'sold_out' ? '完売' : '10連ガチャ'}
+                    </button>
                   </div>
                 </div>
               </Link>
