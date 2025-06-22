@@ -6,11 +6,11 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
     
-    // 管理者権限チェック（本番環境では必須）
-    // const { data: { user } } = await supabase.auth.getUser()
-    // if (!user || user.email !== process.env.ADMIN_EMAIL) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    // 管理者権限チェック
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user || user.email !== process.env.ADMIN_EMAIL) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     
     const { data: products, error } = await supabase
       .from('gacha_products')
@@ -67,6 +67,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
+    
+    // 管理者権限チェック
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user || user.email !== process.env.ADMIN_EMAIL) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    
     const body = await request.json()
     
     // バリデーション

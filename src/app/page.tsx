@@ -12,10 +12,31 @@ import 'swiper/css/pagination'
 
 export default function HomePage() {
   const [loading, setLoading] = useState(true)
+  const [gachaProducts, setGachaProducts] = useState<any[]>([])
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
+  // APIからガチャ商品データを取得
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1000)
+    const fetchGachaProducts = async () => {
+      try {
+        const response = await fetch('/api/gacha/products')
+        if (!response.ok) {
+          throw new Error('ガチャ商品の取得に失敗しました')
+        }
+        const data = await response.json()
+        setGachaProducts(data.products || [])
+      } catch (err) {
+        console.error('Error fetching gacha products:', err)
+        setError(err instanceof Error ? err.message : 'エラーが発生しました')
+        // フォールバックデータを使用
+        setGachaProducts(gachaProductsFallback)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchGachaProducts()
   }, [])
 
   const banners = [
@@ -45,7 +66,8 @@ export default function HomePage() {
     },
   ]
 
-  const gachaProducts = [
+  // フォールバックデータ（APIエラー時）
+  const gachaProductsFallback = [
     { 
       id: 1, 
       name: 'ポケモン151オリパ', 

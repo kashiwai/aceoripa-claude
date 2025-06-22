@@ -1,8 +1,305 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
+import { createCanvas, registerFont } from 'canvas'
+import path from 'path'
+import fs from 'fs'
+
+// フォント登録（サーバー起動時）
+const initializeFonts = () => {
+  const fontDir = path.join(process.cwd(), 'public', 'images', 'font')
+  const fontFiles = [
+    { file: 'Dela_Gothic_One/DelaGothicOne-Regular.ttf', family: 'DelaGothicOne' },
+    { file: 'MOBO-Font11/MOBO-Bold.otf', family: 'MOBOFont' },
+    { file: 'YDW_bananaslip_plus_240809/YDWbananaslipplus.otf', family: 'BananaSlip' },
+    { file: 'craftmincho/craftmincho.otf', family: 'CraftMincho' },
+    { file: 'kinkaku/Kinkakuji-Normal.otf', family: 'Kinkaku' }
+  ]
+
+  fontFiles.forEach(font => {
+    try {
+      const fontPath = path.join(fontDir, font.file)
+      if (fs.existsSync(fontPath)) {
+        registerFont(fontPath, { family: font.family })
+      }
+    } catch (err) {
+      console.warn(`Font registration failed: ${font.family}`)
+    }
+  })
+}
+
+// サーバー起動時にフォント初期化
+initializeFonts()
+
+interface BannerRequest {
+  gachaId: string
+  bannerType: 'main' | 'rarity' | 'custom'
+  rarity?: 'N' | 'R' | 'SR' | 'SSR' | 'UR' | 'PSA10'
+  title?: string
+  subtitle?: string
+  colors?: string[]
+  size?: {
+    width: number
+    height: number
+  }
+  options?: {
+    sparkles?: number
+    cards?: number
+    font?: string
+    backgroundStyle?: 'gradient' | 'ai' | 'existing'
+  }
+}
+
+// バナー生成メイン関数
+const generateBanner = async (config: BannerRequest): Promise<Buffer> => {
+  const { width = 1024, height = 1024 } = config.size || {}
+  const canvas = createCanvas(width, height)
+  const ctx = canvas.getContext('2d')
+
+  // バナータイプ別の生成
+  switch (config.bannerType) {
+    case 'rarity':
+      return generateRarityBanner(ctx, config)
+    case 'main':
+      return generateMainBanner(ctx, config)
+    case 'custom':
+      return generateCustomBanner(ctx, config)
+    default:
+      return generateMainBanner(ctx, config)
+  }
+}
+
+// レアリティ別バナー生成
+const generateRarityBanner = (ctx: any, config: BannerRequest): Buffer => {
+  const { rarity = 'N', title, subtitle } = config
+  const { width, height } = ctx.canvas
+
+  const rarityConfigs = {
+    N: { colors: ['#B0B0B0', '#808080'], sparkles: 20, font: 'DelaGothicOne' },
+    R: { colors: ['#4ECDC4', '#2E86C1'], sparkles: 30, font: 'MOBOFont' },
+    SR: { colors: ['#FFD93D', '#F39C12'], sparkles: 40, font: 'BananaSlip' },
+    SSR: { colors: ['#FF6B6B', '#E74C3C'], sparkles: 60, font: 'Kinkaku' },
+    UR: { colors: ['#DA70D6', '#8E44AD'], sparkles: 80, font: 'MOBOFont' },
+    PSA10: { colors: ['#FFD700', '#FFA500'], sparkles: 100, font: 'Kinkaku' }
+  }
+
+  const rarityConfig = rarityConfigs[rarity]
+
+  // 背景グラデーション
+  const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width/2)
+  gradient.addColorStop(0, rarityConfig.colors[0])
+  gradient.addColorStop(1, rarityConfig.colors[1])
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, width, height)
+
+  // 放射状エフェクト
+  ctx.globalAlpha = 0.3
+  for (let i = 0; i < 36; i++) {
+    ctx.save()
+    ctx.translate(width/2, height/2)
+    ctx.rotate((i * 10) * Math.PI / 180)
+    
+    const rayGradient = ctx.createLinearGradient(0, 0, 0, -height/2)
+    rayGradient.addColorStop(0, 'rgba(255, 255, 255, 0)')
+    rayGradient.addColorStop(1, 'rgba(255, 255, 255, 0.5)')
+    
+    ctx.fillStyle = rayGradient
+    ctx.beginPath()
+    ctx.moveTo(-20, 0)
+    ctx.lineTo(20, 0)
+    ctx.lineTo(10, -height/2)
+    ctx.lineTo(-10, -height/2)
+    ctx.closePath()
+    ctx.fill()
+    ctx.restore()
+  }
+  ctx.globalAlpha = 1
+
+  // メインテキスト
+  ctx.font = `bold ${Math.floor(width * 0.15)}px "${rarityConfig.font}"`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  
+  // アウトライン
+  ctx.strokeStyle = '#FFFFFF'
+  ctx.lineWidth = Math.floor(width * 0.02)
+  ctx.strokeText(title || rarity, width/2, height * 0.35)
+  
+  // 本体
+  const textGradient = ctx.createLinearGradient(0, height * 0.25, 0, height * 0.45)
+  textGradient.addColorStop(0, '#FFFFFF')
+  textGradient.addColorStop(1, rarityConfig.colors[0])
+  ctx.fillStyle = textGradient
+  ctx.fillText(title || rarity, width/2, height * 0.35)
+
+  // サブテキスト
+  if (subtitle) {
+    ctx.font = `bold ${Math.floor(width * 0.06)}px "${rarityConfig.font}"`
+    ctx.strokeStyle = '#000000'
+    ctx.lineWidth = Math.floor(width * 0.008)
+    ctx.strokeText(subtitle, width/2, height * 0.5)
+    ctx.fillStyle = '#FFFFFF'
+    ctx.fillText(subtitle, width/2, height * 0.5)
+  }
+
+  // スパークルエフェクト
+  for (let i = 0; i < rarityConfig.sparkles; i++) {
+    const x = Math.random() * width
+    const y = Math.random() * height
+    const size = Math.random() * 4 + 2
+    
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.rotate(Math.random() * Math.PI)
+    
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'
+    ctx.beginPath()
+    ctx.moveTo(0, -size)
+    ctx.lineTo(size, 0)
+    ctx.lineTo(0, size)
+    ctx.lineTo(-size, 0)
+    ctx.closePath()
+    ctx.fill()
+    
+    ctx.restore()
+  }
+
+  return ctx.canvas.toBuffer('image/png')
+}
+
+// メインバナー生成
+const generateMainBanner = (ctx: any, config: BannerRequest): Buffer => {
+  const { title = '超激レアガチャ', subtitle = 'PSA10確率UP!' } = config
+  const { width, height } = ctx.canvas
+
+  // 背景グラデーション
+  const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width/2)
+  gradient.addColorStop(0, '#FFD700')
+  gradient.addColorStop(0.2, '#FF6B6B')
+  gradient.addColorStop(0.4, '#DA70D6')
+  gradient.addColorStop(0.6, '#4ECDC4')
+  gradient.addColorStop(0.8, '#FFD93D')
+  gradient.addColorStop(1, '#FF6B6B')
+  
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, width, height)
+
+  // 暗めオーバーレイ
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'
+  ctx.fillRect(0, 0, width, height)
+
+  // 中央爆発エフェクト
+  const explosionGradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width * 0.4)
+  explosionGradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)')
+  explosionGradient.addColorStop(0.5, 'rgba(255, 255, 0, 0.4)')
+  explosionGradient.addColorStop(1, 'rgba(255, 0, 0, 0)')
+  
+  ctx.fillStyle = explosionGradient
+  ctx.fillRect(0, 0, width, height)
+
+  // メインテキスト
+  ctx.font = `bold ${Math.floor(width * 0.12)}px "Kinkaku"`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  
+  // アウトライン
+  ctx.strokeStyle = '#000000'
+  ctx.lineWidth = Math.floor(width * 0.02)
+  ctx.strokeText(title, width/2, height * 0.4)
+  
+  // グラデーションテキスト
+  const textGradient = ctx.createLinearGradient(0, height * 0.3, 0, height * 0.5)
+  textGradient.addColorStop(0, '#FFD700')
+  textGradient.addColorStop(0.5, '#FFFFFF')
+  textGradient.addColorStop(1, '#FFD700')
+  
+  ctx.fillStyle = textGradient
+  ctx.fillText(title, width/2, height * 0.4)
+
+  // サブテキスト
+  ctx.font = `bold ${Math.floor(width * 0.05)}px "MOBOFont"`
+  ctx.strokeStyle = '#FFFFFF'
+  ctx.lineWidth = Math.floor(width * 0.008)
+  ctx.strokeText(subtitle, width/2, height * 0.6)
+  
+  ctx.fillStyle = '#FF0000'
+  ctx.fillText(subtitle, width/2, height * 0.6)
+
+  return ctx.canvas.toBuffer('image/png')
+}
+
+// カスタムバナー生成
+const generateCustomBanner = (ctx: any, config: BannerRequest): Buffer => {
+  const { title = 'カスタムバナー', colors = ['#FF6B6B', '#4ECDC4'] } = config
+  const { width, height } = ctx.canvas
+
+  // カスタム背景
+  const gradient = ctx.createLinearGradient(0, 0, width, height)
+  colors.forEach((color, i) => {
+    gradient.addColorStop(i / (colors.length - 1), color)
+  })
+  
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, width, height)
+
+  // タイトル
+  ctx.font = `bold ${Math.floor(width * 0.1)}px "DelaGothicOne"`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.strokeStyle = '#FFFFFF'
+  ctx.lineWidth = Math.floor(width * 0.01)
+  ctx.strokeText(title, width/2, height/2)
+  ctx.fillStyle = '#000000'
+  ctx.fillText(title, width/2, height/2)
+
+  return ctx.canvas.toBuffer('image/png')
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const { type, text, style, title, subtitle } = await request.json();
+    // 新しいAPIとレガシーAPIの両対応
+    const body = await request.json()
+    
+    // 新形式のバナー生成リクエスト
+    if (body.gachaId && body.bannerType) {
+      const config: BannerRequest = body
+      
+      // バリデーション
+      if (!config.gachaId) {
+        return NextResponse.json(
+          { error: 'gachaId is required' },
+          { status: 400 }
+        )
+      }
+
+      // バナー生成
+      const bannerBuffer = await generateBanner(config)
+      
+      // バナーファイル名
+      const timestamp = Date.now()
+      const filename = `banner-${config.gachaId}-${config.bannerType}-${timestamp}.png`
+      const filepath = path.join(process.cwd(), 'public', 'images', 'generated-banners', filename)
+      
+      // ディレクトリ作成
+      const dir = path.dirname(filepath)
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true })
+      }
+      
+      // ファイル保存
+      fs.writeFileSync(filepath, bannerBuffer)
+      
+      // URL生成
+      const bannerUrl = `/images/generated-banners/${filename}`
+      
+      return NextResponse.json({
+        success: true,
+        bannerUrl,
+        filename,
+        config
+      })
+    }
+    
+    // レガシー形式（既存のOpenAI DALL-E API呼び出し）
+    const { type, text, style, title, subtitle } = body;
     
     // バナータイプ別のプロンプト生成
     const prompts: Record<string, string> = {
@@ -126,5 +423,57 @@ export async function POST(request: NextRequest) {
       imageUrl: '/api/placeholder/400/400?text=Error',
       error: true
     });
+  }
+}
+
+// GET: バナー生成状況確認
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const gachaId = searchParams.get('gachaId')
+    
+    if (!gachaId) {
+      return NextResponse.json(
+        { error: 'gachaId parameter is required' },
+        { status: 400 }
+      )
+    }
+    
+    const bannersDir = path.join(process.cwd(), 'public', 'images', 'generated-banners')
+    
+    if (!fs.existsSync(bannersDir)) {
+      return NextResponse.json({
+        gachaId,
+        banners: [],
+        count: 0
+      })
+    }
+    
+    const files = fs.readdirSync(bannersDir)
+    const gachaBanners = files
+      .filter(file => file.startsWith(`banner-${gachaId}-`))
+      .map(file => {
+        const stat = fs.statSync(path.join(bannersDir, file))
+        return {
+          filename: file,
+          url: `/images/generated-banners/${file}`,
+          createdAt: stat.ctime,
+          sizeBytes: stat.size
+        }
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    
+    return NextResponse.json({
+      gachaId,
+      banners: gachaBanners,
+      count: gachaBanners.length
+    })
+    
+  } catch (error: any) {
+    console.error('Banner status check error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Failed to check banner status' },
+      { status: 500 }
+    )
   }
 }

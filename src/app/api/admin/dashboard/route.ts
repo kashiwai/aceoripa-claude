@@ -5,6 +5,18 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
     
+    // 認証チェック（Admin専用）
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // 管理者権限チェック
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@aceoripa.com';
+    if (user.email !== adminEmail) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
+    
     // 今日の日付
     const today = new Date()
     today.setHours(0, 0, 0, 0)
