@@ -1,0 +1,37 @@
+[
+  {
+    "test": "日本語テキスト表示テスト1",
+    "prompt": "A spectacular golden explosion effect with Japanese text \"超激レア\" (Ultra Rare) prominently displayed in the center, sparkling effects, dramatic lighting, cinematic style, 8K quality",
+    "success": true,
+    "filename": "images/test-openai-japanese-text-1.png",
+    "imageUrl": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-IJmvLq5ihtmw4HwgTQsCHwhy/user-pXUEkXODlQ95gY7Ewh9zq1XI/img-k8U4RtBFNAcR7XDyxmqekBl6.png?st=2025-06-22T06%3A32%3A39Z&se=2025-06-22T08%3A32%3A39Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=8b33a531-2df9-46a3-bc02-d4b1430a422c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-06-21T16%3A05%3A13Z&ske=2025-06-22T16%3A05%3A13Z&sks=b&skv=2024-08-04&sig=Bt/XzJLO2g65uMBAWTdeBoarP%2B8ReRPIB0t3JDjkQ%2BQ%3D"
+  },
+  {
+    "test": "日本語テキスト表示テスト2",
+    "prompt": "A dramatic fire effect with Japanese text \"大当たり！\" (Jackpot!) in burning red letters, flame effects, movie-style lighting, epic presentation",
+    "success": true,
+    "filename": "images/test-openai-japanese-text-2.png",
+    "imageUrl": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-IJmvLq5ihtmw4HwgTQsCHwhy/user-pXUEkXODlQ95gY7Ewh9zq1XI/img-MN92PiwWiDx3ycRwrtQRDf3E.png?st=2025-06-22T06%3A33%3A00Z&se=2025-06-22T08%3A33%3A00Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=8b33a531-2df9-46a3-bc02-d4b1430a422c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-06-22T07%3A33%3A00Z&ske=2025-06-23T07%3A33%3A00Z&sks=b&skv=2024-08-04&sig=C9CuM7lnuTyzJpRc/tT%2BAnNVzvDDQuVnvJytdCJLB/E%3D"
+  },
+  {
+    "test": "ガチャ演出テスト",
+    "prompt": "Japanese gacha machine with capsule bursting out, rainbow light effects, Japanese text \"SSR確定\" (SSR Guaranteed), colorful and exciting",
+    "success": true,
+    "filename": "images/test-openai-japanese-gacha-1.png",
+    "imageUrl": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-IJmvLq5ihtmw4HwgTQsCHwhy/user-pXUEkXODlQ95gY7Ewh9zq1XI/img-bdrcas70ceuX2XH4bL4zl6vp.png?st=2025-06-22T06%3A33%3A23Z&se=2025-06-22T08%3A33%3A23Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=8b33a531-2df9-46a3-bc02-d4b1430a422c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-06-21T11%3A01%3A58Z&ske=2025-06-22T11%3A01%3A58Z&sks=b&skv=2024-08-04&sig=hftR7YDfdwCX6RIzx9gnaxYPwLWn8HmCNNFBqxiCNY0%3D"
+  },
+  {
+    "test": "ポケカ風演出テスト",
+    "prompt": "Pokemon card style rare card presentation with holographic effects, Japanese text \"伝説のカード\" (Legendary Card), golden frame, sparkling background",
+    "success": true,
+    "filename": "images/test-openai-japanese-pokemon-style.png",
+    "imageUrl": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-IJmvLq5ihtmw4HwgTQsCHwhy/user-pXUEkXODlQ95gY7Ewh9zq1XI/img-w97OIGLsaRLDjOGwMRCPUMJc.png?st=2025-06-22T06%3A33%3A46Z&se=2025-06-22T08%3A33%3A46Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=8b33a531-2df9-46a3-bc02-d4b1430a422c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-06-22T06%3A40%3A43Z&ske=2025-06-23T06%3A40%3A43Z&sks=b&skv=2024-08-04&sig=du7Xyxy1XLenK5XJ8JKDxuCdnrXpoUhzp3r2bu9em2Q%3D"
+  },
+  {
+    "test": "テキスト無し演出テスト",
+    "prompt": "Spectacular rainbow explosion effect in space, shooting stars, mystical light particles, no text, no letters, pure visual effect",
+    "success": true,
+    "filename": "images/test-openai-no-text-effect.png",
+    "imageUrl": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-IJmvLq5ihtmw4HwgTQsCHwhy/user-pXUEkXODlQ95gY7Ewh9zq1XI/img-4dvCeQXp2Uey1TJ3upBG2gMo.png?st=2025-06-22T06%3A34%3A10Z&se=2025-06-22T08%3A34%3A10Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=8b33a531-2df9-46a3-bc02-d4b1430a422c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-06-21T15%3A07%3A39Z&ske=2025-06-22T15%3A07%3A39Z&sks=b&skv=2024-08-04&sig=X8MLpt/gRDkhLESV0WAeWnkSSIm4Suf6V4dkW%2BDjMDg%3D"
+  }
+]

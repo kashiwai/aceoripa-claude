@@ -70,23 +70,23 @@ function SettingsTab() {
 
   return (
     <div className="p-6">
-      <h3 className="text-2xl font-bold text-gray-900 mb-6">設定</h3>
+      <h3 className="text-3xl font-black text-white mb-6">設定</h3>
       
       {/* プッシュ通知設定 */}
       <div className="space-y-6">
-        <div className="bg-gray-50 rounded-lg p-6">
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">🔔 プッシュ通知</h4>
+        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+          <h4 className="text-xl font-bold text-white mb-4">🔔 プッシュ通知</h4>
           
           {!isSupported ? (
             <div className="text-center py-4">
-              <p className="text-gray-600">お使いのブラウザはプッシュ通知に対応していません</p>
+              <p className="text-gray-400">お使いのブラウザはプッシュ通知に対応していません</p>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900">通知の許可状況</p>
-                  <p className="text-sm text-gray-600">ブラウザの通知許可設定</p>
+                  <p className="font-medium text-white">通知の許可状況</p>
+                  <p className="text-sm text-gray-400">ブラウザの通知許可設定</p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${status.bg} ${status.color}`}>
                   {status.text}
@@ -97,7 +97,7 @@ function SettingsTab() {
                 <button
                   onClick={requestPermission}
                   disabled={isLoading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition"
+                  className="w-full bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] hover:scale-105 disabled:scale-100 disabled:opacity-50 text-white font-bold py-3 px-4 rounded-lg transition transform"
                 >
                   {isLoading ? '設定中...' : '通知を許可する'}
                 </button>
@@ -108,13 +108,13 @@ function SettingsTab() {
                   <div className="flex space-x-3">
                     <button
                       onClick={sendTestNotification}
-                      className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition"
+                      className="flex-1 bg-gradient-to-r from-[#00C853] to-[#00E676] hover:scale-105 text-white font-bold py-2 px-4 rounded-lg transition transform"
                     >
                       テスト通知
                     </button>
                     <button
                       onClick={unsubscribe}
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition"
+                      className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:scale-105 text-white font-bold py-2 px-4 rounded-lg transition transform"
                     >
                       通知を停止
                     </button>
@@ -127,8 +127,8 @@ function SettingsTab() {
 
         {/* 通知の種類設定 */}
         {permission === 'granted' && (
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">📢 通知の種類</h4>
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <h4 className="text-xl font-bold text-white mb-4">📢 通知の種類</h4>
             <div className="space-y-4">
               {[
                 { key: 'gachaAlerts', label: '新ガチャ情報', desc: '新しいガチャの登場をお知らせ' },
@@ -137,13 +137,13 @@ function SettingsTab() {
               ].map((item) => (
                 <div key={item.key} className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-900">{item.label}</p>
-                    <p className="text-sm text-gray-600">{item.desc}</p>
+                    <p className="font-medium text-white">{item.label}</p>
+                    <p className="text-sm text-gray-400">{item.desc}</p>
                   </div>
                   <button
                     onClick={() => toggleSetting(item.key)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                      settings[item.key as keyof typeof settings] ? 'bg-blue-600' : 'bg-gray-300'
+                      settings[item.key as keyof typeof settings] ? 'bg-[#FF0033]' : 'bg-gray-600'
                     }`}
                   >
                     <span
@@ -159,8 +159,8 @@ function SettingsTab() {
         )}
 
         {/* その他の設定 */}
-        <div className="bg-gray-50 rounded-lg p-6">
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">⚙️ その他</h4>
+        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+          <h4 className="text-xl font-bold text-white mb-4">⚙️ その他</h4>
           <div className="space-y-4">
             {[
               { key: 'soundEnabled', label: 'サウンド効果', desc: 'ガチャやボタンのサウンド' },
@@ -168,13 +168,13 @@ function SettingsTab() {
             ].map((item) => (
               <div key={item.key} className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-900">{item.label}</p>
-                  <p className="text-sm text-gray-600">{item.desc}</p>
+                  <p className="font-medium text-white">{item.label}</p>
+                  <p className="text-sm text-gray-400">{item.desc}</p>
                 </div>
                 <button
                   onClick={() => toggleSetting(item.key)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                    settings[item.key as keyof typeof settings] ? 'bg-blue-600' : 'bg-gray-300'
+                    settings[item.key as keyof typeof settings] ? 'bg-[#FF0033]' : 'bg-gray-600'
                   }`}
                 >
                   <span
@@ -189,22 +189,22 @@ function SettingsTab() {
         </div>
 
         {/* アカウント管理 */}
-        <div className="bg-gray-50 rounded-lg p-6">
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">👤 アカウント</h4>
+        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+          <h4 className="text-xl font-bold text-white mb-4">👤 アカウント</h4>
           <div className="space-y-3">
-            <button className="w-full text-left bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-4 transition">
+            <button className="w-full text-left bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg p-4 transition">
               <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-900">プロフィール編集</span>
+                <span className="font-medium text-white">プロフィール編集</span>
                 <span className="text-gray-400">→</span>
               </div>
             </button>
-            <button className="w-full text-left bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-4 transition">
+            <button className="w-full text-left bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg p-4 transition">
               <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-900">パスワード変更</span>
+                <span className="font-medium text-white">パスワード変更</span>
                 <span className="text-gray-400">→</span>
               </div>
             </button>
-            <button className="w-full text-left bg-white hover:bg-red-50 border border-red-200 rounded-lg p-4 transition text-red-600">
+            <button className="w-full text-left bg-red-900/50 hover:bg-red-900/70 border border-red-800 rounded-lg p-4 transition text-red-400">
               <div className="flex items-center justify-between">
                 <span className="font-medium">ログアウト</span>
                 <span className="text-red-400">→</span>
@@ -229,7 +229,7 @@ export default function MyPage() {
 
   const fetchUserData = async () => {
     try {
-      // ダミーデータ
+      // ダミーデータ（より充実したデータ）
       setUser({
         id: '1',
         name: 'ガチャマスター',
@@ -247,20 +247,34 @@ export default function MyPage() {
           gachaName: 'ポケモンカード151ガチャ',
           date: '2024-06-20',
           count: 10,
-          amount: 3000,
+          amount: 8000,
           results: [
-            { id: '1', name: 'リザードンex', rarity: 'SSR', imageUrl: '/api/placeholder/200/200' },
-            { id: '2', name: 'ピカチュウ', rarity: 'SR', imageUrl: '/api/placeholder/200/200' },
+            { id: '1', name: 'リザードンex', rarity: 'SSR', imageUrl: '/api/placeholder/200/200?text=リザードンex' },
+            { id: '2', name: 'ピカチュウ', rarity: 'SR', imageUrl: '/api/placeholder/200/200?text=ピカチュウ' },
+            { id: '3', name: 'フシギバナ', rarity: 'R', imageUrl: '/api/placeholder/200/200?text=フシギバナ' },
+            { id: '4', name: 'カメックス', rarity: 'R', imageUrl: '/api/placeholder/200/200?text=カメックス' },
+            { id: '5', name: 'フシギダネ', rarity: 'N', imageUrl: '/api/placeholder/200/200?text=フシギダネ' },
           ]
         },
         {
           id: '2',
-          gachaName: 'ワンピースカード頂上決戦',
+          gachaName: 'シャイニートレジャー',
           date: '2024-06-19',
           count: 5,
-          amount: 2500,
+          amount: 6000,
           results: [
-            { id: '3', name: 'ルフィ リーダーパラレル', rarity: 'SSR', imageUrl: '/api/placeholder/200/200' },
+            { id: '6', name: 'ミュウex', rarity: 'SSR', imageUrl: '/api/placeholder/200/200?text=ミュウex' },
+            { id: '7', name: 'イーブイ', rarity: 'SR', imageUrl: '/api/placeholder/200/200?text=イーブイ' },
+          ]
+        },
+        {
+          id: '3',
+          gachaName: 'ポケモンカード151ガチャ',
+          date: '2024-06-18',
+          count: 1,
+          amount: 800,
+          results: [
+            { id: '8', name: 'コイキング', rarity: 'N', imageUrl: '/api/placeholder/200/200?text=コイキング' },
           ]
         }
       ])
@@ -273,32 +287,43 @@ export default function MyPage() {
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
-      case 'SSR': return 'text-red-500 bg-red-100'
-      case 'SR': return 'text-purple-500 bg-purple-100'
-      case 'R': return 'text-blue-500 bg-blue-100'
-      default: return 'text-gray-500 bg-gray-100'
+      case 'SSR': return 'bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 text-white'
+      case 'SR': return 'bg-gradient-to-r from-purple-400 to-pink-400 text-white'
+      case 'R': return 'bg-gradient-to-r from-blue-400 to-cyan-400 text-white'
+      default: return 'bg-gradient-to-r from-gray-400 to-gray-500 text-white'
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="fixed inset-0 bg-[#1a1a1a] z-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-32 h-32 border-8 border-[#FF0033] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-2xl font-bold text-[#FF0033]">Loading...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ヘッダー */}
-      <header className="bg-white shadow-sm">
+    <div className="min-h-screen bg-[#1a1a1a]">
+      {/* ヘッダー（DOPAスタイル） */}
+      <header className="bg-white shadow-lg sticky top-0 z-50 border-b-4 border-[#FF0033]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-20">
             <div className="flex items-center">
-              <Link href="/" className="text-blue-600 hover:text-blue-800 mr-4">
-                ← トップに戻る
+              <Link href="/" className="text-[#FF0033] hover:text-[#FF6B6B] transition">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
               </Link>
-              <h1 className="text-2xl font-bold text-gray-900">マイページ</h1>
+              <h1 className="ml-4 text-3xl font-black text-[#FF0033]">マイページ</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-600">総ポイント</span>
+              <span className="text-2xl font-black text-[#FF0033]">
+                {user?.points?.toLocaleString() || '0'}P
+              </span>
             </div>
           </div>
         </div>
@@ -308,7 +333,7 @@ export default function MyPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* サイドバー */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-gray-900 rounded-2xl shadow-2xl p-6 border border-gray-800">
               {/* ユーザー情報 */}
               <div className="text-center mb-6">
                 <div className="relative w-24 h-24 mx-auto mb-4">
@@ -316,21 +341,39 @@ export default function MyPage() {
                     src={user?.avatar || '/api/placeholder/200/200'}
                     alt="Avatar"
                     fill
-                    className="rounded-full object-cover"
+                    className="rounded-full object-cover border-4 border-[#FF0033]"
+                    unoptimized
                   />
-                  <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                  <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white text-xs px-2 py-1 rounded-full font-bold">
                     Lv.{user?.level}
                   </div>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">{user?.name}</h2>
-                <p className="text-gray-600">{user?.email}</p>
+                <h2 className="text-xl font-bold text-white">{user?.name}</h2>
+                <p className="text-gray-400">{user?.email}</p>
               </div>
 
               {/* ポイント情報 */}
-              <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-4 mb-6 text-white">
+              <div className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] rounded-xl p-4 mb-6 text-white shadow-lg">
                 <div className="text-center">
                   <p className="text-sm opacity-90">所持ポイント</p>
-                  <p className="text-2xl font-bold">{user?.points?.toLocaleString()}pt</p>
+                  <p className="text-3xl font-black">{user?.points?.toLocaleString()}P</p>
+                  <button className="mt-3 bg-white/20 hover:bg-white/30 text-white font-bold px-4 py-2 rounded-lg transition w-full">
+                    ポイント購入
+                  </button>
+                </div>
+              </div>
+
+              {/* ランク情報 */}
+              <div className="bg-gray-800 rounded-xl p-4 mb-6 border border-gray-700">
+                <div className="mb-2">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm text-gray-400">ランク</span>
+                    <span className="text-sm font-bold text-[#FFD700]">ゴールド</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] h-2 rounded-full" style={{width: '65%'}}></div>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">次のランクまで: 3,500P</p>
                 </div>
               </div>
 
@@ -345,10 +388,10 @@ export default function MyPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`w-full text-left px-4 py-3 rounded-lg transition ${
+                    className={`w-full text-left px-4 py-3 rounded-xl transition font-bold ${
                       activeTab === tab.id
-                        ? 'bg-blue-100 text-blue-700 font-semibold'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        ? 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white'
+                        : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                     }`}
                   >
                     <span className="mr-3">{tab.icon}</span>
@@ -361,49 +404,100 @@ export default function MyPage() {
 
           {/* メインコンテンツ */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg shadow-md">
+            <div className="bg-gray-900 rounded-2xl shadow-2xl border border-gray-800">
               {/* 概要タブ */}
               {activeTab === 'overview' && (
                 <div className="p-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">アカウント概要</h3>
+                  <h3 className="text-3xl font-black text-white mb-6">アカウント概要</h3>
                   
                   {/* 統計情報 */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-gradient-to-br from-green-400 to-green-600 rounded-lg p-6 text-white">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="bg-gradient-to-br from-[#00C853] to-[#00E676] rounded-xl p-6 text-white shadow-lg hover:scale-105 transform transition"
+                    >
                       <div className="text-center">
-                        <div className="text-3xl font-bold">¥{user?.totalSpent?.toLocaleString()}</div>
-                        <div className="text-sm opacity-90">総利用額</div>
+                        <div className="text-4xl font-black">¥{user?.totalSpent?.toLocaleString()}</div>
+                        <div className="text-sm opacity-90 font-bold">総利用額</div>
                       </div>
-                    </div>
-                    <div className="bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg p-6 text-white">
+                    </motion.div>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl p-6 text-white shadow-lg hover:scale-105 transform transition"
+                    >
                       <div className="text-center">
-                        <div className="text-3xl font-bold">{gachaHistory.length}</div>
-                        <div className="text-sm opacity-90">ガチャ実行回数</div>
+                        <div className="text-4xl font-black">{gachaHistory.length}</div>
+                        <div className="text-sm opacity-90 font-bold">ガチャ実行回数</div>
                       </div>
-                    </div>
-                    <div className="bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg p-6 text-white">
+                    </motion.div>
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-xl p-6 text-white shadow-lg hover:scale-105 transform transition"
+                    >
                       <div className="text-center">
-                        <div className="text-3xl font-bold">{gachaHistory.reduce((sum, h) => sum + h.results.length, 0)}</div>
-                        <div className="text-sm opacity-90">獲得カード数</div>
+                        <div className="text-4xl font-black">{gachaHistory.reduce((sum, h) => sum + h.results.length, 0)}</div>
+                        <div className="text-sm opacity-90 font-bold">獲得カード数</div>
                       </div>
-                    </div>
+                    </motion.div>
                   </div>
 
                   {/* 最近の活動 */}
                   <div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-4">最近の活動</h4>
+                    <h4 className="text-xl font-bold text-white mb-4">最近の活動</h4>
                     <div className="space-y-4">
-                      {gachaHistory.slice(0, 3).map((history) => (
-                        <div key={history.id} className="border rounded-lg p-4">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <h5 className="font-semibold text-gray-900">{history.gachaName}</h5>
-                              <p className="text-gray-600">{history.count}回 - ¥{history.amount.toLocaleString()}</p>
+                      {gachaHistory.slice(0, 3).map((history, index) => {
+                        const ssrCount = history.results.filter(r => r.rarity === 'SSR').length
+                        const srCount = history.results.filter(r => r.rarity === 'SR').length
+                        
+                        return (
+                          <motion.div 
+                            key={history.id} 
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 + index * 0.1 }}
+                            className="bg-gray-800 border border-gray-700 rounded-xl p-4 hover:border-[#FF0033] transition"
+                          >
+                            <div className="flex justify-between items-center mb-2">
+                              <div>
+                                <h5 className="font-bold text-white">{history.gachaName}</h5>
+                                <p className="text-gray-400">{history.count}回 - ¥{history.amount.toLocaleString()}</p>
+                              </div>
+                              <div className="text-sm text-gray-500">{history.date}</div>
                             </div>
-                            <div className="text-sm text-gray-500">{history.date}</div>
-                          </div>
-                        </div>
-                      ))}
+                            {/* 獲得レアリティ表示 */}
+                            <div className="flex gap-2 mt-2">
+                              {ssrCount > 0 && (
+                                <span className="text-xs px-2 py-1 bg-gradient-to-r from-yellow-400 to-red-500 text-white rounded-full font-bold">
+                                  SSR×{ssrCount}
+                                </span>
+                              )}
+                              {srCount > 0 && (
+                                <span className="text-xs px-2 py-1 bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-full font-bold">
+                                  SR×{srCount}
+                                </span>
+                              )}
+                            </div>
+                          </motion.div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* おすすめガチャ */}
+                  <div className="mt-8">
+                    <h4 className="text-xl font-bold text-white mb-4">おすすめガチャ</h4>
+                    <div className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] rounded-xl p-6 text-white">
+                      <h5 className="text-2xl font-black mb-2">ポケモンカード151</h5>
+                      <p className="text-sm mb-4 opacity-90">リザードンex確率UPキャンペーン中！</p>
+                      <Link href="/gacha/1" className="inline-block bg-white text-[#FF0033] font-bold px-6 py-3 rounded-lg hover:bg-gray-100 transition">
+                        今すぐ引く！
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -412,40 +506,42 @@ export default function MyPage() {
               {/* ガチャ履歴タブ */}
               {activeTab === 'history' && (
                 <div className="p-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">ガチャ履歴</h3>
+                  <h3 className="text-3xl font-black text-white mb-6">ガチャ履歴</h3>
                   
                   <div className="space-y-6">
-                    {gachaHistory.map((history) => (
+                    {gachaHistory.map((history, index) => (
                       <motion.div
                         key={history.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="border rounded-lg p-6"
+                        transition={{ delay: index * 0.1 }}
+                        className="bg-gray-800 border border-gray-700 rounded-xl p-6"
                       >
                         <div className="flex justify-between items-center mb-4">
                           <div>
-                            <h4 className="text-lg font-semibold text-gray-900">{history.gachaName}</h4>
-                            <p className="text-gray-600">{history.count}回実行 - ¥{history.amount.toLocaleString()}</p>
+                            <h4 className="text-xl font-bold text-white">{history.gachaName}</h4>
+                            <p className="text-gray-400">{history.count}回実行 - ¥{history.amount.toLocaleString()}</p>
                           </div>
                           <div className="text-sm text-gray-500">{history.date}</div>
                         </div>
                         
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                           {history.results.map((card) => (
-                            <div key={card.id} className="relative">
-                              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                            <div key={card.id} className="relative group">
+                              <div className="aspect-square bg-gray-700 rounded-lg overflow-hidden hover:ring-2 hover:ring-[#FF0033] transition">
                                 <Image
                                   src={card.imageUrl}
                                   alt={card.name}
                                   width={200}
                                   height={200}
-                                  className="w-full h-full object-cover"
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                                  unoptimized
                                 />
                               </div>
                               <div className={`absolute top-1 right-1 px-2 py-1 rounded text-xs font-bold ${getRarityColor(card.rarity)}`}>
                                 {card.rarity}
                               </div>
-                              <p className="text-sm text-gray-700 mt-1 truncate">{card.name}</p>
+                              <p className="text-sm text-gray-300 mt-1 truncate">{card.name}</p>
                             </div>
                           ))}
                         </div>
@@ -458,10 +554,32 @@ export default function MyPage() {
               {/* コレクションタブ */}
               {activeTab === 'collection' && (
                 <div className="p-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">コレクション</h3>
-                  <div className="text-center py-12">
-                    <div className="text-6xl mb-4">🎴</div>
-                    <p className="text-gray-600">獲得したカードのコレクション機能は準備中です</p>
+                  <h3 className="text-3xl font-black text-white mb-6">コレクション</h3>
+                  
+                  {/* コレクション統計 */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div className="bg-gray-800 rounded-xl p-4 text-center border border-gray-700">
+                      <p className="text-3xl font-black bg-gradient-to-r from-yellow-400 to-red-500 bg-clip-text text-transparent">5</p>
+                      <p className="text-sm text-gray-400">SSR</p>
+                    </div>
+                    <div className="bg-gray-800 rounded-xl p-4 text-center border border-gray-700">
+                      <p className="text-3xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">12</p>
+                      <p className="text-sm text-gray-400">SR</p>
+                    </div>
+                    <div className="bg-gray-800 rounded-xl p-4 text-center border border-gray-700">
+                      <p className="text-3xl font-black bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">28</p>
+                      <p className="text-sm text-gray-400">R</p>
+                    </div>
+                    <div className="bg-gray-800 rounded-xl p-4 text-center border border-gray-700">
+                      <p className="text-3xl font-black text-gray-400">45</p>
+                      <p className="text-sm text-gray-400">N</p>
+                    </div>
+                  </div>
+
+                  <div className="text-center py-12 bg-gray-800 rounded-xl border border-gray-700">
+                    <div className="text-6xl mb-4 animate-bounce">🎴</div>
+                    <p className="text-gray-400 text-xl font-bold">カード一覧表示機能は準備中です</p>
+                    <p className="text-gray-500 mt-2">まもなく公開予定！</p>
                   </div>
                 </div>
               )}

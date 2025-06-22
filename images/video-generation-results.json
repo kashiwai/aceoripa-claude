@@ -1,0 +1,30 @@
+[
+  {
+    "sourcePath": "images/bg-ssr-explosion.png",
+    "template": "爆発演出",
+    "outputName": "ssr-explosion",
+    "success": false,
+    "error": "Upload error: 400"
+  },
+  {
+    "sourcePath": "images/bg-jackpot-fire.png",
+    "template": "炎演出",
+    "outputName": "jackpot-fire",
+    "success": false,
+    "error": "Upload error: 400"
+  },
+  {
+    "sourcePath": "images/bg-galaxy-effect.png",
+    "template": "銀河演出",
+    "outputName": "galaxy-effect",
+    "success": false,
+    "error": "Upload error: 400"
+  },
+  {
+    "sourcePath": "images/bg-lightning-storm.png",
+    "template": "雷撃演出",
+    "outputName": "lightning-storm",
+    "success": false,
+    "error": "Upload error: 400"
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "test": "SSR爆発エフェクト + 超激レア",
+    "success": true,
+    "backgroundPath": "images/bg-ssr-explosion.png",
+    "finalPath": "images/final-ssr-explosion.png",
+    "japaneseText": "超激レア"
+  },
+  {
+    "test": "炎エフェクト + 大当たり！",
+    "success": true,
+    "backgroundPath": "images/bg-jackpot-fire.png",
+    "finalPath": "images/final-jackpot-fire.png",
+    "japaneseText": "大当たり！"
+  },
+  {
+    "test": "銀河エフェクト + SSR確定",
+    "success": true,
+    "backgroundPath": "images/bg-galaxy-effect.png",
+    "finalPath": "images/final-galaxy-effect.png",
+    "japaneseText": "SSR確定"
+  },
+  {
+    "test": "雷撃エフェクト + 雷撃演出",
+    "success": true,
+    "backgroundPath": "images/bg-lightning-storm.png",
+    "finalPath": "images/final-lightning-storm.png",
+    "japaneseText": "雷撃演出"
+  }
+]

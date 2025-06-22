@@ -24,9 +24,9 @@ export default async function AdminLayout({
           <div className="bg-white shadow-sm border-b border-gray-200">
             <div className="px-6 py-4">
               <h1 className="text-2xl font-semibold text-gray-900">
-                管理画面
+                管理画面 [UPDATED]
               </h1>
-              <p className="text-gray-600 text-sm mt-1">Aceoripa ポケモンカード オリパサイト</p>
+              <p className="text-gray-600 text-sm mt-1">Aceoripa ポケモンカード オリパサイト - aceoripa-claude</p>
             </div>
           </div>
           <div className="px-6 py-6">

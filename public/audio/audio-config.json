@@ -1,0 +1,321 @@
+{
+  "bgm": {
+    "explosion": {
+      "name": "epic-explosion.mp3",
+      "description": "エピックで壮大な爆発演出BGM",
+      "source": "魔王魂または甘茶の音楽工房",
+      "duration": 8,
+      "loopable": true
+    },
+    "galaxy": {
+      "name": "cosmic-galaxy.mp3",
+      "description": "宇宙的で神秘的な銀河演出BGM",
+      "source": "DOVA-SYNDROME",
+      "duration": 8,
+      "loopable": true
+    },
+    "lightning": {
+      "name": "thunder-storm.mp3",
+      "description": "電気的でパワフルな雷撃演出BGM",
+      "source": "魔王魂",
+      "duration": 8,
+      "loopable": true
+    },
+    "fire": {
+      "name": "burning-flame.mp3",
+      "description": "熱く激しい炎演出BGM",
+      "source": "OtoLogic",
+      "duration": 8,
+      "loopable": true
+    },
+    "rainbow": {
+      "name": "magical-rainbow.mp3",
+      "description": "幻想的な虹色演出BGM",
+      "source": "甘茶の音楽工房",
+      "duration": 8,
+      "loopable": true
+    }
+  },
+  "sfx": {
+    "explosionLarge": {
+      "name": "explosion-huge.mp3",
+      "description": "大爆発音",
+      "source": "効果音ラボ",
+      "timing": 3
+    },
+    "explosionMedium": {
+      "name": "explosion-medium.mp3",
+      "description": "中爆発音",
+      "source": "効果音ラボ",
+      "timing": 2
+    },
+    "explosionSmall": {
+      "name": "explosion-small.mp3",
+      "description": "小爆発音",
+      "source": "効果音ラボ",
+      "timing": 1
+    },
+    "chargeUp": {
+      "name": "charge-up.mp3",
+      "description": "エネルギーチャージ音",
+      "source": "効果音ラボ",
+      "timing": 0.5
+    },
+    "powerUp": {
+      "name": "power-up.mp3",
+      "description": "パワーアップ音",
+      "source": "効果音ラボ",
+      "timing": 1.5
+    },
+    "sparkle": {
+      "name": "sparkle-burst.mp3",
+      "description": "キラキラ音",
+      "source": "効果音ラボ",
+      "timing": 4.5
+    },
+    "success": {
+      "name": "success-fanfare.mp3",
+      "description": "成功ファンファーレ",
+      "source": "魔王魂",
+      "timing": 6
+    },
+    "thunder": {
+      "name": "thunder-strike.mp3",
+      "description": "雷撃音",
+      "source": "効果音ラボ",
+      "timing": 2.5
+    },
+    "electric": {
+      "name": "electric-surge.mp3",
+      "description": "電撃音",
+      "source": "効果音ラボ",
+      "timing": 3
+    },
+    "fireBlast": {
+      "name": "fire-blast.mp3",
+      "description": "炎の爆発音",
+      "source": "効果音ラボ",
+      "timing": 2
+    },
+    "fireWhoosh": {
+      "name": "fire-whoosh.mp3",
+      "description": "炎の風切り音",
+      "source": "効果音ラボ",
+      "timing": 1.5
+    },
+    "cardReveal": {
+      "name": "card-reveal.mp3",
+      "description": "カード出現音",
+      "source": "効果音ラボ",
+      "timing": 4
+    },
+    "cardFlip": {
+      "name": "card-flip.mp3",
+      "description": "カードめくり音",
+      "source": "効果音ラボ",
+      "timing": 4.2
+    },
+    "woosh": {
+      "name": "woosh.mp3",
+      "description": "風切り音",
+      "source": "効果音ラボ",
+      "timing": 0.8
+    },
+    "impact": {
+      "name": "impact.mp3",
+      "description": "インパクト音",
+      "source": "効果音ラボ",
+      "timing": 3.5
+    }
+  },
+  "voice": {
+    "ultraRare": {
+      "name": "voice-ultra-rare.mp3",
+      "text": "超激レア！",
+      "description": "超激レアボイス"
+    },
+    "jackpot": {
+      "name": "voice-jackpot.mp3",
+      "text": "大当たり！",
+      "description": "大当たりボイス"
+    },
+    "ssrConfirmed": {
+      "name": "voice-ssr-confirmed.mp3",
+      "text": "SSR確定！",
+      "description": "SSR確定ボイス"
+    },
+    "congratulations": {
+      "name": "voice-congratulations.mp3",
+      "text": "おめでとうございます！",
+      "description": "おめでとうボイス"
+    }
+  },
+  "templates": {
+    "explosion_ssr": {
+      "name": "SSR爆発演出",
+      "bgm": "epic-explosion.mp3",
+      "sfx": [
+        {
+          "file": "charge-up.mp3",
+          "time": 0.5
+        },
+        {
+          "file": "power-up.mp3",
+          "time": 1.5
+        },
+        {
+          "file": "explosion-huge.mp3",
+          "time": 3
+        },
+        {
+          "file": "sparkle-burst.mp3",
+          "time": 4.5
+        },
+        {
+          "file": "card-reveal.mp3",
+          "time": 4
+        },
+        {
+          "file": "success-fanfare.mp3",
+          "time": 6
+        }
+      ],
+      "voice": [
+        {
+          "file": "voice-ultra-rare.mp3",
+          "time": 4.5
+        }
+      ]
+    },
+    "galaxy_ss": {
+      "name": "SS銀河演出",
+      "bgm": "cosmic-galaxy.mp3",
+      "sfx": [
+        {
+          "file": "woosh.mp3",
+          "time": 0.8
+        },
+        {
+          "file": "charge-up.mp3",
+          "time": 1.5
+        },
+        {
+          "file": "sparkle-burst.mp3",
+          "time": 3
+        },
+        {
+          "file": "card-reveal.mp3",
+          "time": 4
+        },
+        {
+          "file": "impact.mp3",
+          "time": 5
+        }
+      ],
+      "voice": [
+        {
+          "file": "voice-ssr-confirmed.mp3",
+          "time": 4.2
+        }
+      ]
+    },
+    "lightning_psa10": {
+      "name": "PSA10雷撃演出",
+      "bgm": "thunder-storm.mp3",
+      "sfx": [
+        {
+          "file": "thunder-strike.mp3",
+          "time": 0.5
+        },
+        {
+          "file": "electric-surge.mp3",
+          "time": 2
+        },
+        {
+          "file": "thunder-strike.mp3",
+          "time": 3
+        },
+        {
+          "file": "card-reveal.mp3",
+          "time": 4
+        },
+        {
+          "file": "success-fanfare.mp3",
+          "time": 6
+        }
+      ],
+      "voice": [
+        {
+          "file": "voice-jackpot.mp3",
+          "time": 4.5
+        },
+        {
+          "file": "voice-congratulations.mp3",
+          "time": 6.5
+        }
+      ]
+    },
+    "fire_sr": {
+      "name": "SR炎演出",
+      "bgm": "burning-flame.mp3",
+      "sfx": [
+        {
+          "file": "fire-whoosh.mp3",
+          "time": 0.5
+        },
+        {
+          "file": "fire-blast.mp3",
+          "time": 2
+        },
+        {
+          "file": "explosion-medium.mp3",
+          "time": 3
+        },
+        {
+          "file": "card-flip.mp3",
+          "time": 4.2
+        },
+        {
+          "file": "sparkle-burst.mp3",
+          "time": 5
+        }
+      ],
+      "voice": [
+        {
+          "file": "voice-ultra-rare.mp3",
+          "time": 4.5
+        }
+      ]
+    }
+  },
+  "credits": {
+    "効果音ラボ": {
+      "url": "https://soundeffect-lab.info/",
+      "credit": false,
+      "commercial": true
+    },
+    "魔王魂": {
+      "url": "https://maou.audio/",
+      "credit": true,
+      "creditText": "音楽：魔王魂",
+      "commercial": true
+    },
+    "DOVA-SYNDROME": {
+      "url": "https://dova-s.jp/",
+      "credit": false,
+      "commercial": true,
+      "note": "作曲者ごとの利用条件を確認"
+    },
+    "甘茶の音楽工房": {
+      "url": "https://amachamusic.chagasi.com/",
+      "credit": false,
+      "commercial": true
+    },
+    "OtoLogic": {
+      "url": "https://otologic.jp/",
+      "credit": true,
+      "creditText": "OtoLogic",
+      "commercial": true
+    }
+  }
+}

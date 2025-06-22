@@ -8,47 +8,58 @@ import {
 } from '@heroicons/react/24/outline'
 
 async function getStats() {
-  const supabase = await createClient()
-  
-  // ユーザー数取得
-  const { count: userCount } = await supabase
-    .from('users')
-    .select('*', { count: 'exact', head: true })
-  
-  // 本日の売上
-  const today = new Date().toISOString().split('T')[0]
-  const { data: todaySales } = await supabase
-    .from('transactions')
-    .select('amount')
-    .gte('created_at', today)
-    .eq('status', 'completed')
-  
-  const todayRevenue = todaySales?.reduce((sum, t) => sum + t.amount, 0) || 0
-  
-  // アクティブガチャ数
-  const { count: gachaCount } = await supabase
-    .from('gacha_products')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_active', true)
-  
-  // 今月の売上
-  const monthStart = new Date()
-  monthStart.setDate(1)
-  monthStart.setHours(0, 0, 0, 0)
-  
-  const { data: monthSales } = await supabase
-    .from('transactions')
-    .select('amount')
-    .gte('created_at', monthStart.toISOString())
-    .eq('status', 'completed')
-  
-  const monthRevenue = monthSales?.reduce((sum, t) => sum + t.amount, 0) || 0
-  
-  return {
-    userCount: userCount || 0,
-    todayRevenue,
-    gachaCount: gachaCount || 0,
-    monthRevenue
+  try {
+    const supabase = await createClient()
+    
+    // ユーザー数取得
+    const { count: userCount } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+    
+    // 本日の売上
+    const today = new Date().toISOString().split('T')[0]
+    const { data: todaySales } = await supabase
+      .from('transactions')
+      .select('amount')
+      .gte('created_at', today)
+      .eq('status', 'completed')
+    
+    const todayRevenue = todaySales?.reduce((sum, t) => sum + t.amount, 0) || 0
+    
+    // アクティブガチャ数
+    const { count: gachaCount } = await supabase
+      .from('gacha_products')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true)
+    
+    // 今月の売上
+    const monthStart = new Date()
+    monthStart.setDate(1)
+    monthStart.setHours(0, 0, 0, 0)
+    
+    const { data: monthSales } = await supabase
+      .from('transactions')
+      .select('amount')
+      .gte('created_at', monthStart.toISOString())
+      .eq('status', 'completed')
+    
+    const monthRevenue = monthSales?.reduce((sum, t) => sum + t.amount, 0) || 0
+    
+    return {
+      userCount: userCount || 0,
+      todayRevenue,
+      gachaCount: gachaCount || 0,
+      monthRevenue
+    }
+  } catch (error) {
+    console.error('Database connection error:', error)
+    // エラー時はダミーデータを返す
+    return {
+      userCount: 0,
+      todayRevenue: 0,
+      gachaCount: 0,
+      monthRevenue: 0
+    }
   }
 }
 

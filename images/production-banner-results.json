@@ -1,0 +1,434 @@
+[
+  {
+    "filename": "square-n-ultra_rare-1.png",
+    "size": "スクエア",
+    "rarity": "ノーマル",
+    "text": "超激レア",
+    "subText": null,
+    "path": "images/production-banners/square-n-ultra_rare-1.png",
+    "success": true
+  },
+  {
+    "filename": "square-n-jackpot-2.png",
+    "size": "スクエア",
+    "rarity": "ノーマル",
+    "text": "大成功！",
+    "subText": null,
+    "path": "images/production-banners/square-n-jackpot-2.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-n-ultra_rare-3.png",
+    "size": "ガチャボタン",
+    "rarity": "ノーマル",
+    "text": "超絶レア",
+    "subText": null,
+    "path": "images/gacha-buttons/gacha_button-n-ultra_rare-3.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-n-jackpot-1.png",
+    "size": "ガチャボタン",
+    "rarity": "ノーマル",
+    "text": "大当たり！",
+    "subText": null,
+    "path": "images/gacha-buttons/gacha_button-n-jackpot-1.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-n-ultra_rare-2.png",
+    "size": "ワイドバナー",
+    "rarity": "ノーマル",
+    "text": "ウルトラレア",
+    "subText": null,
+    "path": "images/wide-banners/wide_banner-n-ultra_rare-2.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-n-jackpot-3.png",
+    "size": "ワイドバナー",
+    "rarity": "ノーマル",
+    "text": "ジャックポット！",
+    "subText": null,
+    "path": "images/wide-banners/wide_banner-n-jackpot-3.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-n-ultra_rare-1.png",
+    "size": "モバイルバナー",
+    "rarity": "ノーマル",
+    "text": "超激レア",
+    "subText": null,
+    "path": "images/production-banners/mobile_banner-n-ultra_rare-1.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-n-jackpot-2.png",
+    "size": "モバイルバナー",
+    "rarity": "ノーマル",
+    "text": "大成功！",
+    "subText": null,
+    "path": "images/production-banners/mobile_banner-n-jackpot-2.png",
+    "success": true
+  },
+  {
+    "filename": "square-r-ultra_rare-3.png",
+    "size": "スクエア",
+    "rarity": "レア",
+    "text": "超絶レア",
+    "subText": null,
+    "path": "images/production-banners/square-r-ultra_rare-3.png",
+    "success": true
+  },
+  {
+    "filename": "square-r-jackpot-1.png",
+    "size": "スクエア",
+    "rarity": "レア",
+    "text": "大当たり！",
+    "subText": null,
+    "path": "images/production-banners/square-r-jackpot-1.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-r-ultra_rare-2.png",
+    "size": "ガチャボタン",
+    "rarity": "レア",
+    "text": "ウルトラレア",
+    "subText": null,
+    "path": "images/gacha-buttons/gacha_button-r-ultra_rare-2.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-r-jackpot-3.png",
+    "size": "ガチャボタン",
+    "rarity": "レア",
+    "text": "ジャックポット！",
+    "subText": null,
+    "path": "images/gacha-buttons/gacha_button-r-jackpot-3.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-r-ultra_rare-1.png",
+    "size": "ワイドバナー",
+    "rarity": "レア",
+    "text": "超激レア",
+    "subText": null,
+    "path": "images/wide-banners/wide_banner-r-ultra_rare-1.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-r-jackpot-2.png",
+    "size": "ワイドバナー",
+    "rarity": "レア",
+    "text": "大成功！",
+    "subText": null,
+    "path": "images/wide-banners/wide_banner-r-jackpot-2.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-r-ultra_rare-3.png",
+    "size": "モバイルバナー",
+    "rarity": "レア",
+    "text": "超絶レア",
+    "subText": null,
+    "path": "images/production-banners/mobile_banner-r-ultra_rare-3.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-r-jackpot-1.png",
+    "size": "モバイルバナー",
+    "rarity": "レア",
+    "text": "大当たり！",
+    "subText": null,
+    "path": "images/production-banners/mobile_banner-r-jackpot-1.png",
+    "success": true
+  },
+  {
+    "filename": "square-sr-ultra_rare-2.png",
+    "size": "スクエア",
+    "rarity": "スーパーレア",
+    "text": "ウルトラレア",
+    "subText": null,
+    "path": "images/production-banners/square-sr-ultra_rare-2.png",
+    "success": true
+  },
+  {
+    "filename": "square-sr-jackpot-3.png",
+    "size": "スクエア",
+    "rarity": "スーパーレア",
+    "text": "ジャックポット！",
+    "subText": null,
+    "path": "images/production-banners/square-sr-jackpot-3.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-sr-ultra_rare-1.png",
+    "size": "ガチャボタン",
+    "rarity": "スーパーレア",
+    "text": "超激レア",
+    "subText": null,
+    "path": "images/gacha-buttons/gacha_button-sr-ultra_rare-1.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-sr-jackpot-2.png",
+    "size": "ガチャボタン",
+    "rarity": "スーパーレア",
+    "text": "大成功！",
+    "subText": null,
+    "path": "images/gacha-buttons/gacha_button-sr-jackpot-2.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-sr-ultra_rare-3.png",
+    "size": "ワイドバナー",
+    "rarity": "スーパーレア",
+    "text": "超絶レア",
+    "subText": null,
+    "path": "images/wide-banners/wide_banner-sr-ultra_rare-3.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-sr-jackpot-1.png",
+    "size": "ワイドバナー",
+    "rarity": "スーパーレア",
+    "text": "大当たり！",
+    "subText": null,
+    "path": "images/wide-banners/wide_banner-sr-jackpot-1.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-sr-ultra_rare-2.png",
+    "size": "モバイルバナー",
+    "rarity": "スーパーレア",
+    "text": "ウルトラレア",
+    "subText": null,
+    "path": "images/production-banners/mobile_banner-sr-ultra_rare-2.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-sr-jackpot-3.png",
+    "size": "モバイルバナー",
+    "rarity": "スーパーレア",
+    "text": "ジャックポット！",
+    "subText": null,
+    "path": "images/production-banners/mobile_banner-sr-jackpot-3.png",
+    "success": true
+  },
+  {
+    "filename": "square-ssr-ultra_rare-1.png",
+    "size": "スクエア",
+    "rarity": "スペシャルレア",
+    "text": "超激レア",
+    "subText": "スペシャルレア",
+    "path": "images/production-banners/square-ssr-ultra_rare-1.png",
+    "success": true
+  },
+  {
+    "filename": "square-ssr-jackpot-2.png",
+    "size": "スクエア",
+    "rarity": "スペシャルレア",
+    "text": "大成功！",
+    "subText": "スペシャルレア",
+    "path": "images/production-banners/square-ssr-jackpot-2.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-ssr-ultra_rare-3.png",
+    "size": "ガチャボタン",
+    "rarity": "スペシャルレア",
+    "text": "超絶レア",
+    "subText": "スペシャルレア",
+    "path": "images/gacha-buttons/gacha_button-ssr-ultra_rare-3.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-ssr-jackpot-1.png",
+    "size": "ガチャボタン",
+    "rarity": "スペシャルレア",
+    "text": "大当たり！",
+    "subText": "スペシャルレア",
+    "path": "images/gacha-buttons/gacha_button-ssr-jackpot-1.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-ssr-ultra_rare-2.png",
+    "size": "ワイドバナー",
+    "rarity": "スペシャルレア",
+    "text": "ウルトラレア",
+    "subText": "スペシャルレア",
+    "path": "images/wide-banners/wide_banner-ssr-ultra_rare-2.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-ssr-jackpot-3.png",
+    "size": "ワイドバナー",
+    "rarity": "スペシャルレア",
+    "text": "ジャックポット！",
+    "subText": "スペシャルレア",
+    "path": "images/wide-banners/wide_banner-ssr-jackpot-3.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-ssr-ultra_rare-1.png",
+    "size": "モバイルバナー",
+    "rarity": "スペシャルレア",
+    "text": "超激レア",
+    "subText": "スペシャルレア",
+    "path": "images/production-banners/mobile_banner-ssr-ultra_rare-1.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-ssr-jackpot-2.png",
+    "size": "モバイルバナー",
+    "rarity": "スペシャルレア",
+    "text": "大成功！",
+    "subText": "スペシャルレア",
+    "path": "images/production-banners/mobile_banner-ssr-jackpot-2.png",
+    "success": true
+  },
+  {
+    "filename": "square-ss-ultra_rare-3.png",
+    "size": "スクエア",
+    "rarity": "スーパースペシャル",
+    "text": "超絶レア",
+    "subText": "スーパースペシャル",
+    "path": "images/production-banners/square-ss-ultra_rare-3.png",
+    "success": true
+  },
+  {
+    "filename": "square-ss-jackpot-1.png",
+    "size": "スクエア",
+    "rarity": "スーパースペシャル",
+    "text": "大当たり！",
+    "subText": "スーパースペシャル",
+    "path": "images/production-banners/square-ss-jackpot-1.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-ss-ultra_rare-2.png",
+    "size": "ガチャボタン",
+    "rarity": "スーパースペシャル",
+    "text": "ウルトラレア",
+    "subText": "スーパースペシャル",
+    "path": "images/gacha-buttons/gacha_button-ss-ultra_rare-2.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-ss-jackpot-3.png",
+    "size": "ガチャボタン",
+    "rarity": "スーパースペシャル",
+    "text": "ジャックポット！",
+    "subText": "スーパースペシャル",
+    "path": "images/gacha-buttons/gacha_button-ss-jackpot-3.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-ss-ultra_rare-1.png",
+    "size": "ワイドバナー",
+    "rarity": "スーパースペシャル",
+    "text": "超激レア",
+    "subText": "スーパースペシャル",
+    "path": "images/wide-banners/wide_banner-ss-ultra_rare-1.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-ss-jackpot-2.png",
+    "size": "ワイドバナー",
+    "rarity": "スーパースペシャル",
+    "text": "大成功！",
+    "subText": "スーパースペシャル",
+    "path": "images/wide-banners/wide_banner-ss-jackpot-2.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-ss-ultra_rare-3.png",
+    "size": "モバイルバナー",
+    "rarity": "スーパースペシャル",
+    "text": "超絶レア",
+    "subText": "スーパースペシャル",
+    "path": "images/production-banners/mobile_banner-ss-ultra_rare-3.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-ss-jackpot-1.png",
+    "size": "モバイルバナー",
+    "rarity": "スーパースペシャル",
+    "text": "大当たり！",
+    "subText": "スーパースペシャル",
+    "path": "images/production-banners/mobile_banner-ss-jackpot-1.png",
+    "success": true
+  },
+  {
+    "filename": "square-psa10-ultra_rare-2.png",
+    "size": "スクエア",
+    "rarity": "パーフェクト",
+    "text": "ウルトラレア",
+    "subText": "最高グレード認定",
+    "path": "images/production-banners/square-psa10-ultra_rare-2.png",
+    "success": true
+  },
+  {
+    "filename": "square-psa10-jackpot-3.png",
+    "size": "スクエア",
+    "rarity": "パーフェクト",
+    "text": "ジャックポット！",
+    "subText": "最高グレード認定",
+    "path": "images/production-banners/square-psa10-jackpot-3.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-psa10-ultra_rare-1.png",
+    "size": "ガチャボタン",
+    "rarity": "パーフェクト",
+    "text": "超激レア",
+    "subText": "最高グレード認定",
+    "path": "images/gacha-buttons/gacha_button-psa10-ultra_rare-1.png",
+    "success": true
+  },
+  {
+    "filename": "gacha_button-psa10-jackpot-2.png",
+    "size": "ガチャボタン",
+    "rarity": "パーフェクト",
+    "text": "大成功！",
+    "subText": "最高グレード認定",
+    "path": "images/gacha-buttons/gacha_button-psa10-jackpot-2.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-psa10-ultra_rare-3.png",
+    "size": "ワイドバナー",
+    "rarity": "パーフェクト",
+    "text": "超絶レア",
+    "subText": "最高グレード認定",
+    "path": "images/wide-banners/wide_banner-psa10-ultra_rare-3.png",
+    "success": true
+  },
+  {
+    "filename": "wide_banner-psa10-jackpot-1.png",
+    "size": "ワイドバナー",
+    "rarity": "パーフェクト",
+    "text": "大当たり！",
+    "subText": "最高グレード認定",
+    "path": "images/wide-banners/wide_banner-psa10-jackpot-1.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-psa10-ultra_rare-2.png",
+    "size": "モバイルバナー",
+    "rarity": "パーフェクト",
+    "text": "ウルトラレア",
+    "subText": "最高グレード認定",
+    "path": "images/production-banners/mobile_banner-psa10-ultra_rare-2.png",
+    "success": true
+  },
+  {
+    "filename": "mobile_banner-psa10-jackpot-3.png",
+    "size": "モバイルバナー",
+    "rarity": "パーフェクト",
+    "text": "ジャックポット！",
+    "subText": "最高グレード認定",
+    "path": "images/production-banners/mobile_banner-psa10-jackpot-3.png",
+    "success": true
+  }
+]
