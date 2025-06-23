@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { NotificationModal } from './NotificationModal'
+import { AnnouncementModal } from './AnnouncementModal'
 
 interface Announcement {
   id: string
@@ -114,12 +114,12 @@ export default function AnnouncementPopupManager() {
   }
 
   return (
-    <NotificationModal
+    <AnnouncementModal
       isOpen={showModal}
       onClose={handleClose}
       title={currentAnnouncement.title}
       message={currentAnnouncement.content}
-      type={currentAnnouncement.type as any}
+      type={currentAnnouncement.type}
       imageUrl={currentAnnouncement.image_url}
       ctaText={currentAnnouncement.cta_text}
       onAction={currentAnnouncement.cta_url ? handleAction : undefined}
