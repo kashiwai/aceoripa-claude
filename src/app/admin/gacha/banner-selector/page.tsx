@@ -57,6 +57,11 @@ const LOCAL_BANNERS = [
   '/images/SNS当選報告サンプル.png',
 
   // リアルガチャバナー
+  '/images/banners/real-gacha/S__44392515_0.jpg',
+  '/images/banners/real-gacha/S__44392516_0.jpg', 
+  '/images/banners/real-gacha/S__44392517_0.jpg',
+  '/images/banners/real-gacha/S__44392521_0.jpg',
+  '/images/banners/real-gacha/S__44392523_0.jpg',
   '/images/banners/real-gacha/pokemon-151-ultra-rare.png',
   '/images/banners/real-gacha/premium-psa10-banner.png',
   '/images/banners/real-gacha/shiny-treasure-premium.png',
