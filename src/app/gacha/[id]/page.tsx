@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import PointConfirmDialog from '@/components/ui/PointConfirmDialog'
-import { useAuth } from '@/hooks/useAuth'
+// import PointConfirmDialog from '@/components/ui/PointConfirmDialog'
+// import { useAuth } from '@/hooks/useAuth'
 
 interface Card {
   id: string
@@ -92,7 +92,8 @@ export default function GachaDetailPage() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [selectedCount, setSelectedCount] = useState(1)
   
-  const { user } = useAuth()
+  // const { user } = useAuth()
+  const user = null // 一時的にnullに設定
 
   // APIからガチャ情報とカード情報を取得
   useEffect(() => {
@@ -405,7 +406,7 @@ export default function GachaDetailPage() {
       </div>
       
       {/* ポイント確認ダイアログ */}
-      <PointConfirmDialog
+      {/* <PointConfirmDialog
         isOpen={showConfirmDialog}
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={handleConfirmGacha}
@@ -413,7 +414,7 @@ export default function GachaDetailPage() {
         count={selectedCount}
         price={gacha?.price || 800}
         totalCost={(gacha?.price || 800) * selectedCount}
-      />
+      /> */}
     </div>
   )
 }

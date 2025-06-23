@@ -63,83 +63,103 @@ const AI_TOOLS = [
 
 export default function AIGeneratorPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">AI生成管理</h1>
-        <p className="text-gray-600 mt-2">
-          AIを活用してガチャバナー、カード画像、演出効果を自動生成します
-        </p>
+    <div>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 className="h2">AI生成管理</h1>
+          <p className="text-muted">
+            AIを活用してガチャバナー、カード画像、演出効果を自動生成します
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="row">
         {AI_TOOLS.map((tool) => (
-          <Link
-            key={tool.href}
-            href={tool.href}
-            className="group relative bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-105"
-          >
-            {/* グラデーション背景 */}
-            <div className={`absolute inset-0 ${tool.color} opacity-5 group-hover:opacity-10 transition-opacity`} />
-            
-            <div className="relative p-6">
-              {/* アイコン */}
-              <div className={`inline-flex p-3 rounded-lg ${tool.color} text-white mb-4`}>
-                <tool.icon className="w-8 h-8" />
-              </div>
-              
-              {/* タイトルと説明 */}
-              <h2 className="text-xl font-bold text-gray-800 mb-2">
-                {tool.title}
-              </h2>
-              <p className="text-gray-600 text-sm mb-4">
-                {tool.description}
-              </p>
-              
-              {/* 機能リスト */}
-              <div className="space-y-1">
-                {tool.features.map((feature, idx) => (
-                  <div key={idx} className="flex items-center text-xs text-gray-500">
-                    <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {feature}
+          <div key={tool.href} className="col-xl-4 col-lg-6 mb-4">
+            <Link
+              href={tool.href}
+              className="card h-100 text-decoration-none border-0 shadow-sm"
+              style={{transition: 'all 0.3s ease'}}
+            >
+              <div className="card-body">
+                {/* アイコン */}
+                <div className="d-flex align-items-center mb-3">
+                  <div className="p-2 rounded" style={{backgroundColor: getBootstrapColor(tool.color)}}>
+                    <tool.icon className="text-white" style={{width: '24px', height: '24px'}} />
                   </div>
-                ))}
+                  <h5 className="card-title mb-0 ms-3">{tool.title}</h5>
+                </div>
+                
+                <p className="card-text text-muted mb-3">
+                  {tool.description}
+                </p>
+                
+                {/* 機能リスト */}
+                <div className="mb-3">
+                  {tool.features.map((feature, idx) => (
+                    <div key={idx} className="d-flex align-items-center mb-1">
+                      <i className="bi bi-check-circle text-success me-2"></i>
+                      <small className="text-muted">{feature}</small>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="d-flex justify-content-end">
+                  <i className="bi bi-arrow-right text-primary"></i>
+                </div>
               </div>
-              
-              {/* 矢印アイコン */}
-              <div className="absolute bottom-4 right-4 transform translate-x-2 group-hover:translate-x-0 transition-transform">
-                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
         ))}
       </div>
 
       {/* 使用状況サマリー */}
-      <div className="mt-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-white">
-        <h2 className="text-2xl font-bold mb-4">今月のAI使用状況</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div>
-            <p className="text-blue-100 text-sm">バナー生成数</p>
-            <p className="text-3xl font-bold">24</p>
-          </div>
-          <div>
-            <p className="text-blue-100 text-sm">カード生成数</p>
-            <p className="text-3xl font-bold">156</p>
-          </div>
-          <div>
-            <p className="text-blue-100 text-sm">演出動画数</p>
-            <p className="text-3xl font-bold">8</p>
-          </div>
-          <div>
-            <p className="text-blue-100 text-sm">API使用料金</p>
-            <p className="text-3xl font-bold">¥3,250</p>
+      <div className="row mt-4">
+        <div className="col-12">
+          <div className="card bg-primary text-white">
+            <div className="card-body">
+              <h4 className="card-title">今月のAI使用状況</h4>
+              <div className="row">
+                <div className="col-md-3 mb-3">
+                  <div className="text-center">
+                    <small className="text-light">バナー生成数</small>
+                    <h3 className="mb-0">24</h3>
+                  </div>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <div className="text-center">
+                    <small className="text-light">カード生成数</small>
+                    <h3 className="mb-0">156</h3>
+                  </div>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <div className="text-center">
+                    <small className="text-light">演出動画数</small>
+                    <h3 className="mb-0">8</h3>
+                  </div>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <div className="text-center">
+                    <small className="text-light">API使用料金</small>
+                    <h3 className="mb-0">¥3,250</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   )
+}
+
+// Bootstrapの色に変換するヘルパー関数
+function getBootstrapColor(gradientClass: string): string {
+  if (gradientClass.includes('purple')) return '#6f42c1'
+  if (gradientClass.includes('blue')) return '#0d6efd'
+  if (gradientClass.includes('green')) return '#198754'
+  if (gradientClass.includes('orange') || gradientClass.includes('red')) return '#dc3545'
+  if (gradientClass.includes('indigo')) return '#6610f2'
+  if (gradientClass.includes('gray')) return '#6c757d'
+  return '#0d6efd' // デフォルト
 }
