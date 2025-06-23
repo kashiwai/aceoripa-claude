@@ -5,6 +5,8 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
+import { UltimateGachaExperience } from '@/components/effects/UltimateGachaExperience'
+import { EmotionalGachaEffects } from '@/components/effects/EmotionalGachaEffects'
 
 interface Card {
   id: string
@@ -37,6 +39,9 @@ export default function GachaPlayPage() {
   const [revealedCards, setRevealedCards] = useState<Card[]>([])
   const [currentRevealIndex, setCurrentRevealIndex] = useState(0)
   const [sparkles, setSparkles] = useState<Array<{id: number, x: number, y: number}>>([])
+  const [showUltimateEffect, setShowUltimateEffect] = useState(false)
+  const [currentEffectCard, setCurrentEffectCard] = useState<Card | null>(null)
+  const [effectQueue, setEffectQueue] = useState<Card[]>([])
 
   // サンプルカードプール
   const sampleCards: Card[] = [
@@ -107,48 +112,97 @@ export default function GachaPlayPage() {
     }, 500)
   }
   
-  // カード順次公開演出
+  // カード順次公開演出（新演出システム統合版）
   const revealCardsSequentially = (cards: Card[]) => {
+    // 高レアリティカードを事前にフィルタリング
+    const premiumCards = cards.filter(card => ['SS', 'S', 'A'].includes(card.rarity))
+    
+    if (premiumCards.length > 0) {
+      // 高レアカードがある場合は新演出システムを使用
+      setEffectQueue(cards)
+      processEffectQueue(cards)
+    } else {
+      // 通常カードのみの場合は従来の演出
+      standardRevealSequence(cards)
+    }
+  }
+
+  // 新演出システムでのカード公開処理
+  const processEffectQueue = (cards: Card[]) => {
     let index = 0
-    const revealInterval = setInterval(() => {
+    
+    const showNextCard = () => {
       if (index < cards.length) {
-        setRevealedCards(prev => [...prev, cards[index]])
-        setCurrentRevealIndex(index)
+        const currentCard = cards[index]
         
-        // SS/S賞の場合は特別演出
-        if (cards[index]?.rarity === 'SS' || cards[index]?.rarity === 'S') {
-          // 画面震動エフェクト (モバイル用に調整)
-          const isMobile = window.innerWidth <= 768
-          if (isMobile) {
-            document.querySelector('.gacha-container')?.classList.add('mobile-shake')
-            setTimeout(() => {
-              document.querySelector('.gacha-container')?.classList.remove('mobile-shake')
-            }, 300)
-          } else {
-            document.body.style.animation = 'shake 0.5s'
-            setTimeout(() => {
-              document.body.style.animation = ''
-            }, 500)
-          }
-          
-          // 星エフェクト生成
-          generateSparkles()
-          
-          // 音効果（ブラウザの音声API使用）
-          playSound(cards[index].rarity)
+        // 高レアリティカードは感動的な演出で表示
+        if (['SS', 'S', 'A'].includes(currentCard.rarity)) {
+          setCurrentEffectCard(currentCard)
+          setShowUltimateEffect(true)
+        } else {
+          // 通常カードは標準的な演出
+          setRevealedCards(prev => [...prev, currentCard])
+          index++
+          setTimeout(showNextCard, 1000)
         }
-        
-        index++
       } else {
-        clearInterval(revealInterval)
-        // フェーズ3: 最終お祝い演出
+        // 全カード公開完了
         setTimeout(() => {
           setCurrentPhase('celebration')
           setIsPlaying(false)
           setShowResults(true)
         }, 1000)
       }
-    }, 800) // 0.8秒間隔でカード公開
+    }
+    
+    showNextCard()
+  }
+
+  // 標準的なカード公開演出（低レアリティ用）
+  const standardRevealSequence = (cards: Card[]) => {
+    let index = 0
+    const revealInterval = setInterval(() => {
+      if (index < cards.length) {
+        setRevealedCards(prev => [...prev, cards[index]])
+        setCurrentRevealIndex(index)
+        
+        // 軽量な演出
+        generateSparkles()
+        playSound(cards[index].rarity)
+        
+        index++
+      } else {
+        clearInterval(revealInterval)
+        setTimeout(() => {
+          setCurrentPhase('celebration')
+          setIsPlaying(false)
+          setShowResults(true)
+        }, 1000)
+      }
+    }, 800)
+  }
+
+  // 新演出完了後の処理
+  const handleEffectComplete = () => {
+    if (currentEffectCard) {
+      setRevealedCards(prev => [...prev, currentEffectCard])
+      setShowUltimateEffect(false)
+      
+      // 次のカードの処理
+      const currentIndex = effectQueue.findIndex(card => card.id === currentEffectCard.id)
+      if (currentIndex < effectQueue.length - 1) {
+        setTimeout(() => {
+          processEffectQueue(effectQueue.slice(currentIndex + 1))
+        }, 1000)
+      } else {
+        // 全カード公開完了
+        setTimeout(() => {
+          setCurrentPhase('celebration')
+          setIsPlaying(false)
+          setShowResults(true)
+        }, 1000)
+      }
+    }
   }
   
   // 星エフェクト生成 (モバイル最適化)
@@ -553,6 +607,19 @@ export default function GachaPlayPage() {
           </div>
         ))}
       </div>
+
+      {/* 新感動演出システム */}
+      {showUltimateEffect && currentEffectCard && (
+        <UltimateGachaExperience
+          pokemonName={currentEffectCard.name}
+          rarity={currentEffectCard.rarity as 'SS' | 'S' | 'A' | 'B' | 'C'}
+          cardImageUrl={currentEffectCard.imageUrl}
+          onComplete={handleEffectComplete}
+          enableHaptics={true}
+          enableSound={true}
+          autoPlay={true}
+        />
+      )}
     </div>
   )
 }

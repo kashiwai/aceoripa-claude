@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'react-hot-toast'
@@ -14,13 +14,23 @@ export default function RegisterPage() {
   const [username, setUsername] = useState('')
   const [loading, setLoading] = useState(false)
   const [socialLoading, setSocialLoading] = useState<string | null>(null)
+  const [referralCode, setReferralCode] = useState('')
   const { signUp } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
+
+  useEffect(() => {
+    // URLパラメータから紹介コードを取得
+    const ref = searchParams.get('ref')
+    if (ref) {
+      setReferralCode(ref)
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,9 +47,45 @@ export default function RegisterPage() {
 
     setLoading(true)
     try {
-      await signUp(email, password, username)
-    } catch (error) {
+      // 紹介コード付きでサインアップ
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          username,
+          referralCode: referralCode || undefined
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || '登録に失敗しました')
+      }
+
+      toast.success('アカウントを作成しました！')
+      
+      // 自動ログイン
+      const loginResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      if (loginResponse.ok) {
+        router.push('/mypage')
+      } else {
+        router.push('/auth/login')
+      }
+    } catch (error: any) {
       console.error('Registration error:', error)
+      toast.error(error.message || '登録に失敗しました')
     } finally {
       setLoading(false)
     }
@@ -84,6 +130,17 @@ export default function RegisterPage() {
 
         {/* 登録フォーム */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-gray-700">
+          {/* 紹介コード表示 */}
+          {referralCode && (
+            <div className="mb-6 p-4 bg-green-900/30 border border-green-600/50 rounded-lg">
+              <p className="text-sm text-green-400 font-bold mb-1">紹介コード適用中</p>
+              <p className="text-lg font-mono text-white">{referralCode}</p>
+              <p className="text-xs text-gray-400 mt-2">
+                初回決済時にボーナスポイントが付与されます
+              </p>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* ユーザー名 */}
             <div>

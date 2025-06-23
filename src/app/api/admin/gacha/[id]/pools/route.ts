@@ -10,43 +10,46 @@ export async function GET(
     const supabase = await createClient()
     
     const { data: pools, error } = await supabase
-      .from('gacha_pools')
+      .from('gacha_pokemon_pools')
       .select(`
         id,
-        card_id,
-        drop_rate,
-        cards (
+        pokemon_card_id,
+        weight,
+        pokemon_cards (
           id,
-          name,
+          card_name,
+          product_code,
           rarity,
-          image_url
+          image_url,
+          market_price
         )
       `)
-      .eq('product_id', params.id)
-      .order('drop_rate', { ascending: false })
+      .eq('gacha_product_id', params.id)
+      .order('weight', { ascending: false })
     
     if (error) throw error
     
     // レアリティ別に集計
     const rarityStats = {
-      SSR: { count: 0, total_rate: 0 },
-      SR: { count: 0, total_rate: 0 },
-      R: { count: 0, total_rate: 0 },
-      N: { count: 0, total_rate: 0 }
+      SS: { count: 0, total_rate: 0 },
+      S: { count: 0, total_rate: 0 },
+      A: { count: 0, total_rate: 0 },
+      B: { count: 0, total_rate: 0 },
+      C: { count: 0, total_rate: 0 }
     }
     
     pools?.forEach(pool => {
-      const rarity = pool.cards?.rarity || 'N'
+      const rarity = pool.pokemon_cards?.rarity || 'C'
       if (rarityStats[rarity as keyof typeof rarityStats]) {
         rarityStats[rarity as keyof typeof rarityStats].count++
-        rarityStats[rarity as keyof typeof rarityStats].total_rate += pool.drop_rate
+        rarityStats[rarity as keyof typeof rarityStats].total_rate += pool.weight
       }
     })
     
     return NextResponse.json({
       pools,
       rarity_stats: rarityStats,
-      total_rate: pools?.reduce((sum, p) => sum + p.drop_rate, 0) || 0
+      total_rate: pools?.reduce((sum, p) => sum + p.weight, 0) || 0
     })
   } catch (error: any) {
     console.error('Admin gacha pools GET error:', error)
@@ -101,34 +104,28 @@ export async function PUT(
   try {
     const supabase = await createClient()
     
-    // 管理者権限チェック
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user || user.email !== process.env.ADMIN_EMAIL) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    
     const { pools } = await request.json()
     const gachaId = params.id
     
     // トランザクション的な処理
     // 1. 既存のプールを削除
     const { error: deleteError } = await supabase
-      .from('gacha_pools')
+      .from('gacha_pokemon_pools')
       .delete()
-      .eq('product_id', gachaId)
+      .eq('gacha_product_id', gachaId)
     
     if (deleteError) throw deleteError
     
     // 2. 新しいプールを挿入
     if (pools.length > 0) {
       const poolsToInsert = pools.map((pool: any) => ({
-        product_id: gachaId,
-        card_id: pool.card_id,
-        drop_rate: pool.drop_rate
+        gacha_product_id: gachaId,
+        pokemon_card_id: pool.card_id,
+        weight: pool.drop_rate
       }))
       
       const { error: insertError } = await supabase
-        .from('gacha_pools')
+        .from('gacha_pokemon_pools')
         .insert(poolsToInsert)
       
       if (insertError) throw insertError

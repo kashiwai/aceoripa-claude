@@ -394,21 +394,33 @@ export default function MyPage() {
                   { id: 'history', label: 'ガチャ履歴', icon: '📜' },
                   { id: 'collection', label: 'コレクション', icon: '🎴' },
                   { id: 'campaigns', label: 'キャンペーン', icon: '🎁' },
+                  { id: 'referral', label: '紹介キャンペーン', icon: '🎯', isLink: true },
                   { id: 'settings', label: '設定', icon: '⚙️' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`w-full text-left px-4 py-3 rounded-xl transition font-bold ${
-                      activeTab === tab.id
-                        ? 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white'
-                        : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                    }`}
-                  >
-                    <span className="mr-3">{tab.icon}</span>
-                    {tab.label}
-                  </button>
-                ))}
+                ].map((tab) => 
+                  tab.isLink ? (
+                    <Link
+                      key={tab.id}
+                      href="/mypage/referral"
+                      className={`w-full block px-4 py-3 rounded-xl transition font-bold text-gray-400 hover:bg-gray-800 hover:text-white`}
+                    >
+                      <span className="mr-3">{tab.icon}</span>
+                      {tab.label}
+                    </Link>
+                  ) : (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id as any)}
+                      className={`w-full text-left px-4 py-3 rounded-xl transition font-bold ${
+                        activeTab === tab.id
+                          ? 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white'
+                          : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                      }`}
+                    >
+                      <span className="mr-3">{tab.icon}</span>
+                      {tab.label}
+                    </button>
+                  )
+                )}
               </nav>
             </div>
           </div>

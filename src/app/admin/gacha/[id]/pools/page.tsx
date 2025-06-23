@@ -14,11 +14,11 @@ async function getGachaWithPools(id: string) {
     .from('gacha_products')
     .select(`
       *,
-      gacha_pools (
+      gacha_pokemon_pools (
         id,
-        card_id,
-        drop_rate,
-        cards:pokemon_cards (
+        pokemon_card_id,
+        weight,
+        pokemon_cards (
           id,
           card_name,
           product_code,
@@ -30,6 +30,16 @@ async function getGachaWithPools(id: string) {
     `)
     .eq('id', id)
     .single()
+  
+  // データ形式を統一
+  if (gacha && gacha.gacha_pokemon_pools) {
+    gacha.gacha_pools = gacha.gacha_pokemon_pools.map((pool: any) => ({
+      id: pool.id,
+      card_id: pool.pokemon_card_id,
+      drop_rate: pool.weight,
+      cards: pool.pokemon_cards
+    }))
+  }
   
   return gacha
 }

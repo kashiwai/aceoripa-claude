@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 8080",
-    "gcp-build": "npm run build",
+    "start": "next start -p ${PORT:-8080}",
     "lint": "next lint",
     "test": "node tests/api.test.js",
     "test:frontend": "open tests/frontend.test.html",
@@ -16,7 +15,8 @@
     "test:lighthouse": "lighthouse http://localhost:3000 --output=html --output-path=tests/lighthouse-report.html",
     "db:migrate": "supabase db push",
     "db:reset": "supabase db reset",
-    "generate:images": "node scripts/generate-sample-images.js"
+    "generate:images": "node scripts/generate-sample-images.js",
+    "gcp-build": "npm run build"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -24,8 +24,8 @@
     "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.39.0",
     "@types/canvas-confetti": "^1.9.0",
-    "canvas": "^3.1.1",
     "canvas-confetti": "^1.9.3",
+    "dotenv": "^16.5.0",
     "framer-motion": "^12.18.1",
     "google-auth-library": "^9.15.0",
     "lottie-react": "^2.4.1",

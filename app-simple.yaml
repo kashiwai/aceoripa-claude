@@ -1,0 +1,10 @@
+runtime: nodejs20
+env: standard
+
+automatic_scaling:
+  min_instances: 0
+  max_instances: 5
+
+handlers:
+- url: /.*
+  script: auto

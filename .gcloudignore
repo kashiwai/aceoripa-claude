@@ -37,7 +37,15 @@ __tests__/
 .DS_Store
 Thumbs.db
 
-# TypeScript files (for production)
-*.ts
-*.tsx
-!next-env.d.ts
+# Documentation
+README.md
+docs/
+
+# Firebase
+.firebase/
+firebase.json
+.firebaserc
+
+# Scripts
+scripts/
+deploy-*.sh

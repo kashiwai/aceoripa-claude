@@ -8,17 +8,60 @@ import {
 } from '@heroicons/react/24/outline'
 
 async function getStats() {
+  const supabase = await createClient()
+  
   try {
-    // 一時的にサンプルデータを返す
+    // ユーザー数を取得
+    const { count: userCount, error: userError } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+    
+    if (userError) throw userError
+
+    // 今日の売上を取得
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const { data: todayTransactions, error: todayError } = await supabase
+      .from('transactions')
+      .select('amount')
+      .gte('created_at', today.toISOString())
+      .eq('status', 'completed')
+    
+    if (todayError) throw todayError
+    
+    const todayRevenue = todayTransactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0
+
+    // 今月の売上を取得
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+    
+    const { data: monthTransactions, error: monthError } = await supabase
+      .from('transactions')
+      .select('amount')
+      .gte('created_at', firstDayOfMonth.toISOString())
+      .eq('status', 'completed')
+    
+    if (monthError) throw monthError
+    
+    const monthRevenue = monthTransactions?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0
+
+    // アクティブガチャ数を取得
+    const { count: gachaCount, error: gachaError } = await supabase
+      .from('gacha_products')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true)
+    
+    if (gachaError) throw gachaError
+
     return {
-      userCount: 1250,
-      todayRevenue: 45600,
-      gachaCount: 5,
-      monthRevenue: 1250000
+      userCount: userCount || 0,
+      todayRevenue: todayRevenue,
+      gachaCount: gachaCount || 0,
+      monthRevenue: monthRevenue
     }
   } catch (error) {
-    console.error('Database connection error:', error)
-    // エラー時はダミーデータを返す
+    console.error('Database error:', error)
+    // エラー時は0を返す（ダミーデータは使わない）
     return {
       userCount: 0,
       todayRevenue: 0,
@@ -28,8 +71,95 @@ async function getStats() {
   }
 }
 
+async function getRecentActivities() {
+  const supabase = await createClient()
+  
+  try {
+    // 最近のユーザー登録
+    const { data: recentUsers } = await supabase
+      .from('users')
+      .select('id, email, created_at')
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    // 最近の取引
+    const { data: recentTransactions } = await supabase
+      .from('transactions')
+      .select('id, user_id, amount, type, created_at, gacha_products(name)')
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    // 最近のガチャ追加
+    const { data: recentGachas } = await supabase
+      .from('gacha_products')
+      .select('id, name, created_at')
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    // 全てのアクティビティを統合してソート
+    const activities = []
+
+    if (recentUsers) {
+      activities.push(...recentUsers.map(user => ({
+        type: 'user',
+        title: '新規ユーザー登録',
+        description: user.email,
+        created_at: user.created_at,
+        icon: '👤',
+        badge: 'bg-primary'
+      })))
+    }
+
+    if (recentTransactions) {
+      activities.push(...recentTransactions.map(tx => ({
+        type: 'transaction',
+        title: tx.type === 'gacha' ? 'ガチャ購入' : 'ポイント購入',
+        description: `¥${tx.amount.toLocaleString()}${tx.gacha_products ? ` - ${tx.gacha_products.name}` : ''}`,
+        created_at: tx.created_at,
+        icon: '💰',
+        badge: 'bg-success'
+      })))
+    }
+
+    if (recentGachas) {
+      activities.push(...recentGachas.map(gacha => ({
+        type: 'gacha',
+        title: '新規ガチャ追加',
+        description: gacha.name,
+        created_at: gacha.created_at,
+        icon: '📦',
+        badge: 'bg-info'
+      })))
+    }
+
+    // 時間順にソート
+    activities.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+    return activities.slice(0, 10) // 最新10件を返す
+  } catch (error) {
+    console.error('Activities fetch error:', error)
+    return []
+  }
+}
+
+function formatTimeAgo(date: string) {
+  const now = new Date()
+  const past = new Date(date)
+  const diffMs = now.getTime() - past.getTime()
+  
+  const minutes = Math.floor(diffMs / 60000)
+  const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
+  
+  if (days > 0) return `${days}日前`
+  if (hours > 0) return `${hours}時間前`
+  if (minutes > 0) return `${minutes}分前`
+  return 'たった今'
+}
+
 export default async function AdminDashboard() {
   const stats = await getStats()
+  const activities = await getRecentActivities()
   
   return (
     <div>
@@ -149,44 +279,28 @@ export default async function AdminDashboard() {
               <h5 className="card-title mb-0">最近のアクティビティ</h5>
             </div>
             <div className="card-body">
-              <div className="list-group list-group-flush">
-                <div className="list-group-item d-flex justify-content-between align-items-center">
-                  <div className="d-flex align-items-center">
-                    <div className="me-3">
-                      <span className="badge bg-primary rounded-pill">👤</span>
-                    </div>
-                    <div>
-                      <h6 className="mb-1">新規ユーザー登録</h6>
-                      <p className="mb-1 text-muted">user@example.com</p>
-                    </div>
-                  </div>
-                  <small className="text-muted">5分前</small>
+              {activities.length === 0 ? (
+                <div className="text-center py-4 text-muted">
+                  <p>アクティビティがまだありません</p>
                 </div>
-                <div className="list-group-item d-flex justify-content-between align-items-center">
-                  <div className="d-flex align-items-center">
-                    <div className="me-3">
-                      <span className="badge bg-success rounded-pill">💰</span>
+              ) : (
+                <div className="list-group list-group-flush">
+                  {activities.map((activity, index) => (
+                    <div key={`${activity.type}-${index}`} className="list-group-item d-flex justify-content-between align-items-center">
+                      <div className="d-flex align-items-center">
+                        <div className="me-3">
+                          <span className={`badge ${activity.badge} rounded-pill`}>{activity.icon}</span>
+                        </div>
+                        <div>
+                          <h6 className="mb-1">{activity.title}</h6>
+                          <p className="mb-1 text-muted">{activity.description}</p>
+                        </div>
+                      </div>
+                      <small className="text-muted">{formatTimeAgo(activity.created_at)}</small>
                     </div>
-                    <div>
-                      <h6 className="mb-1">ガチャ購入</h6>
-                      <p className="mb-1 text-muted">¥3,000 - SSRガチャ</p>
-                    </div>
-                  </div>
-                  <small className="text-muted">15分前</small>
+                  ))}
                 </div>
-                <div className="list-group-item d-flex justify-content-between align-items-center">
-                  <div className="d-flex align-items-center">
-                    <div className="me-3">
-                      <span className="badge bg-info rounded-pill">📦</span>
-                    </div>
-                    <div>
-                      <h6 className="mb-1">新規ガチャ追加</h6>
-                      <p className="mb-1 text-muted">ポケモンカード151</p>
-                    </div>
-                  </div>
-                  <small className="text-muted">1時間前</small>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

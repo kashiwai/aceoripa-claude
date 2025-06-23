@@ -45,32 +45,21 @@ export default function EditGachaPage() {
         .eq('id', params?.id)
         .single()
       
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         throw error
       }
       
-      // データが見つからない場合はサンプルデータを使用
+      // データが見つからない場合はエラー
       if (!data) {
-        const sampleGacha = {
-          id: params?.id as string,
-          name: 'ピカチュウ大祭り',
-          description: 'ピカチュウがメインのプレミアムオリパ',
-          single_price: 150,
-          multi_price: 1400,
-          is_active: true,
-          start_date: null,
-          end_date: null,
-          banner_image_url: '/images/banners/real-gacha/S__44392515_0.jpg',
-          featured_card_ids: [],
-          guarantee_sr_on_multi: true
-        }
-        setFormData(sampleGacha)
-      } else {
-        setFormData({
-          ...data,
-          featured_card_ids: data.featured_card_ids || []
-        })
+        toast.error('指定されたガチャが見つかりません')
+        router.push('/admin/gacha')
+        return
       }
+      
+      setFormData({
+        ...data,
+        featured_card_ids: data.featured_card_ids || []
+      })
     } catch (error) {
       console.error('Error fetching gacha:', error)
       toast.error('ガチャ情報の取得に失敗しました')
