@@ -10,7 +10,7 @@ import GachaAnimationPreview from '@/components/admin/GachaAnimationPreview'
 export default function EditGachaPage() {
   const router = useRouter()
   const params = useParams()
-  const gachaId = params.id as string
+  const gachaId = params?.id as string
   const supabase = createClientComponentClient()
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingData, setIsLoadingData] = useState(true)

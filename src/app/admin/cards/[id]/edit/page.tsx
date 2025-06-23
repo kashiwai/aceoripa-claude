@@ -20,7 +20,7 @@ interface Card {
 export default function EditCardPage() {
   const router = useRouter()
   const params = useParams()
-  const cardId = params.id as string
+  const cardId = params?.id as string
   const supabase = createClientComponentClient()
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingData, setIsLoadingData] = useState(true)

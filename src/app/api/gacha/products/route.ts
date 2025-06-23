@@ -3,20 +3,56 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
   try {
-    const supabase = await createClient()
+    // 一時的にフォールバックデータを返す（リアルガチャバナー付き）
+    const sampleProducts = [
+      {
+        id: '1',
+        name: 'ピカチュウ大祭り',
+        price: 150,
+        image: '/images/banners/real-gacha/S__44392515_0.jpg',
+        remaining: 850,
+        total: 1000,
+        status: 'active'
+      },
+      {
+        id: '2', 
+        name: 'ナンジャモ大量発生オリパ',
+        price: 200,
+        image: '/images/banners/real-gacha/S__44392516_0.jpg',
+        remaining: 650,
+        total: 1000,
+        status: 'active'
+      },
+      {
+        id: '3',
+        name: 'リザードン祭盤 炎のプレミアオリパ',
+        price: 300,
+        image: '/images/banners/real-gacha/S__44392517_0.jpg',
+        remaining: 420,
+        total: 1000,
+        status: 'ending_soon'
+      },
+      {
+        id: '4',
+        name: 'ブラッキー超感謝祭',
+        price: 250,
+        image: '/images/banners/real-gacha/S__44392521_0.jpg',
+        remaining: 780,
+        total: 1000,
+        status: 'active'
+      },
+      {
+        id: '5',
+        name: 'リーリエ×マリオピカチュウ 超豪華オリパ',
+        price: 400,
+        image: '/images/banners/real-gacha/S__44392523_0.jpg',
+        remaining: 120,
+        total: 1000,
+        status: 'ending_soon'
+      }
+    ]
     
-    const { data, error } = await supabase
-      .from('gacha_products')
-      .select('*')
-      .eq('is_active', true)
-      .order('price', { ascending: true })
-    
-    if (error) {
-      console.error('Error fetching gacha products:', error)
-      return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
-    }
-    
-    return NextResponse.json({ products: data })
+    return NextResponse.json({ products: sampleProducts })
   } catch (error) {
     console.error('Unexpected error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
