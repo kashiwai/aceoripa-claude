@@ -117,11 +117,19 @@ export default function GachaPlayPage() {
         
         // SS/S賞の場合は特別演出
         if (cards[index]?.rarity === 'SS' || cards[index]?.rarity === 'S') {
-          // 画面震動エフェクト
-          document.body.style.animation = 'shake 0.5s'
-          setTimeout(() => {
-            document.body.style.animation = ''
-          }, 500)
+          // 画面震動エフェクト (モバイル用に調整)
+          const isMobile = window.innerWidth <= 768
+          if (isMobile) {
+            document.querySelector('.gacha-container')?.classList.add('mobile-shake')
+            setTimeout(() => {
+              document.querySelector('.gacha-container')?.classList.remove('mobile-shake')
+            }, 300)
+          } else {
+            document.body.style.animation = 'shake 0.5s'
+            setTimeout(() => {
+              document.body.style.animation = ''
+            }, 500)
+          }
           
           // 星エフェクト生成
           generateSparkles()
@@ -143,17 +151,22 @@ export default function GachaPlayPage() {
     }, 800) // 0.8秒間隔でカード公開
   }
   
-  // 星エフェクト生成
+  // 星エフェクト生成 (モバイル最適化)
   const generateSparkles = () => {
-    const newSparkles = Array.from({ length: 20 }, (_, i) => ({
+    const isMobile = window.innerWidth <= 768
+    const sparkleCount = isMobile ? 15 : 20
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    
+    const newSparkles = Array.from({ length: sparkleCount }, (_, i) => ({
       id: Date.now() + i,
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight
+      x: Math.random() * viewportWidth * 0.9 + viewportWidth * 0.05, // 画面端を避ける
+      y: isMobile ? -50 : Math.random() * viewportHeight
     }))
     setSparkles(newSparkles)
     
-    // 3秒後に星を消去
-    setTimeout(() => setSparkles([]), 3000)
+    // モバイルは早めに消去
+    setTimeout(() => setSparkles([]), isMobile ? 2000 : 3000)
   }
   
   // 音効果再生
@@ -200,7 +213,62 @@ export default function GachaPlayPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a]">
+    <div className="min-h-screen bg-[#1a1a1a] relative overflow-hidden">
+      {/* スマホ縦向き(9:16)用のビューポート設定 */}
+      <style jsx global>{`
+        @media (max-width: 768px) {
+          .gacha-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+          }
+          .gacha-play-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 1rem;
+          }
+          .card-grid-mobile {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            max-width: 100%;
+          }
+          .card-reveal-mobile {
+            aspect-ratio: 3/4;
+          }
+        }
+        
+        /* 演出アニメーション最適化 */
+        @keyframes mobileShake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        
+        .mobile-shake {
+          animation: mobileShake 0.3s ease-in-out;
+        }
+        
+        /* 9:16縦長画面用の星エフェクト */
+        .sparkle-star-mobile {
+          position: fixed;
+          animation: mobileFall 2s linear forwards;
+          font-size: 1.5rem;
+        }
+        
+        @keyframes mobileFall {
+          0% {
+            transform: translateY(-100px) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+          }
+        }
+      `}</style>
       {/* ヘッダー */}
       <header className="bg-white shadow-lg sticky top-0 z-50 border-b-4 border-[#FF0033]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -222,18 +290,18 @@ export default function GachaPlayPage() {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="gacha-container max-w-4xl mx-auto px-4 py-8 md:px-4 md:py-8">
         {/* ガチャ実行前 */}
         {!isPlaying && !showResults && (
-          <div className="text-center">
+          <div className="gacha-play-area text-center">
             <div className="mb-8">
-              <h2 className="text-4xl font-black text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
                 🎰 ガチャを回す準備OK！
               </h2>
-              <p className="text-xl text-gray-300 mb-2">
+              <p className="text-lg md:text-xl text-gray-300 mb-2">
                 {count}回のガチャを実行します
               </p>
-              <p className="text-lg text-yellow-400">
+              <p className="text-base md:text-lg text-yellow-400">
                 ✨ 激レアカードが出現するかも！？
               </p>
               
@@ -254,16 +322,16 @@ export default function GachaPlayPage() {
             {currentPhase === 'spinning' && (
               <div className="mb-8">
                 <div className="relative mb-8">
-                  {/* メインスピナー */}
-                  <div className="w-40 h-40 border-8 border-[#FF0033] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+                  {/* メインスピナー (モバイル最適化) */}
+                  <div className="w-32 h-32 md:w-40 md:h-40 border-6 md:border-8 border-[#FF0033] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
                   {/* 内側のスピナー */}
-                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-32 h-32 border-4 border-yellow-400 border-b-transparent rounded-full animate-spin" style={{animationDirection: 'reverse'}}></div>
+                  <div className="absolute top-3 md:top-4 left-1/2 transform -translate-x-1/2 w-24 h-24 md:w-32 md:h-32 border-3 md:border-4 border-yellow-400 border-b-transparent rounded-full animate-spin" style={{animationDirection: 'reverse'}}></div>
                   {/* 中央のガチャマシン */}
-                  <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-6xl animate-bounce">
+                  <div className="absolute top-8 md:top-12 left-1/2 transform -translate-x-1/2 text-5xl md:text-6xl animate-bounce">
                     🎰
                   </div>
                 </div>
-                <h2 className="text-5xl font-black text-white mb-4 animate-pulse">
+                <h2 className="text-3xl md:text-5xl font-black text-white mb-4 animate-pulse">
                   ガチャ抽選中...
                 </h2>
                 <div className="flex justify-center space-x-2 mb-4">
@@ -271,7 +339,7 @@ export default function GachaPlayPage() {
                   <div className="w-3 h-3 bg-[#FF0033] rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                   <div className="w-3 h-3 bg-[#FF0033] rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
                 </div>
-                <p className="text-2xl text-yellow-400 animate-pulse font-bold">
+                <p className="text-lg md:text-2xl text-yellow-400 animate-pulse font-bold">
                   ✨ 激レアカードを抽選中！ ✨
                 </p>
               </div>
@@ -279,12 +347,12 @@ export default function GachaPlayPage() {
             
             {currentPhase === 'revealing' && (
               <div className="mb-8">
-                <h2 className="text-4xl font-black text-white mb-8 animate-pulse">
+                <h2 className="text-2xl md:text-4xl font-black text-white mb-6 md:mb-8 animate-pulse">
                   🎊 カード公開中... {currentRevealIndex + 1}/{count}
                 </h2>
                 
-                {/* 公開済みカードを表示 */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {/* 公開済みカードを表示 (モバイル2列、デスクトップ4列) */}
+                <div className="card-grid-mobile md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-4">
                   {revealedCards.map((card, index) => {
                     const badge = getRarityBadge(card?.rarity || 'B')
                     const isLatest = index === revealedCards.length - 1
@@ -302,13 +370,13 @@ export default function GachaPlayPage() {
                           duration: 0.8,
                           scale: { duration: 0.6, times: [0, 0.5, 1] }
                         }}
-                        className={`bg-gray-900 rounded-xl overflow-hidden shadow-xl card-reveal-animation ${
+                        className={`card-reveal-mobile bg-gray-900 rounded-xl overflow-hidden shadow-xl card-reveal-animation ${
                           card?.rarity === 'SS' ? 'ring-4 ring-yellow-400 ss-explosion' :
                           card?.rarity === 'S' ? 'ring-4 ring-purple-400 animate-pulse' :
                           ''
                         }`}
                       >
-                        <div className="relative aspect-square">
+                        <div className="relative aspect-[3/4] md:aspect-square">
                           <Image
                             src={card.imageUrl}
                             alt={card.name}
@@ -337,7 +405,7 @@ export default function GachaPlayPage() {
                   
                   {/* 未公開カードスロット */}
                   {Array.from({ length: count - revealedCards.length }).map((_, index) => (
-                    <div key={`placeholder-${index}`} className="bg-gray-800 rounded-xl aspect-square flex items-center justify-center">
+                    <div key={`placeholder-${index}`} className="card-reveal-mobile bg-gray-800 rounded-xl aspect-[3/4] md:aspect-square flex items-center justify-center">
                       <div className="text-6xl animate-spin">❓</div>
                     </div>
                   ))}
@@ -381,8 +449,8 @@ export default function GachaPlayPage() {
               </div>
             </motion.div>
 
-            {/* カード結果グリッド */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+            {/* カード結果グリッド (モバイル最適化) */}
+            <div className="card-grid-mobile md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-4 mb-8">
               {results.map((card, index) => {
                 const badge = getRarityBadge(card.rarity)
                 return (
@@ -470,11 +538,11 @@ export default function GachaPlayPage() {
           </div>
         )}
         
-        {/* 星エフェクト */}
+        {/* 星エフェクト (モバイル最適化) */}
         {sparkles.map(sparkle => (
           <div
             key={sparkle.id}
-            className="sparkle-star fixed pointer-events-none text-2xl z-50"
+            className="sparkle-star-mobile md:sparkle-star fixed pointer-events-none text-xl md:text-2xl z-50"
             style={{
               left: `${sparkle.x}px`,
               top: `${sparkle.y}px`,

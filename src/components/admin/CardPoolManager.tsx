@@ -28,11 +28,11 @@ interface CardPoolManagerProps {
 }
 
 const RARITY_COLORS = {
-  SS: 'bg-gradient-to-r from-yellow-400 to-red-500 text-white',
-  S: 'bg-gradient-to-r from-purple-400 to-pink-500 text-white',
-  A: 'bg-blue-500 text-white',
-  B: 'bg-green-500 text-white',
-  C: 'bg-gray-500 text-white'
+  SS: 'bg-warning',
+  S: 'bg-info',
+  A: 'bg-primary',
+  B: 'bg-success',
+  C: 'bg-secondary'
 }
 
 export default function CardPoolManager({ gachaId, currentPools, availableCards }: CardPoolManagerProps) {
@@ -122,17 +122,17 @@ export default function CardPoolManager({ gachaId, currentPools, availableCards 
   }, {} as Record<string, Pool[]>)
   
   return (
-    <div className="space-y-6">
+    <div>
       {/* 現在のプール */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">現在のカードプール（{pools.length}枚）</h3>
+      <div className="mb-4">
+        <h3 className="h4 mb-4">現在のカードプール（{pools.length}枚）</h3>
         
         {pools.length === 0 ? (
-          <div className="text-center py-8 bg-gray-50 rounded-lg">
-            <p className="text-gray-500">カードがまだ設定されていません</p>
+          <div className="text-center py-5 bg-light rounded">
+            <p className="text-muted">カードがまだ設定されていません</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div>
             {['SS', 'S', 'A', 'B', 'C'].map(rarity => {
               const rarityPools = poolsByRarity[rarity] || []
               if (rarityPools.length === 0) return null
@@ -141,63 +141,71 @@ export default function CardPoolManager({ gachaId, currentPools, availableCards 
               const rarityPercentage = totalWeight > 0 ? (rarityWeight / totalWeight * 100).toFixed(1) : '0'
               
               return (
-                <div key={rarity} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-3">
-                    <h4 className={`font-semibold px-3 py-1 rounded-full text-sm ${RARITY_COLORS[rarity as keyof typeof RARITY_COLORS]}`}>
-                      {rarity} ({rarityPools.length}枚)
-                    </h4>
-                    <span className="text-sm font-medium">
+                <div key={rarity} className="card mb-3">
+                  <div className="card-header d-flex justify-content-between align-items-center">
+                    <h5 className="mb-0">
+                      <span className={`badge ${RARITY_COLORS[rarity as keyof typeof RARITY_COLORS]}`}>
+                        {rarity}賞 ({rarityPools.length}枚)
+                      </span>
+                    </h5>
+                    <span className="small fw-medium">
                       合計確率: {rarityPercentage}%
                     </span>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {rarityPools.map(pool => {
-                      const percentage = totalWeight > 0 ? (pool.drop_rate / totalWeight * 100).toFixed(2) : '0'
-                      
-                      return (
-                        <div key={pool.card_id} className="border rounded-lg p-3 bg-white">
-                          <div className="flex items-start space-x-3">
-                            <div className="relative w-16 h-16 flex-shrink-0">
-                              <Image
-                                src={pool.cards?.image_url || '/api/placeholder/64/64'}
-                                alt={pool.cards?.card_name || ''}
-                                fill
-                                className="object-cover rounded"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate">
-                                {pool.cards?.card_name}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {pool.cards?.product_code}
-                              </p>
-                              <div className="flex items-center mt-1 space-x-2">
-                                <input
-                                  type="number"
-                                  min="1"
-                                  value={pool.drop_rate}
-                                  onChange={(e) => updateWeight(pool.card_id, parseInt(e.target.value) || 1)}
-                                  className="w-16 px-2 py-1 text-xs border rounded"
-                                />
-                                <span className="text-xs text-gray-600">
-                                  {percentage}%
-                                </span>
+                  <div className="card-body">
+                    <div className="row g-3">
+                      {rarityPools.map(pool => {
+                        const percentage = totalWeight > 0 ? (pool.drop_rate / totalWeight * 100).toFixed(2) : '0'
+                        
+                        return (
+                          <div key={pool.card_id} className="col-12 col-md-6 col-lg-4">
+                            <div className="card h-100">
+                              <div className="card-body p-2">
+                                <div className="d-flex">
+                                  <div className="position-relative me-3" style={{width: '64px', height: '64px', flexShrink: 0}}>
+                                    <Image
+                                      src={pool.cards?.image_url || '/images/ngcard.jpg'}
+                                      alt={pool.cards?.card_name || ''}
+                                      fill
+                                      className="rounded"
+                                      style={{objectFit: 'cover'}}
+                                    />
+                                  </div>
+                                  <div className="flex-fill min-w-0">
+                                    <p className="fw-medium small mb-0 text-truncate">
+                                      {pool.cards?.card_name}
+                                    </p>
+                                    <p className="text-muted small mb-1">
+                                      {pool.cards?.product_code}
+                                    </p>
+                                    <div className="d-flex align-items-center gap-2">
+                                      <input
+                                        type="number"
+                                        min="1"
+                                        value={pool.drop_rate}
+                                        onChange={(e) => updateWeight(pool.card_id, parseInt(e.target.value) || 1)}
+                                        className="form-control form-control-sm"
+                                        style={{width: '70px'}}
+                                      />
+                                      <span className="small text-muted">
+                                        {percentage}%
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => removeFromPool(pool.card_id)}
+                                    className="btn btn-sm btn-link text-danger p-0 ms-2"
+                                  >
+                                    <i className="bi bi-x-lg"></i>
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                            <button
-                              onClick={() => removeFromPool(pool.card_id)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
                           </div>
-                        </div>
-                      )
-                    })}
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
               )
@@ -207,77 +215,84 @@ export default function CardPoolManager({ gachaId, currentPools, availableCards 
       </div>
       
       {/* カード追加セクション */}
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-semibold mb-4">カードを追加</h3>
+      <div className="border-top pt-4">
+        <h3 className="h4 mb-4">カードを追加</h3>
         
         {/* フィルター */}
-        <div className="flex space-x-4 mb-4">
-          <input
-            type="text"
-            placeholder="カード名または商品コードで検索"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-4 py-2 border rounded-lg"
-          />
-          <select
-            value={filterRarity}
-            onChange={(e) => setFilterRarity(e.target.value)}
-            className="px-4 py-2 border rounded-lg"
-          >
-            <option value="ALL">全レアリティ</option>
-            <option value="SS">SS</option>
-            <option value="S">S</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-          </select>
+        <div className="row g-3 mb-4">
+          <div className="col">
+            <input
+              type="text"
+              placeholder="カード名または商品コードで検索"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="form-control"
+            />
+          </div>
+          <div className="col-auto">
+            <select
+              value={filterRarity}
+              onChange={(e) => setFilterRarity(e.target.value)}
+              className="form-select"
+            >
+              <option value="ALL">全レアリティ</option>
+              <option value="SS">SS賞</option>
+              <option value="S">S賞</option>
+              <option value="A">A賞</option>
+              <option value="B">B賞</option>
+              <option value="C">C賞</option>
+            </select>
+          </div>
         </div>
         
         {/* カードリスト */}
-        <div className="max-h-96 overflow-y-auto border rounded-lg p-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="border rounded p-3" style={{maxHeight: '400px', overflowY: 'auto'}}>
+          <div className="row g-3">
             {filteredCards.map(card => {
               const isInPool = poolCardIds.has(card.id)
               const isSelected = selectedCards.includes(card.id)
               
               return (
-                <div
-                  key={card.id}
-                  onClick={() => {
-                    if (!isInPool) {
-                      if (isSelected) {
-                        setSelectedCards(selectedCards.filter(id => id !== card.id))
-                      } else {
-                        setSelectedCards([...selectedCards, card.id])
+                <div key={card.id} className="col-6 col-md-4 col-lg-3">
+                  <div
+                    onClick={() => {
+                      if (!isInPool) {
+                        if (isSelected) {
+                          setSelectedCards(selectedCards.filter(id => id !== card.id))
+                        } else {
+                          setSelectedCards([...selectedCards, card.id])
+                        }
                       }
-                    }
-                  }}
-                  className={`relative border rounded-lg p-2 cursor-pointer transition-all ${
-                    isInPool ? 'opacity-50 cursor-not-allowed' :
-                    isSelected ? 'ring-2 ring-blue-500 bg-blue-50' :
-                    'hover:bg-gray-50'
-                  }`}
-                >
-                  <div className="relative w-full aspect-square mb-2">
-                    <Image
-                      src={card.image_url || '/api/placeholder/100/100'}
-                      alt={card.card_name}
-                      fill
-                      className="object-cover rounded"
-                    />
-                    {isInPool && (
-                      <div className="absolute inset-0 bg-black/50 rounded flex items-center justify-center">
-                        <span className="text-white text-xs font-medium">登録済</span>
+                    }}
+                    className={`card h-100 ${
+                      isInPool ? 'opacity-50' :
+                      isSelected ? 'border-primary border-2 bg-light' :
+                      ''
+                    }`}
+                    style={{cursor: isInPool ? 'not-allowed' : 'pointer'}}
+                  >
+                    <div className="card-body p-2">
+                      <div className="position-relative mb-2" style={{aspectRatio: '1/1'}}>
+                        <Image
+                          src={card.image_url || '/images/ngcard.jpg'}
+                          alt={card.card_name}
+                          fill
+                          className="rounded"
+                          style={{objectFit: 'cover'}}
+                        />
+                        {isInPool && (
+                          <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 rounded d-flex align-items-center justify-content-center">
+                            <span className="text-white small fw-medium">登録済</span>
+                          </div>
+                        )}
                       </div>
-                    )}
+                      <p className="small fw-medium mb-0 text-truncate">{card.card_name}</p>
+                      <p className="small text-muted mb-1">{card.product_code}</p>
+                      <span className={`badge ${RARITY_COLORS[card.rarity as keyof typeof RARITY_COLORS]}`}>
+                        {card.rarity}賞
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-xs font-medium truncate">{card.card_name}</p>
-                  <p className="text-xs text-gray-500">{card.product_code}</p>
-                  <span className={`inline-block px-2 py-0.5 text-xs rounded-full mt-1 ${
-                    RARITY_COLORS[card.rarity as keyof typeof RARITY_COLORS]
-                  }`}>
-                    {card.rarity}
-                  </span>
                 </div>
               )
             })}
@@ -287,7 +302,7 @@ export default function CardPoolManager({ gachaId, currentPools, availableCards 
         {selectedCards.length > 0 && (
           <button
             onClick={addCardsToPools}
-            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="btn btn-primary mt-3"
           >
             選択したカード（{selectedCards.length}枚）を追加
           </button>
@@ -295,10 +310,10 @@ export default function CardPoolManager({ gachaId, currentPools, availableCards 
       </div>
       
       {/* 保存ボタン */}
-      <div className="flex justify-end space-x-4 pt-6 border-t">
+      <div className="d-flex justify-content-end gap-3 pt-4 border-top mt-4">
         <button
           onClick={() => router.back()}
-          className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="btn btn-secondary"
           disabled={isLoading}
         >
           キャンセル
@@ -306,7 +321,7 @@ export default function CardPoolManager({ gachaId, currentPools, availableCards 
         <button
           onClick={handleSave}
           disabled={isLoading || pools.length === 0}
-          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+          className="btn btn-success"
         >
           {isLoading ? '保存中...' : '保存する'}
         </button>

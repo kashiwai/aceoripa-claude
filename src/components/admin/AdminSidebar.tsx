@@ -8,6 +8,7 @@ const navigation = [
   { name: 'ユーザー管理', href: '/admin/users' },
   { name: 'ガチャ管理', href: '/admin/gacha' },
   { name: 'カード管理', href: '/admin/cards' },
+  { name: 'バナー管理', href: '/admin/banners' },
   { name: '決済管理', href: '/admin/payments' },
   { name: 'AI生成管理', href: '/admin/ai-generator' },
   { name: 'お知らせ管理', href: '/admin/announcements' },
