@@ -13,7 +13,8 @@ import {
   CogIcon,
   ArrowLeftIcon,
   PhotoIcon,
-  VideoCameraIcon
+  VideoCameraIcon,
+  CalculatorIcon
 } from '@heroicons/react/24/outline'
 
 const navigation = [
@@ -24,6 +25,7 @@ const navigation = [
   { name: '決済管理', href: '/admin/payments', icon: CreditCardIcon },
   { name: 'AI生成管理', href: '/admin/ai-generator', icon: PhotoIcon },
   { name: '動画演出管理', href: '/admin/video-effects', icon: VideoCameraIcon },
+  { name: '原価計算シミュレーション', href: '/admin/tools/cost-simulation', icon: CalculatorIcon },
   { name: '発送管理', href: '/admin/shipments', icon: TruckIcon },
   { name: 'お知らせ管理', href: '/admin/announcements', icon: SpeakerWaveIcon },
   { name: '売上統計', href: '/admin/sales', icon: ChartBarIcon },

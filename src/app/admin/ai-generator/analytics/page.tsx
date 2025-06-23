@@ -9,8 +9,8 @@ import {
   ClockIcon,
   SparklesIcon,
   FireIcon,
-  TrendingUpIcon,
-  TrendingDownIcon
+  ArrowArrowTrendingUpIcon,
+  ArrowTrendingDownIcon
 } from '@heroicons/react/24/outline'
 
 // 分析期間の選択肢
@@ -99,7 +99,7 @@ export default function AIAnalyticsPage() {
     if (value > 0) {
       return (
         <span className="flex items-center text-green-600 text-sm">
-          <TrendingUpIcon className="w-4 h-4 mr-1" />
+          <ArrowTrendingUpIcon className="w-4 h-4 mr-1" />
           +{value}%
         </span>
       )
