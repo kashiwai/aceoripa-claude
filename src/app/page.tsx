@@ -162,17 +162,6 @@ export default function HomePage() {
       {/* メインバナースライダー（400x400） */}
       <section className="bg-gray-100 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <style jsx global>{`
-            .banner-swiper .swiper-wrapper {
-              display: flex !important;
-              flex-direction: row !important;
-            }
-            .banner-swiper .swiper-slide {
-              width: 400px !important;
-              height: 400px !important;
-              flex-shrink: 0 !important;
-            }
-          `}</style>
           <Swiper
             modules={[Autoplay, Navigation]}
             spaceBetween={20}

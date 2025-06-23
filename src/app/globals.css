@@ -347,4 +347,16 @@ body {
 .animate-twinkle {
   animation: twinkle 1.5s ease-in-out infinite;
 }
+
+/* Swiper横スクロールバナー用のスタイル */
+.banner-swiper .swiper-wrapper {
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+.banner-swiper .swiper-slide {
+  width: 400px !important;
+  height: 400px !important;
+  flex-shrink: 0 !important;
+}
   
