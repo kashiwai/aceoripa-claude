@@ -97,6 +97,17 @@ export default function EditGachaPage() {
     
     fetchGachaData()
   }, [gachaId, supabase])
+
+  // URLパラメータからバナーURLを取得
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const bannerUrl = urlParams.get('bannerUrl')
+    if (bannerUrl) {
+      setFormData(prev => ({ ...prev, banner_image_url: bannerUrl }))
+      // URLパラメータをクリア
+      window.history.replaceState({}, '', `/admin/gacha/${gachaId}/edit`)
+    }
+  }, [gachaId])
   
   // 利益計算を自動更新
   useEffect(() => {
@@ -267,13 +278,24 @@ export default function EditGachaPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               バナー画像URL
             </label>
-            <input
-              type="url"
-              value={formData.banner_image_url}
-              onChange={(e) => setFormData({ ...formData, banner_image_url: e.target.value })}
-              className="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              placeholder="https://example.com/banner.jpg"
-            />
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={formData.banner_image_url}
+                onChange={(e) => setFormData({ ...formData, banner_image_url: e.target.value })}
+                className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                placeholder="https://example.com/banner.jpg"
+              />
+              <Link
+                href={`/admin/gacha/banner-selector?returnUrl=${encodeURIComponent(`/admin/gacha/${cardId}/edit`)}`}
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 whitespace-nowrap"
+              >
+                ローカル画像から選択
+              </Link>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              URLを直接入力するか、ローカル画像から選択してください
+            </p>
           </div>
           
           <div className="grid grid-cols-2 gap-4">

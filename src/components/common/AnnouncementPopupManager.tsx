@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import NotificationModal from './NotificationModal'
+import { NotificationModal } from './NotificationModal'
 
 interface Announcement {
   id: string
@@ -18,6 +18,9 @@ interface Announcement {
 }
 
 export default function AnnouncementPopupManager() {
+  // データベーステーブル作成後は下記コメントアウトを削除
+  // return null
+  
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showModal, setShowModal] = useState(false)

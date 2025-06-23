@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { GiftIcon, CalendarIcon, FireIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
+import ReferralCampaign from './ReferralCampaign';
 
 interface Campaign {
   id: string;
@@ -216,6 +217,9 @@ export default function CampaignSection() {
           </motion.div>
         ))}
       </div>
+
+      {/* 友達紹介キャンペーン */}
+      <ReferralCampaign />
 
       {/* キャンペーン一覧へのリンク */}
       <div className="text-center pt-4">

@@ -1,7 +1,6 @@
 // pages/api/gacha/execute-v2.ts - 端末2統合版
 import { NextResponse } from 'next/server'
-import { supabase, db, handleSupabaseError } from '@/lib/supabase'
-import { createClient } from '@/lib/supabase/server'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 // ガチャ確率設定（端末3統合）
 const GACHA_RATES = {
@@ -19,10 +18,10 @@ const GACHA_COSTS = {
 
 export async function POST(request: Request) {
   try {
-    const supabaseClient = await createClient()
+    const supabase = createClientComponentClient()
     
     // 認証チェック
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -49,7 +48,12 @@ export async function POST(request: Request) {
     }
 
     // ユーザー情報取得
-    const { data: userProfile, error: userError } = await db.getUser(userId)
+    const { data: userProfile, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    
     if (userError || !userProfile) {
       return NextResponse.json({ 
         error: 'ユーザーが見つかりません' 
@@ -81,28 +85,39 @@ export async function POST(request: Request) {
       results.push(result)
 
       // ガチャ履歴保存
-      await db.saveGachaHistory(userId, {
-        gachaId,
-        cardId: result.card_id,
-        rarity: result.rarity,
-        pointsUsed: cost / drawCount
-      })
+      await supabase
+        .from('gacha_history')
+        .insert({
+          user_id: userId,
+          gacha_id: gachaId,
+          card_id: result.card_id,
+          rarity: result.rarity,
+          points_used: cost / drawCount,
+          created_at: new Date().toISOString()
+        })
     }
 
     // ポイント減算
     const newPoints = currentPoints - cost
-    const { error: updateError } = await db.updateUserPoints(userId, newPoints)
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ points: newPoints })
+      .eq('id', userId)
     
     if (updateError) {
       throw new Error('ポイント更新に失敗しました')
     }
 
     // ポイント取引履歴保存
-    await db.savePointTransaction(userId, {
-      type: 'gacha',
-      amount: -cost,
-      description: `ガチャ実行 (${type === 'ten' ? '10連' : '1回'})`
-    })
+    await supabase
+      .from('point_transactions')
+      .insert({
+        user_id: userId,
+        type: 'gacha',
+        amount: -cost,
+        description: `ガチャ実行 (${type === 'ten' ? '10連' : '1回'})`,
+        created_at: new Date().toISOString()
+      })
 
     // レスポンス（端末5の演出システムと連携）
     return NextResponse.json({

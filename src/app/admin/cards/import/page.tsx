@@ -2,187 +2,293 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { toast } from 'react-hot-toast'
+import Link from 'next/link'
 
-interface CSVRow {
-  card_name: string
+interface ImportedCard {
+  category: string
   product_code: string
+  card_name: string
+  rank: string
+  price: number
   rarity: string
-  product_points: string
-  card_image_url: string
-  card_image_filename: string
 }
 
-export default function CardImportPage() {
+export default function ImportCardsPage() {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
-  const [csvData, setCsvData] = useState<CSVRow[]>([])
-  const [preview, setPreview] = useState(false)
+  const supabase = createClientComponentClient()
+  const [isImporting, setIsImporting] = useState(false)
+  const [previewData, setPreviewData] = useState<ImportedCard[]>([])
+  const [csvFile, setCsvFile] = useState<File | null>(null)
+
+  // ランクをレアリティにマッピング
+  const mapRankToRarity = (rank: string): string => {
+    const normalizedRank = rank.toLowerCase().replace('rank', '')
+    switch (normalizedRank) {
+      case 'ss':
+        return 'SS'
+      case 's':
+        return 'S'
+      case 'a':
+        return 'A'
+      case 'b':
+        return 'B'
+      case 'c':
+        return 'C'
+      default:
+        return 'C' // デフォルト
+    }
+  }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
+    setCsvFile(file)
+    
     const reader = new FileReader()
     reader.onload = (e) => {
-      const text = e.target?.result as string
-      const rows = text.split('\n')
-      const headers = rows[0].split(',').map(h => h.trim())
+      const csv = e.target?.result as string
+      const lines = csv.split('\n')
+      const headers = lines[0].split(',')
       
-      const data: CSVRow[] = []
-      for (let i = 1; i < rows.length; i++) {
-        if (rows[i].trim() === '') continue
+      // BOMを除去
+      const cleanHeaders = headers.map(h => h.replace(/^\uFEFF/, '').trim())
+      
+      const data: ImportedCard[] = []
+      
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim()
+        if (!line) continue
         
-        const values = rows[i].split(',').map(v => v.trim())
-        const row: any = {}
-        headers.forEach((header, index) => {
-          row[header] = values[index] || ''
-        })
-        data.push(row)
+        const values = line.split(',')
+        if (values.length >= 5) {
+          const rank = values[3]?.trim() || ''
+          const rarity = mapRankToRarity(rank)
+          
+          data.push({
+            category: values[0]?.trim() || '',
+            product_code: values[1]?.trim() || '',
+            card_name: values[2]?.trim() || '',
+            rank: rank,
+            price: parseInt(values[4]?.trim() || '0'),
+            rarity: rarity
+          })
+        }
       }
       
-      setCsvData(data)
-      setPreview(true)
+      setPreviewData(data)
+      toast.success(`${data.length}件のカードデータを読み込みました`)
     }
-    reader.readAsText(file)
+    
+    reader.readAsText(file, 'UTF-8')
   }
 
   const handleImport = async () => {
-    setIsLoading(true)
+    if (previewData.length === 0) {
+      toast.error('インポートするデータがありません')
+      return
+    }
+
+    setIsImporting(true)
     
     try {
-      const response = await fetch('/api/admin/cards/import', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cards: csvData })
-      })
+      // バッチでインサート（重複チェック付き）
+      const insertData = previewData.map(card => ({
+        card_name: card.card_name,
+        product_code: card.product_code,
+        rarity: card.rarity,
+        image_url: '/images/ngcard.jpg', // 全てNGカード画像を使用
+        market_price: card.price,
+        description: `${card.category}カード - ${card.rank}`
+      }))
+
+      // 既存の商品コードをチェック
+      const existingCodes = await supabase
+        .from('pokemon_cards')
+        .select('product_code')
+        .in('product_code', insertData.map(c => c.product_code))
+
+      const existingCodesSet = new Set(
+        existingCodes.data?.map(c => c.product_code) || []
+      )
+
+      // 重複していないデータのみフィルタリング
+      const newData = insertData.filter(
+        card => !existingCodesSet.has(card.product_code)
+      )
+
+      if (newData.length === 0) {
+        toast.error('すべてのカードが既に登録済みです')
+        return
+      }
+
+      // インサート実行
+      const { data, error } = await supabase
+        .from('pokemon_cards')
+        .insert(newData)
+
+      if (error) throw error
+
+      const duplicateCount = insertData.length - newData.length
       
-      if (!response.ok) throw new Error('Import failed')
+      toast.success(
+        `${newData.length}件のカードをインポートしました` +
+        (duplicateCount > 0 ? `（重複スキップ: ${duplicateCount}件）` : '')
+      )
       
-      const result = await response.json()
-      toast.success(`${result.imported}枚のカードをインポートしました`)
       router.push('/admin/cards')
     } catch (error) {
-      console.error('Import error:', error)
-      toast.error('インポートに失敗しました')
+      console.error('Error importing cards:', error)
+      toast.error('カードのインポートに失敗しました')
     } finally {
-      setIsLoading(false)
+      setIsImporting(false)
     }
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">ポケモンカードCSVインポート</h1>
-      
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">CSVフォーマット</h2>
-            <a
-              href="/api/admin/cards/sample-csv"
-              download="pokemon_cards_sample.csv"
-              className="inline-flex items-center px-3 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="mb-6">
+        <div className="flex items-center text-sm text-gray-500 mb-2">
+          <Link href="/admin/cards" className="hover:text-gray-700">
+            カード管理
+          </Link>
+          <span className="mx-2">/</span>
+          <span className="text-gray-900">CSVインポート</span>
+        </div>
+        <h1 className="text-2xl font-bold text-gray-800">CSVインポート</h1>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* アップロードエリア */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">CSVファイルアップロード</h2>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                CSVファイルを選択
+              </label>
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors"
+              />
+            </div>
+
+            {previewData.length > 0 && (
+              <div className="space-y-4">
+                <div className="bg-green-50 border border-green-200 rounded p-3">
+                  <p className="text-sm text-green-800">
+                    ✅ {previewData.length}件のカードデータを読み込みました
+                  </p>
+                </div>
+                
+                <button
+                  onClick={handleImport}
+                  disabled={isImporting}
+                  className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 font-semibold"
+                >
+                  {isImporting ? 'インポート中...' : `${previewData.length}件をインポート`}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* フォーマット説明 */}
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <h3 className="font-semibold text-blue-900 mb-2">CSVフォーマット</h3>
+            <div className="text-sm text-blue-800 space-y-1">
+              <p>• カテゴリー名,新コード,商品名,ランク,交換ポイント</p>
+              <p>• ランク: RankSS, RankS, RankA, RankB, RankC</p>
+              <p>• 交換ポイント: 数値（円）</p>
+              <p>• 文字エンコード: UTF-8</p>
+              <p>• 画像: 全て /images/ngcard.jpg を使用</p>
+            </div>
+          </div>
+        </div>
+
+        {/* プレビューエリア */}
+        <div className="lg:col-span-2 bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            プレビュー ({previewData.length}件)
+          </h2>
+          
+          {previewData.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              サンプルCSVダウンロード
-            </a>
-          </div>
-          <div className="bg-gray-100 p-4 rounded text-sm font-mono">
-            カード名,商品コード,レアリティ,還元pt,カード画像URL,ローカル画像パス
-          </div>
-          <p className="text-sm text-gray-600 mt-2">
-            ※ レアリティ: SS（超大当たり）, S（大当たり）, A（当たり）, B（普通）, C（ハズレ）<br/>
-            ※ 還元pt: カードの市場価値・買取価格（例: 50000）<br/>
-            ※ 画像: URLまたはファイル名のいずれかを入力<br/>
-            ※ ファイル名指定時は /images/cards/ フォルダに配置<br/>
-            ※ 英語ヘッダーも対応: card_name,product_code,rarity,product_points,card_image_url,card_image_filename
-          </p>
-        </div>
-        
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            CSVファイルを選択
-          </label>
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleFileUpload}
-            className="block w-full text-sm text-gray-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-md file:border-0
-              file:text-sm file:font-semibold
-              file:bg-blue-50 file:text-blue-700
-              hover:file:bg-blue-100"
-          />
-        </div>
-        
-        {preview && csvData.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-4">プレビュー（最初の5件）</h3>
+              <p>CSVファイルをアップロードしてプレビューを表示</p>
+            </div>
+          ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">カード名</th>
-                    <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">商品コード</th>
-                    <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">レアリティ</th>
-                    <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">商品PT</th>
-                    <th className="px-4 py-2 text-xs font-medium text-gray-500 uppercase">画像設定</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      カード名
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      商品コード
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      レアリティ
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      価格
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {csvData.slice(0, 5).map((row, index) => (
-                    <tr key={index}>
-                      <td className="px-4 py-2 text-sm">{row.card_name}</td>
-                      <td className="px-4 py-2 text-sm font-mono">{row.product_code}</td>
-                      <td className="px-4 py-2 text-sm">
-                        <span className={`px-2 py-1 rounded text-xs font-semibold
-                          ${row.rarity === 'SS' ? 'bg-gradient-to-r from-yellow-400 to-red-500 text-white' :
-                            row.rarity === 'S' ? 'bg-gradient-to-r from-purple-400 to-pink-500 text-white' :
-                            row.rarity === 'A' ? 'bg-blue-500 text-white' :
-                            row.rarity === 'B' ? 'bg-green-500 text-white' :
-                            'bg-gray-500 text-white'}`}>
-                          {row.rarity}
+                  {previewData.slice(0, 10).map((card, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-4 py-4 text-sm text-gray-900">
+                        {card.card_name}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-500">
+                        {card.product_code}
+                      </td>
+                      <td className="px-4 py-4 text-sm">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          card.rarity === 'SS' ? 'bg-yellow-100 text-yellow-800' :
+                          card.rarity === 'S' ? 'bg-purple-100 text-purple-800' :
+                          card.rarity === 'A' ? 'bg-blue-100 text-blue-800' :
+                          card.rarity === 'B' ? 'bg-green-100 text-green-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {card.rarity}賞
                         </span>
                       </td>
-                      <td className="px-4 py-2 text-sm">{parseInt(row.product_points).toLocaleString()}PT</td>
-                      <td className="px-4 py-2 text-sm">
-                        {row.card_image_url ? (
-                          <span className="text-blue-600">URL指定</span>
-                        ) : row.card_image_filename ? (
-                          <span className="text-green-600">ファイル: {row.card_image_filename}</span>
-                        ) : (
-                          <span className="text-gray-400">画像なし</span>
-                        )}
+                      <td className="px-4 py-4 text-sm text-gray-900">
+                        ¥{card.price.toLocaleString()}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              
+              {previewData.length > 10 && (
+                <div className="mt-4 text-center text-sm text-gray-500">
+                  ...他 {previewData.length - 10}件
+                </div>
+              )}
             </div>
-            <p className="text-sm text-gray-600 mt-2">
-              合計 {csvData.length} 件のカードをインポートします
-            </p>
-          </div>
-        )}
-        
-        <div className="flex justify-end space-x-4">
-          <button
-            onClick={() => router.back()}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-          >
-            キャンセル
-          </button>
-          <button
-            onClick={handleImport}
-            disabled={!csvData.length || isLoading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-          >
-            {isLoading ? 'インポート中...' : 'インポート実行'}
-          </button>
+          )}
         </div>
+      </div>
+
+      {/* 注意事項 */}
+      <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <h3 className="font-semibold text-yellow-900 mb-2">⚠️ 注意事項</h3>
+        <ul className="text-sm text-yellow-800 space-y-1">
+          <li>• 商品コードが重複する場合、既存データはスキップされます</li>
+          <li>• カード画像は全て /images/ngcard.jpg が設定されます</li>
+          <li>• インポート後、個別にカード編集画面で実際の画像URLを設定してください</li>
+          <li>• 大量データの場合、処理に時間がかかる場合があります</li>
+        </ul>
       </div>
     </div>
   )

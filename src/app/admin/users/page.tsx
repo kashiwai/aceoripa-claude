@@ -3,23 +3,43 @@ import UserTable from '@/components/admin/UserTable'
 import { Suspense } from 'react'
 
 async function getUsers(page: number = 1, perPage: number = 20) {
-  const supabase = await createClient()
-  const offset = (page - 1) * perPage
-  
-  const { data: users, count } = await supabase
-    .from('users')
-    .select(`
-      *,
-      user_points (free_points, paid_points),
-      user_cards (count)
-    `, { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(offset, offset + perPage - 1)
-  
-  return {
-    users: users || [],
-    totalCount: count || 0,
-    totalPages: Math.ceil((count || 0) / perPage)
+  try {
+    const supabase = await createClient()
+    const offset = (page - 1) * perPage
+    
+    const { data: users, count, error } = await supabase
+      .from('users')
+      .select(`
+        *,
+        user_points (free_points, paid_points),
+        user_cards (count)
+      `, { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + perPage - 1)
+    
+    if (error) {
+      console.error('Database error:', error)
+      return {
+        users: [],
+        totalCount: 0,
+        totalPages: 0,
+        error: error.message
+      }
+    }
+    
+    return {
+      users: users || [],
+      totalCount: count || 0,
+      totalPages: Math.ceil((count || 0) / perPage)
+    }
+  } catch (error) {
+    console.error('Connection error:', error)
+    return {
+      users: [],
+      totalCount: 0,
+      totalPages: 0,
+      error: 'データベース接続エラー'
+    }
   }
 }
 

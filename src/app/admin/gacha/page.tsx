@@ -3,23 +3,33 @@ import Link from 'next/link'
 import { PlusIcon } from '@heroicons/react/24/outline'
 
 async function getGachaProducts() {
-  const supabase = await createClient()
-  
-  const { data: products } = await supabase
-    .from('gacha_products')
-    .select(`
-      *,
-      gacha_pools (
-        drop_rate,
-        cards (
-          name,
-          rarity
+  try {
+    const supabase = await createClient()
+    
+    const { data: products, error } = await supabase
+      .from('gacha_products')
+      .select(`
+        *,
+        gacha_pools (
+          drop_rate,
+          cards (
+            name,
+            rarity
+          )
         )
-      )
-    `)
-    .order('created_at', { ascending: false })
-  
-  return products || []
+      `)
+      .order('created_at', { ascending: false })
+    
+    if (error) {
+      console.error('Database error:', error)
+      return []
+    }
+    
+    return products || []
+  } catch (error) {
+    console.error('Connection error:', error)
+    return []
+  }
 }
 
 export default async function GachaPage() {
