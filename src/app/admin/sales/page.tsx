@@ -126,213 +126,223 @@ export default async function SalesPage() {
     : '0'
   
   return (
-    <div className="space-y-6">
+    <div>
       {/* ヘッダー */}
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-1">売上統計</h1>
-        <p className="text-gray-600 text-sm">リアルタイムの売上データと分析</p>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 className="h2">売上統計</h1>
+          <p className="text-muted">リアルタイムの売上データと分析</p>
+        </div>
       </div>
       
       {/* 統計カード */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="row mb-4">
         {/* 本日の売上 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="p-2 rounded-lg bg-green-500/10">
-              <CurrencyDollarIcon className="h-5 w-5 text-green-600" />
+        <div className="col-lg-3 col-md-6 mb-3">
+          <div className="card bg-success text-white">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="rounded p-2 bg-white bg-opacity-20">
+                  <CurrencyDollarIcon style={{width: '20px', height: '20px'}} />
+                </div>
+                <span className={`badge ${
+                  Number(dayChange) > 0 ? 'bg-light text-success' : 'bg-light text-danger'
+                }`}>
+                  {Number(dayChange) > 0 ? '↑' : '↓'}
+                  {Math.abs(Number(dayChange))}%
+                </span>
+              </div>
+              <div>
+                <small className="text-light">本日の売上</small>
+                <h4 className="mb-0">
+                  ¥{sales.todayTotal.toLocaleString()}
+                </h4>
+                <small className="text-light">
+                  前日: ¥{sales.yesterdayTotal.toLocaleString()}
+                </small>
+              </div>
             </div>
-            <span className={`text-xs px-2 py-1 rounded-full flex items-center ${
-              Number(dayChange) > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-            }`}>
-              {Number(dayChange) > 0 ? (
-                <ArrowTrendingUpIcon className="h-3 w-3 mr-1" />
-              ) : (
-                <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />
-              )}
-              {Math.abs(Number(dayChange))}%
-            </span>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">本日の売上</p>
-            <p className="text-xl font-semibold text-gray-900">
-              ¥{sales.todayTotal.toLocaleString()}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              前日: ¥{sales.yesterdayTotal.toLocaleString()}
-            </p>
           </div>
         </div>
         
         {/* 今月の売上 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="p-2 rounded-lg bg-blue-500/10">
-              <ChartBarIcon className="h-5 w-5 text-blue-600" />
+        <div className="col-lg-3 col-md-6 mb-3">
+          <div className="card bg-primary text-white">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="rounded p-2 bg-white bg-opacity-20">
+                  <ChartBarIcon style={{width: '20px', height: '20px'}} />
+                </div>
+                <span className={`badge ${
+                  Number(monthChange) > 0 ? 'bg-light text-success' : 'bg-light text-danger'
+                }`}>
+                  {Number(monthChange) > 0 ? '↑' : '↓'}
+                  {Math.abs(Number(monthChange))}%
+                </span>
+              </div>
+              <div>
+                <small className="text-light">今月の売上</small>
+                <h4 className="mb-0">
+                  ¥{sales.monthTotal.toLocaleString()}
+                </h4>
+                <small className="text-light">
+                  先月: ¥{sales.lastMonthTotal.toLocaleString()}
+                </small>
+              </div>
             </div>
-            <span className={`text-xs px-2 py-1 rounded-full flex items-center ${
-              Number(monthChange) > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-            }`}>
-              {Number(monthChange) > 0 ? (
-                <ArrowTrendingUpIcon className="h-3 w-3 mr-1" />
-              ) : (
-                <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />
-              )}
-              {Math.abs(Number(monthChange))}%
-            </span>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">今月の売上</p>
-            <p className="text-xl font-semibold text-gray-900">
-              ¥{sales.monthTotal.toLocaleString()}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              先月: ¥{sales.lastMonthTotal.toLocaleString()}
-            </p>
           </div>
         </div>
         
-        {/* 本日の取引数 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="p-2 rounded-lg bg-purple-500/10">
-              <CurrencyDollarIcon className="h-5 w-5 text-purple-600" />
+        {/* 平均単価 */}
+        <div className="col-lg-3 col-md-6 mb-3">
+          <div className="card bg-info text-white">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="rounded p-2 bg-white bg-opacity-20">
+                  <CurrencyDollarIcon style={{width: '20px', height: '20px'}} />
+                </div>
+              </div>
+              <div>
+                <small className="text-light">平均単価</small>
+                <h4 className="mb-0">
+                  ¥{sales.todayTotal > 0 ? Math.round(sales.todayTotal / 10) : 0}
+                </h4>
+                <small className="text-light">推定取引数: 10件</small>
+              </div>
             </div>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">平均単価</p>
-            <p className="text-xl font-semibold text-gray-900">
-              ¥{sales.todayTotal > 0 ? Math.round(sales.todayTotal / 10) : 0}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">推定取引数: 10件</p>
           </div>
         </div>
         
         {/* 成長率 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="p-2 rounded-lg bg-orange-500/10">
-              <ArrowTrendingUpIcon className="h-5 w-5 text-orange-600" />
+        <div className="col-lg-3 col-md-6 mb-3">
+          <div className="card bg-warning text-dark">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="rounded p-2 bg-white bg-opacity-20">
+                  <ArrowTrendingUpIcon style={{width: '20px', height: '20px'}} />
+                </div>
+              </div>
+              <div>
+                <small>月間成長率</small>
+                <h4 className="mb-0">
+                  {Number(monthChange) > 0 ? '+' : ''}{monthChange}%
+                </h4>
+                <small>前月比</small>
+              </div>
             </div>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">月間成長率</p>
-            <p className="text-xl font-semibold text-gray-900">
-              {Number(monthChange) > 0 ? '+' : ''}{monthChange}%
-            </p>
-            <p className="text-xs text-gray-500 mt-1">前月比</p>
           </div>
         </div>
       </div>
       
       {/* グラフとランキング */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="row">
         {/* 日別売上グラフ */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">過去7日間の売上推移</h3>
-          <div className="h-64 flex items-end justify-between space-x-2">
-            {sales.dailySales.map((day, index) => {
-              const maxAmount = Math.max(...sales.dailySales.map(d => d.amount))
-              const height = maxAmount > 0 ? (day.amount / maxAmount * 100) : 0
-              
-              return (
-                <div key={index} className="flex-1 flex flex-col items-center">
-                  <div className="w-full bg-gray-200 rounded-t-lg relative" style={{ height: '200px' }}>
-                    <div 
-                      className="absolute bottom-0 w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg transition-all duration-500"
-                      style={{ height: `${height}%` }}
-                    >
-                      <span className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-gray-700">
-                        {day.amount > 0 ? `¥${(day.amount / 1000).toFixed(0)}k` : ''}
-                      </span>
+        <div className="col-lg-6 mb-4">
+          <div className="card">
+            <div className="card-body">
+              <h5 className="card-title">過去7日間の売上推移</h5>
+              <div className="d-flex align-items-end justify-content-between" style={{height: '250px', gap: '8px'}}>
+                {sales.dailySales.map((day, index) => {
+                  const maxAmount = Math.max(...sales.dailySales.map(d => d.amount))
+                  const height = maxAmount > 0 ? (day.amount / maxAmount * 100) : 0
+                  
+                  return (
+                    <div key={index} className="d-flex flex-column align-items-center" style={{flex: 1}}>
+                      <div className="w-100 bg-light rounded position-relative" style={{ height: '200px' }}>
+                        <div 
+                          className="position-absolute bottom-0 w-100 bg-primary rounded transition-all"
+                          style={{ height: `${height}%` }}
+                        >
+                          <span className="position-absolute text-dark fw-bold" style={{top: '-20px', left: '50%', transform: 'translateX(-50%)', fontSize: '10px'}}>
+                            {day.amount > 0 ? `¥${(day.amount / 1000).toFixed(0)}k` : ''}
+                          </span>
+                        </div>
+                      </div>
+                      <small className="text-muted mt-2">{day.date}</small>
                     </div>
-                  </div>
-                  <span className="text-xs text-gray-500 mt-2">{day.date}</span>
-                </div>
-              )
-            })}
+                  )
+                })}
+              </div>
+            </div>
           </div>
         </div>
         
         {/* 人気ガチャランキング */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">人気ガチャTOP5</h3>
-          <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map((rank) => (
-              <div key={rank} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center">
-                  <span className={`text-lg font-bold mr-3 ${
-                    rank === 1 ? 'text-yellow-500' :
-                    rank === 2 ? 'text-gray-400' :
-                    rank === 3 ? 'text-orange-600' :
-                    'text-gray-600'
-                  }`}>
-                    #{rank}
-                  </span>
-                  <div>
-                    <p className="font-medium text-gray-900">ポケモンカード151</p>
-                    <p className="text-sm text-gray-500">購入数: {100 - rank * 15}回</p>
+        <div className="col-lg-6 mb-4">
+          <div className="card">
+            <div className="card-body">
+              <h5 className="card-title">人気ガチャTOP5</h5>
+              <div>
+                {[1, 2, 3, 4, 5].map((rank) => (
+                  <div key={rank} className="d-flex justify-content-between align-items-center p-3 mb-2 bg-light rounded">
+                    <div className="d-flex align-items-center">
+                      <span className={`h5 me-3 ${
+                        rank === 1 ? 'text-warning' :
+                        rank === 2 ? 'text-secondary' :
+                        rank === 3 ? 'text-danger' :
+                        'text-muted'
+                      }`}>
+                        #{rank}
+                      </span>
+                      <div>
+                        <div className="fw-medium">ポケモンカード151</div>
+                        <small className="text-muted">購入数: {100 - rank * 15}回</small>
+                      </div>
+                    </div>
+                    <div className="text-end">
+                      <div className="fw-bold">¥{((100 - rank * 15) * 1500).toLocaleString()}</div>
+                      <small className="text-muted">{25 - rank * 3}%</small>
+                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-gray-900">¥{((100 - rank * 15) * 1500).toLocaleString()}</p>
-                  <p className="text-xs text-gray-500">{25 - rank * 3}%</p>
-                </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </div>
       
       {/* 詳細データテーブル */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">最近の取引</h3>
+      <div className="card">
+        <div className="card-header">
+          <h5 className="card-title mb-0">最近の取引</h5>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  日時
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ユーザー
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  商品
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  金額
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ステータス
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {[...Array(5)].map((_, i) => (
-                <tr key={i}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(Date.now() - i * 3600000).toLocaleString('ja-JP')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    user{i + 1}@example.com
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ポケモンカード151 10連
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    ¥{(15000 - i * 1000).toLocaleString()}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      完了
-                    </span>
-                  </td>
+        <div className="card-body p-0">
+          <div className="table-responsive">
+            <table className="table table-hover mb-0">
+              <thead className="table-light">
+                <tr>
+                  <th>日時</th>
+                  <th>ユーザー</th>
+                  <th>商品</th>
+                  <th>金額</th>
+                  <th>ステータス</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {[...Array(5)].map((_, i) => (
+                  <tr key={i}>
+                    <td>
+                      <small>{new Date(Date.now() - i * 3600000).toLocaleString('ja-JP')}</small>
+                    </td>
+                    <td>
+                      user{i + 1}@example.com
+                    </td>
+                    <td>
+                      ポケモンカード151 10連
+                    </td>
+                    <td className="fw-bold">
+                      ¥{(15000 - i * 1000).toLocaleString()}
+                    </td>
+                    <td>
+                      <span className="badge bg-success">
+                        完了
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
