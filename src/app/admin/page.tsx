@@ -66,153 +66,162 @@ async function getStats() {
 export default async function AdminDashboard() {
   const stats = await getStats()
   
-  const statCards = [
-    {
-      title: '総ユーザー数',
-      value: stats.userCount.toLocaleString(),
-      icon: UsersIcon,
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'from-blue-50 to-blue-100',
-      iconBg: 'bg-blue-500/10'
-    },
-    {
-      title: '本日の売上',
-      value: `¥${stats.todayRevenue.toLocaleString()}`,
-      icon: CurrencyDollarIcon,
-      color: 'from-emerald-500 to-emerald-600',
-      bgColor: 'from-emerald-50 to-emerald-100',
-      iconBg: 'bg-emerald-500/10'
-    },
-    {
-      title: 'アクティブガチャ',
-      value: stats.gachaCount,
-      icon: CubeIcon,
-      color: 'from-purple-500 to-purple-600',
-      bgColor: 'from-purple-50 to-purple-100',
-      iconBg: 'bg-purple-500/10'
-    },
-    {
-      title: '今月の売上',
-      value: `¥${stats.monthRevenue.toLocaleString()}`,
-      icon: ChartBarIcon,
-      color: 'from-orange-500 to-orange-600',
-      bgColor: 'from-orange-50 to-orange-100',
-      iconBg: 'bg-orange-500/10'
-    }
-  ]
-  
   return (
-    <div className="space-y-6">
-      {/* ヘッダーセクション */}
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-1">ダッシュボード</h1>
-        <p className="text-gray-600 text-sm">リアルタイムのビジネス指標を確認できます</p>
+    <div>
+      {/* ヘッダー */}
+      <div className="row mb-4">
+        <div className="col">
+          <h1 className="h2 mb-1">ダッシュボード</h1>
+          <p className="text-muted">リアルタイムのビジネス指標を確認できます</p>
+        </div>
       </div>
       
       {/* 統計カード */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat) => (
-          <div key={stat.title} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className={`p-2 rounded-lg ${stat.iconBg}`}>
-                <stat.icon className="h-5 w-5 text-gray-600" />
+      <div className="row mb-4">
+        <div className="col-md-3 mb-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex justify-content-between">
+                <div>
+                  <h6 className="card-title text-muted">総ユーザー数</h6>
+                  <h3 className="mb-0">{stats.userCount.toLocaleString()}</h3>
+                </div>
+                <div className="align-self-center">
+                  <span className="badge bg-primary">Live</span>
+                </div>
               </div>
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                Live
-              </span>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{stat.title}</p>
-              <p className="text-xl font-semibold text-gray-900">
-                {stat.value}
-              </p>
             </div>
           </div>
-        ))}
+        </div>
+        <div className="col-md-3 mb-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex justify-content-between">
+                <div>
+                  <h6 className="card-title text-muted">本日の売上</h6>
+                  <h3 className="mb-0">¥{stats.todayRevenue.toLocaleString()}</h3>
+                </div>
+                <div className="align-self-center">
+                  <span className="badge bg-success">Live</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3 mb-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex justify-content-between">
+                <div>
+                  <h6 className="card-title text-muted">アクティブガチャ</h6>
+                  <h3 className="mb-0">{stats.gachaCount}</h3>
+                </div>
+                <div className="align-self-center">
+                  <span className="badge bg-info">Live</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3 mb-3">
+          <div className="card">
+            <div className="card-body">
+              <div className="d-flex justify-content-between">
+                <div>
+                  <h6 className="card-title text-muted">今月の売上</h6>
+                  <h3 className="mb-0">¥{stats.monthRevenue.toLocaleString()}</h3>
+                </div>
+                <div className="align-self-center">
+                  <span className="badge bg-warning">Live</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       
       {/* クイックアクション */}
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">クイックアクション</h2>
-          <span className="text-xs text-gray-500">よく使う機能</span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a
-            href="/admin/gacha/new"
-            className="border border-gray-200 rounded-lg p-4 text-center hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
-          >
-            <div className="w-8 h-8 mx-auto bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-              <CubeIcon className="h-4 w-4 text-blue-600" />
+      <div className="row mb-4">
+        <div className="col">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title mb-0">クイックアクション</h5>
             </div>
-            <p className="text-sm font-medium text-gray-900">新規ガチャ作成</p>
-            <p className="text-xs text-gray-500 mt-1">新しいガチャ商品を追加</p>
-          </a>
-          <a
-            href="/admin/users"
-            className="border border-gray-200 rounded-lg p-4 text-center hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
-          >
-            <div className="w-8 h-8 mx-auto bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-              <UsersIcon className="h-4 w-4 text-blue-600" />
+            <div className="card-body">
+              <div className="row">
+                <div className="col-md-4 mb-3">
+                  <a href="/admin/gacha/new" className="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center">
+                    <div className="mb-2">📦</div>
+                    <strong>新規ガチャ作成</strong>
+                    <small className="text-muted">新しいガチャ商品を追加</small>
+                  </a>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <a href="/admin/users" className="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center">
+                    <div className="mb-2">👥</div>
+                    <strong>ユーザー管理</strong>
+                    <small className="text-muted">ユーザー情報の確認・編集</small>
+                  </a>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <a href="/admin/announcements" className="btn btn-outline-primary w-100 h-100 d-flex flex-column justify-content-center">
+                    <div className="mb-2">📢</div>
+                    <strong>お知らせ管理</strong>
+                    <small className="text-muted">プッシュ通知の送信</small>
+                  </a>
+                </div>
+              </div>
             </div>
-            <p className="text-sm font-medium text-gray-900">ユーザー管理</p>
-            <p className="text-xs text-gray-500 mt-1">ユーザー情報の確認・編集</p>
-          </a>
-          <a
-            href="/admin/notifications"
-            className="border border-gray-200 rounded-lg p-4 text-center hover:border-blue-300 hover:bg-blue-50 transition-all duration-200"
-          >
-            <div className="w-8 h-8 mx-auto bg-blue-100 rounded-lg flex items-center justify-center mb-2">
-              <SpeakerWaveIcon className="h-4 w-4 text-blue-600" />
-            </div>
-            <p className="text-sm font-medium text-gray-900">通知管理</p>
-            <p className="text-xs text-gray-500 mt-1">プッシュ通知の送信</p>
-          </a>
+          </div>
         </div>
       </div>
 
       {/* アクティビティログ */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">最近のアクティビティ</h2>
-        </div>
-        <div className="p-6">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between py-3 border-b border-gray-100">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <UsersIcon className="h-4 w-4 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">新規ユーザー登録</p>
-                  <p className="text-xs text-gray-500">user@example.com</p>
-                </div>
-              </div>
-              <span className="text-xs text-gray-500">5分前</span>
+      <div className="row">
+        <div className="col">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title mb-0">最近のアクティビティ</h5>
             </div>
-            <div className="flex items-center justify-between py-3 border-b border-gray-100">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <CurrencyDollarIcon className="h-4 w-4 text-green-600" />
+            <div className="card-body">
+              <div className="list-group list-group-flush">
+                <div className="list-group-item d-flex justify-content-between align-items-center">
+                  <div className="d-flex align-items-center">
+                    <div className="me-3">
+                      <span className="badge bg-primary rounded-pill">👤</span>
+                    </div>
+                    <div>
+                      <h6 className="mb-1">新規ユーザー登録</h6>
+                      <p className="mb-1 text-muted">user@example.com</p>
+                    </div>
+                  </div>
+                  <small className="text-muted">5分前</small>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">ガチャ購入</p>
-                  <p className="text-xs text-gray-500">¥3,000 - SSRガチャ</p>
+                <div className="list-group-item d-flex justify-content-between align-items-center">
+                  <div className="d-flex align-items-center">
+                    <div className="me-3">
+                      <span className="badge bg-success rounded-pill">💰</span>
+                    </div>
+                    <div>
+                      <h6 className="mb-1">ガチャ購入</h6>
+                      <p className="mb-1 text-muted">¥3,000 - SSRガチャ</p>
+                    </div>
+                  </div>
+                  <small className="text-muted">15分前</small>
+                </div>
+                <div className="list-group-item d-flex justify-content-between align-items-center">
+                  <div className="d-flex align-items-center">
+                    <div className="me-3">
+                      <span className="badge bg-info rounded-pill">📦</span>
+                    </div>
+                    <div>
+                      <h6 className="mb-1">新規ガチャ追加</h6>
+                      <p className="mb-1 text-muted">ポケモンカード151</p>
+                    </div>
+                  </div>
+                  <small className="text-muted">1時間前</small>
                 </div>
               </div>
-              <span className="text-xs text-gray-500">15分前</span>
-            </div>
-            <div className="flex items-center justify-between py-3">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                  <CubeIcon className="h-4 w-4 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">新規ガチャ追加</p>
-                  <p className="text-xs text-gray-500">ポケモンカード151</p>
-                </div>
-              </div>
-              <span className="text-xs text-gray-500">1時間前</span>
             </div>
           </div>
         </div>

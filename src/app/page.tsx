@@ -20,24 +20,40 @@ export default function HomePage() {
   // APIからガチャ商品データを取得
   useEffect(() => {
     const fetchGachaProducts = async () => {
+      console.log('Starting to fetch gacha products...')
       try {
         const response = await fetch('/api/gacha/products')
+        console.log('Response status:', response.status)
         if (!response.ok) {
           throw new Error('ガチャ商品の取得に失敗しました')
         }
         const data = await response.json()
+        console.log('Fetched data:', data)
         setGachaProducts(data.products || [])
+        console.log('Setting loading to false')
       } catch (err) {
         console.error('Error fetching gacha products:', err)
         setError(err instanceof Error ? err.message : 'エラーが発生しました')
         // フォールバックデータを使用
         setGachaProducts(gachaProductsFallback)
+        console.log('Using fallback data, setting loading to false')
       } finally {
         setLoading(false)
+        console.log('Loading set to false in finally block')
       }
     }
 
-    fetchGachaProducts()
+    // 短いタイムアウトを追加して確実にローディングを解除
+    const timeoutId = setTimeout(() => {
+      console.log('Timeout: forcing loading to false')
+      setLoading(false)
+    }, 5000)
+
+    fetchGachaProducts().then(() => {
+      clearTimeout(timeoutId)
+    })
+
+    return () => clearTimeout(timeoutId)
   }, [])
 
   const banners = [

@@ -63,11 +63,14 @@ export default function GachaDetailPage() {
   // APIからガチャ情報とカード情報を取得
   useEffect(() => {
     const fetchGachaData = async () => {
+      console.log('Starting to fetch gacha data for ID:', gachaId)
       try {
         // ガチャ商品情報を取得
         const productResponse = await fetch(`/api/gacha/products/${gachaId}`)
+        console.log('Product response status:', productResponse.status)
         if (productResponse.ok) {
           const productData = await productResponse.json()
+          console.log('Product data:', productData)
           if (productData.success && productData.product) {
             setGacha(productData.product)
           }
@@ -75,8 +78,10 @@ export default function GachaDetailPage() {
         
         // カードプール情報を取得
         const poolResponse = await fetch(`/api/gacha/products/${gachaId}/pool`)
+        console.log('Pool response status:', poolResponse.status)
         if (poolResponse.ok) {
           const poolData = await poolResponse.json()
+          console.log('Pool data:', poolData)
           if (poolData.success && poolData.cards) {
             setCards(poolData.cards)
           }
@@ -123,11 +128,23 @@ export default function GachaDetailPage() {
         
         setGacha(dummyGacha)
         setCards(dummyCards)
+        console.log('Using fallback data')
       }
+      console.log('Setting loading to false')
       setLoading(false)
     }
     
-    fetchGachaData()
+    // 短いタイムアウトを追加して確実にローディングを解除
+    const timeoutId = setTimeout(() => {
+      console.log('Timeout: forcing loading to false')
+      setLoading(false)
+    }, 3000)
+
+    fetchGachaData().then(() => {
+      clearTimeout(timeoutId)
+    })
+
+    return () => clearTimeout(timeoutId)
   }, [gachaId])
 
   // カードをレアリティ別にグループ化

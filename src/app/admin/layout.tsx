@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import AdminSidebar from '@/components/admin/AdminSidebar'
+import Script from 'next/script'
 
 export default async function AdminLayout({
   children,
@@ -17,23 +18,23 @@ export default async function AdminLayout({
   // }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <AdminSidebar />
-      <main className="flex-1 overflow-y-auto">
-        <div className="min-h-screen">
-          <div className="bg-white shadow-sm border-b border-gray-200">
-            <div className="px-6 py-4">
-              <h1 className="text-2xl font-semibold text-gray-900">
-                管理画面 [UPDATED]
-              </h1>
-              <p className="text-gray-600 text-sm mt-1">Aceoripa ポケモンカード オリパサイト - aceoripa-claude</p>
-            </div>
-          </div>
-          <div className="px-6 py-6">
+    <>
+      <Script 
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        strategy="afterInteractive"
+      />
+      <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+        rel="stylesheet"
+      />
+      <div className="d-flex">
+        <AdminSidebar />
+        <main className="flex-fill">
+          <div className="container-fluid p-4">
             {children}
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   )
 }

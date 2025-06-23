@@ -33,7 +33,7 @@ export default function EditGachaPage() {
   
   useEffect(() => {
     fetchGachaData()
-  }, [params.id])
+  }, [params?.id])
   
   const fetchGachaData = async () => {
     setIsLoading(true)
@@ -41,7 +41,7 @@ export default function EditGachaPage() {
       const { data, error } = await supabase
         .from('gacha_products')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', params?.id)
         .single()
       
       if (error) throw error
@@ -79,7 +79,7 @@ export default function EditGachaPage() {
           featured_card_ids: formData.featured_card_ids,
           guarantee_sr_on_multi: formData.guarantee_sr_on_multi
         })
-        .eq('id', params.id)
+        .eq('id', params?.id)
       
       if (error) throw error
       
@@ -104,7 +104,7 @@ export default function EditGachaPage() {
       const { error } = await supabase
         .from('gacha_products')
         .delete()
-        .eq('id', params.id)
+        .eq('id', params?.id)
       
       if (error) throw error
       
@@ -131,7 +131,7 @@ export default function EditGachaPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">ガチャ編集</h1>
-          <p className="text-gray-600 mt-1">ID: {params.id}</p>
+          <p className="text-gray-600 mt-1">ID: {params?.id}</p>
         </div>
         <Link
           href="/admin/gacha"
@@ -319,19 +319,19 @@ export default function EditGachaPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">クイックアクション</h3>
             <div className="space-y-3">
               <Link
-                href={`/admin/gacha/${params.id}/pools`}
+                href={`/admin/gacha/${params?.id}/pools`}
                 className="block w-full text-center bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
               >
                 確率設定を編集
               </Link>
               <Link
-                href={`/admin/image-generator?gacha_id=${params.id}`}
+                href={`/admin/image-generator?gacha_id=${params?.id}`}
                 className="block w-full text-center bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700"
               >
                 バナー画像を生成
               </Link>
               <Link
-                href={`/gacha/${params.id}`}
+                href={`/gacha/${params?.id}`}
                 className="block w-full text-center bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700"
                 target="_blank"
               >

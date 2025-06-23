@@ -74,7 +74,7 @@ const LOCAL_BANNERS = [
 export default function BannerSelectorPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const returnUrl = searchParams.get('returnUrl') || '/admin/gacha/new'
+  const returnUrl = searchParams?.get('returnUrl') || '/admin/gacha/new'
   const [selectedBanner, setSelectedBanner] = useState<string>('')
   const [filter, setFilter] = useState('')
 
