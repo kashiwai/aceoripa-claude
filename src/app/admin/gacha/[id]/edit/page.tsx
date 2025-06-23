@@ -287,7 +287,7 @@ export default function EditGachaPage() {
                 placeholder="https://example.com/banner.jpg"
               />
               <Link
-                href={`/admin/gacha/banner-selector?returnUrl=${encodeURIComponent(`/admin/gacha/${cardId}/edit`)}`}
+                href={`/admin/gacha/banner-selector?returnUrl=${encodeURIComponent(`/admin/gacha/${gachaId}/edit`)}`}
                 className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 whitespace-nowrap"
               >
                 ローカル画像から選択
