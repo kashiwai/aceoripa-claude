@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { useNotificationPermission } from '@/hooks/useNotificationPermission'
-import CampaignSection from '@/components/CampaignSection'
+// import { useNotificationPermission } from '@/hooks/useNotificationPermission'
+// import CampaignSection from '@/components/CampaignSection'
 
 interface UserInfo {
   id: string
@@ -33,15 +33,24 @@ interface GachaHistory {
 }
 
 function SettingsTab() {
-  const {
-    permission,
-    subscription,
-    isSupported,
-    isLoading,
-    requestPermission,
-    unsubscribe,
-    sendTestNotification
-  } = useNotificationPermission()
+  // const {
+  //   permission,
+  //   subscription,
+  //   isSupported,
+  //   isLoading,
+  //   requestPermission,
+  //   unsubscribe,
+  //   sendTestNotification
+  // } = useNotificationPermission()
+  
+  // 一時的にダミーデータを設定
+  const permission = 'default'
+  const subscription = null
+  const isSupported = true
+  const isLoading = false
+  const requestPermission = () => {}
+  const unsubscribe = () => {}
+  const sendTestNotification = () => {}
 
   const [settings, setSettings] = useState({
     notifications: true,
@@ -589,7 +598,12 @@ export default function MyPage() {
               {/* キャンペーンタブ */}
               {activeTab === 'campaigns' && (
                 <div className="p-6">
-                  <CampaignSection />
+                  {/* <CampaignSection /> */}
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">🎁</div>
+                    <h3 className="text-2xl font-bold text-white mb-2">キャンペーン情報</h3>
+                    <p className="text-gray-400">現在開催中のキャンペーンはありません</p>
+                  </div>
                 </div>
               )}
 

@@ -7,7 +7,9 @@ import {
   VideoCameraIcon, 
   CubeIcon,
   ChartBarIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  CheckIcon,
+  ArrowRightIcon
 } from '@heroicons/react/24/outline'
 
 const AI_TOOLS = [
@@ -98,14 +100,14 @@ export default function AIGeneratorPage() {
                 <div className="mb-3">
                   {tool.features.map((feature, idx) => (
                     <div key={idx} className="d-flex align-items-center mb-1">
-                      <i className="bi bi-check-circle text-success me-2"></i>
+                      <CheckIcon className="text-success me-2" style={{width: '16px', height: '16px'}} />
                       <small className="text-muted">{feature}</small>
                     </div>
                   ))}
                 </div>
                 
                 <div className="d-flex justify-content-end">
-                  <i className="bi bi-arrow-right text-primary"></i>
+                  <ArrowRightIcon className="text-primary" style={{width: '20px', height: '20px'}} />
                 </div>
               </div>
             </Link>

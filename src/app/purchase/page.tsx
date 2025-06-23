@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
-import { toast } from 'react-hot-toast'
+// import { useAuth } from '@/hooks/useAuth'
+// import { toast } from 'react-hot-toast'
 
 // ポイントパッケージ
 const POINT_PACKAGES = [
@@ -61,13 +61,15 @@ const POINT_PACKAGES = [
 
 export default function PurchasePage() {
   const router = useRouter()
-  const { user, points } = useAuth()
+  // const { user, points } = useAuth()
+  const user = null // 一時的にnullに設定
+  const points = 3000 // 一時的なサンプル値
   const [selectedPackage, setSelectedPackage] = useState<typeof POINT_PACKAGES[0] | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
 
   const handlePurchase = async () => {
     if (!selectedPackage) {
-      toast.error('パッケージを選択してください')
+      alert('パッケージを選択してください')
       return
     }
 
@@ -86,12 +88,12 @@ export default function PurchasePage() {
       await new Promise(resolve => setTimeout(resolve, 3000))
       
       // 成功メッセージ
-      toast.success(`${selectedPackage.points}ポイントを購入しました！`)
+      alert(`${selectedPackage.points}ポイントを購入しました！`)
       
       // トップページへ戻る
       router.push('/')
     } catch (error) {
-      toast.error('購入処理に失敗しました')
+      alert('購入処理に失敗しました')
     } finally {
       setIsProcessing(false)
     }
