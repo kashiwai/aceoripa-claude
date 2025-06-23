@@ -1,1 +1,21 @@
 runtime: nodejs20
+instance_class: F2
+
+env_variables:
+  NODE_ENV: "production"
+  NEXT_PUBLIC_SUPABASE_URL: "https://vshkekffhjbvszzpagjt.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzaGtla2ZmaGpidnN6enBhZ2p0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0MDI2MjcsImV4cCI6MjA2NTk3ODYyN30.O0PKHvtxruYaspm56kjhY9sxDFmQX4gTAhmV3VPUAYY"
+  NEXT_PUBLIC_FINCODE_PUBLIC_KEY: "p_prod_OWIwZjE1YjUtMzJjMS00MWY3LTgyMzYtYWYzOGMzYzc1Njg5MGM4ZDVkYmQtYTNjMy00NDEwLThlMDgtMDQ5ZmRlYTBlZGIzc18yNTA0MDg4MTA0OQ"
+  NEXT_PUBLIC_FINCODE_ENV: "prod"
+  NEXT_PUBLIC_APP_URL: "https://aceoripa.appspot.com"
+  # OPENAI_API_KEY: Set this in environment variables
+
+handlers:
+- url: /.*
+  script: auto
+  secure: always
+
+automatic_scaling:
+  target_cpu_utilization: 0.65
+  min_instances: 1
+  max_instances: 10

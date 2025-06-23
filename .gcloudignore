@@ -15,3 +15,29 @@
 
 # Node.js dependencies:
 node_modules/
+
+# Build files
+.next/
+out/
+
+# Development files
+.env.local
+.env
+*.log
+
+# Test files
+tests/
+__tests__/
+
+# Editor files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# TypeScript files (for production)
+*.ts
+*.tsx
+!next-env.d.ts
