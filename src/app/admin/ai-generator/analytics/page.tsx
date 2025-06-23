@@ -9,8 +9,8 @@ import {
   ClockIcon,
   SparklesIcon,
   FireIcon,
-  ArrowArrowTrendingUpIcon,
-  ArrowArrowTrendingDownIcon
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon
 } from '@heroicons/react/24/outline'
 
 // 分析期間の選択肢

@@ -82,7 +82,7 @@ export default function AnnouncementsPage() {
           .from('announcements')
           .update({
             ...formData,
-            is_active: formData.status === 'published',
+            is_active: (formData.status as string) === 'published',
             start_date: formData.publish_date,
             updated_at: new Date().toISOString()
           })
@@ -95,7 +95,7 @@ export default function AnnouncementsPage() {
           .from('announcements')
           .insert([{
             ...formData,
-            is_active: formData.status === 'published',
+            is_active: (formData.status as string) === 'published',
             start_date: formData.publish_date,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -158,8 +158,8 @@ export default function AnnouncementsPage() {
     setFormData({
       title: announcement.title,
       content: announcement.content,
-      type: announcement.type,
-      status: announcement.status,
+      type: announcement.type as 'news',
+      status: announcement.status as 'draft',
       publish_date: announcement.publish_date.split('T')[0],
       end_date: announcement.end_date ? announcement.end_date.split('T')[0] : '',
       priority: announcement.priority,

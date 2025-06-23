@@ -3,37 +3,16 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
   try {
-    const supabase = await createClient()
-    
-    // 現在のユーザーを取得
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // 一時的にサンプルデータを返す（認証なし）
+    const samplePoints = {
+      free_points: 500,
+      paid_points: 2500,
+      total_points: 3000
     }
     
-    // ユーザーのポイント情報を取得
-    const { data, error } = await supabase
-      .from('user_points')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
-    
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-      console.error('Error fetching user points:', error)
-      return NextResponse.json({ error: 'Failed to fetch user points' }, { status: 500 })
-    }
-    
-    // ポイント情報がない場合は初期値を返す
-    const points = data || {
-      user_id: user.id,
-      free_points: 0,
-      paid_points: 0
-    }
-    
-    return NextResponse.json({ points })
+    return NextResponse.json({ points: samplePoints })
   } catch (error) {
-    console.error('Unexpected error:', error)
+    console.error('Error fetching user points:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

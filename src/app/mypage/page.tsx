@@ -358,9 +358,9 @@ export default function MyPage() {
                 <div className="text-center">
                   <p className="text-sm opacity-90">所持ポイント</p>
                   <p className="text-3xl font-black">{user?.points?.toLocaleString()}P</p>
-                  <button className="mt-3 bg-white/20 hover:bg-white/30 text-white font-bold px-4 py-2 rounded-lg transition w-full">
+                  <Link href="/payment" className="mt-3 bg-white/20 hover:bg-white/30 text-white font-bold px-4 py-2 rounded-lg transition w-full block text-center">
                     ポイント購入
-                  </button>
+                  </Link>
                 </div>
               </div>
 
