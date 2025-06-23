@@ -7,9 +7,6 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    serverComponentsExternalPackages: ['@supabase/ssr'],
-  },
   // キャッシュ無効化（開発時）
   generateBuildId: async () => {
     return 'build-' + Date.now()

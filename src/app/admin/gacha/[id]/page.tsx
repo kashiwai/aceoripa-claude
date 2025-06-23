@@ -342,25 +342,28 @@ export default function EditGachaPage() {
         
         {/* サイドバー */}
         <div className="col-lg-4">
-          <div className="space-y-4">
+          <div className="d-flex flex-column gap-4">
           {/* プレビュー */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">バナープレビュー</h3>
+          <div className="card">
+            <div className="card-body">
+            <h5 className="card-title">バナープレビュー</h5>
             {formData.banner_image_url ? (
-              <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+              <div className="position-relative" style={{aspectRatio: '1/1'}}>
                 <Image
                   src={formData.banner_image_url}
                   alt={formData.name}
                   fill
-                  className="object-cover"
+                  className="rounded"
+                  style={{objectFit: 'cover'}}
                   unoptimized
                 />
               </div>
             ) : (
-              <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">画像URLを入力してください</p>
+              <div className="d-flex align-items-center justify-content-center bg-light rounded" style={{aspectRatio: '1/1'}}>
+                <p className="text-muted">画像URLを入力してください</p>
               </div>
             )}
+            </div>
           </div>
           
           {/* クイックアクション */}
@@ -430,6 +433,7 @@ export default function EditGachaPage() {
                 </div>
               </dl>
             </div>
+          </div>
           </div>
         </div>
       </div>
