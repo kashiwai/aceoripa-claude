@@ -193,104 +193,96 @@ export default function AnnouncementsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">お知らせ管理</h1>
+    <div>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 className="h2">お知らせ管理</h1>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
+          className="btn btn-primary"
         >
-          <PlusIcon className="h-5 w-5" />
-          新規作成
+          ➕ 新規作成
         </button>
       </div>
 
       {/* お知らせ一覧 */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
+      <div className="card">
+        <div className="card-body">
           {loading ? (
-            <div className="text-center py-4">読み込み中...</div>
+            <div className="text-center py-4">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <div className="mt-2">読み込み中...</div>
+            </div>
           ) : announcements.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              お知らせがまだありません
+            <div className="text-center py-5">
+              <span style={{fontSize: '3rem'}}>📢</span>
+              <h4 className="mt-3">お知らせがまだありません</h4>
+              <p className="text-muted">新しいお知らせを作成してください</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+            <div className="table-responsive">
+              <table className="table table-hover">
+                <thead className="table-light">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      タイトル
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      種類
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ステータス
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      公開日
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      優先度
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      プッシュ通知
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      操作
-                    </th>
+                    <th>タイトル</th>
+                    <th>種類</th>
+                    <th>ステータス</th>
+                    <th>公開日</th>
+                    <th>優先度</th>
+                    <th>プッシュ通知</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody>
                   {announcements.map((announcement) => (
                     <tr key={announcement.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
+                      <td>
+                        <div className="fw-medium">
                           {announcement.title}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          announcement.type === 'important' ? 'bg-red-100 text-red-800' :
-                          announcement.type === 'campaign' ? 'bg-green-100 text-green-800' :
-                          announcement.type === 'maintenance' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-blue-100 text-blue-800'
+                      <td>
+                        <span className={`badge ${
+                          announcement.type === 'important' ? 'bg-danger' :
+                          announcement.type === 'campaign' ? 'bg-success' :
+                          announcement.type === 'maintenance' ? 'bg-warning' :
+                          'bg-primary'
                         }`}>
                           {getTypeLabel(announcement.type)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          announcement.status === 'published' ? 'bg-green-100 text-green-800' :
-                          announcement.status === 'archived' ? 'bg-gray-100 text-gray-800' :
-                          'bg-yellow-100 text-yellow-800'
+                      <td>
+                        <span className={`badge ${
+                          announcement.status === 'published' ? 'bg-success' :
+                          announcement.status === 'archived' ? 'bg-secondary' :
+                          'bg-warning'
                         }`}>
                           {getStatusLabel(announcement.status)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td>
                         {new Date(announcement.publish_date).toLocaleDateString('ja-JP')}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {announcement.priority}
+                      <td>
+                        <span className="badge bg-info">{announcement.priority}</span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {announcement.push_notification ? '○' : '×'}
+                      <td>
+                        {announcement.push_notification ? '✅' : '❌'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
+                      <td>
+                        <div className="btn-group btn-group-sm">
                           <button
                             onClick={() => openEditModal(announcement)}
-                            className="text-indigo-600 hover:text-indigo-900"
+                            className="btn btn-outline-primary"
                           >
-                            <PencilIcon className="h-4 w-4" />
+                            ✏️
                           </button>
                           <button
                             onClick={() => handleDelete(announcement.id)}
-                            className="text-red-600 hover:text-red-900"
+                            className="btn btn-outline-danger"
                           >
-                            <TrashIcon className="h-4 w-4" />
+                            🗑️
                           </button>
                         </div>
                       </td>

@@ -53,33 +53,35 @@ export default async function UsersPage({
   const { users, totalCount, totalPages } = await getUsers(currentPage)
   
   return (
-    <div className="space-y-8">
+    <div>
       {/* ヘッダーセクション */}
-      <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">ユーザー管理</h1>
-            <p className="text-gray-600">登録ユーザーの情報を管理できます</p>
-          </div>
-          <div className="text-right">
-            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-3 rounded-xl">
-              <span className="text-sm text-gray-600">総ユーザー数</span>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                {totalCount.toLocaleString()}
-              </span>
+      <div className="row mb-4">
+        <div className="col">
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <h1 className="h2 mb-1">ユーザー管理</h1>
+              <p className="text-muted">登録ユーザーの情報を管理できます</p>
+            </div>
+            <div>
+              <div className="card bg-primary text-white">
+                <div className="card-body text-center">
+                  <small>総ユーザー数</small>
+                  <h3 className="mb-0">{totalCount.toLocaleString()}</h3>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
       
       {/* ユーザーテーブル */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="card">
         <Suspense fallback={
-          <div className="p-20 text-center">
-            <div className="inline-flex items-center space-x-2">
-              <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-              <span className="text-gray-600">ユーザーデータを読み込んでいます...</span>
+          <div className="card-body text-center p-5">
+            <div className="spinner-border text-primary me-2" role="status">
+              <span className="visually-hidden">Loading...</span>
             </div>
+            ユーザーデータを読み込んでいます...
           </div>
         }>
           <UserTable 

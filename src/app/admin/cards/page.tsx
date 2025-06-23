@@ -101,45 +101,42 @@ export default function CardsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-bold text-gray-800">カード管理</h1>
-          <div className="flex gap-2">
-            <Link
-              href="/admin/cards/import"
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-              </svg>
-              CSVインポート
-            </Link>
-            <Link
-              href="/admin/cards/new"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-            >
-              <PlusIcon className="w-5 h-5" />
-              新規カード追加
-            </Link>
-          </div>
+    <div>
+      {/* ヘッダー */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 className="h2">カード管理</h1>
+        <div>
+          <Link
+            href="/admin/cards/import"
+            className="btn btn-success me-2"
+          >
+            📁 CSVインポート
+          </Link>
+          <Link
+            href="/admin/cards/new"
+            className="btn btn-primary"
+          >
+            ➕ 新規カード追加
+          </Link>
         </div>
+      </div>
 
-        {/* フィルター */}
-        <div className="flex gap-4 mb-6">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="カード名で検索..."
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="w-full border-gray-300 rounded-lg shadow-sm"
-            />
-          </div>
+      {/* フィルター */}
+      <div className="row mb-4">
+        <div className="col-md-8">
+          <input
+            type="text"
+            placeholder="カード名で検索..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="form-control"
+          />
+        </div>
+        <div className="col-md-4">
           <select
             value={rarityFilter}
             onChange={(e) => setRarityFilter(e.target.value)}
-            className="border-gray-300 rounded-lg shadow-sm"
+            className="form-select"
           >
             <option value="">全てのレアリティ</option>
             <option value="SS">SS賞</option>
@@ -149,74 +146,87 @@ export default function CardsPage() {
             <option value="C">C賞</option>
           </select>
         </div>
+      </div>
 
-        {/* 統計情報 */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-sm text-gray-600">総カード数</p>
-            <p className="text-2xl font-bold text-gray-800">{cards.length}</p>
+      {/* 統計情報 */}
+      <div className="row mb-4">
+        <div className="col-lg-2 col-md-4 mb-3">
+          <div className="card text-center">
+            <div className="card-body">
+              <small className="text-muted">総カード数</small>
+              <h4 className="mb-0">{cards.length}</h4>
+            </div>
           </div>
-          {Object.keys(RARITY_LABELS).map(rarity => {
-            const count = cards.filter(card => card.rarity === rarity).length
-            return (
-              <div key={rarity} className="bg-white rounded-lg shadow p-4">
-                <p className="text-sm text-gray-600">{RARITY_LABELS[rarity as keyof typeof RARITY_LABELS]}</p>
-                <p className="text-2xl font-bold text-gray-800">{count}</p>
-              </div>
-            )
-          })}
         </div>
+        {Object.keys(RARITY_LABELS).map(rarity => {
+          const count = cards.filter(card => card.rarity === rarity).length
+          return (
+            <div key={rarity} className="col-lg-2 col-md-4 mb-3">
+              <div className="card text-center">
+                <div className="card-body">
+                  <small className="text-muted">{RARITY_LABELS[rarity as keyof typeof RARITY_LABELS]}</small>
+                  <h4 className="mb-0">{count}</h4>
+                </div>
+              </div>
+            </div>
+          )
+        })}
       </div>
 
       {/* カード一覧 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="row">
         {cards.map((card) => (
-          <div key={card.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-            {/* カード画像 */}
-            <div className="relative aspect-[2/3] bg-gray-100">
-              <Image
-                src={card.image_url || '/images/ngcard.jpg'}
-                alt={card.card_name}
-                fill
-                className="object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement
-                  target.src = '/images/ngcard.jpg'
-                }}
-              />
-              {/* レアリティバッジ */}
-              <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-bold text-white ${RARITY_COLORS[card.rarity as keyof typeof RARITY_COLORS]}`}>
-                {RARITY_LABELS[card.rarity as keyof typeof RARITY_LABELS]}
+          <div key={card.id} className="col-xl-3 col-lg-4 col-md-6 mb-4">
+            <div className="card h-100">
+              {/* カード画像 */}
+              <div className="position-relative" style={{aspectRatio: '2/3', backgroundColor: '#f8f9fa'}}>
+                <Image
+                  src={card.image_url || '/images/ngcard.jpg'}
+                  alt={card.card_name}
+                  fill
+                  className="card-img-top"
+                  style={{objectFit: 'cover'}}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement
+                    target.src = '/images/ngcard.jpg'
+                  }}
+                />
+                {/* レアリティバッジ */}
+                <span className={`position-absolute top-0 start-0 m-2 badge ${
+                  card.rarity === 'SS' ? 'bg-warning' :
+                  card.rarity === 'S' ? 'bg-info' :
+                  card.rarity === 'A' ? 'bg-primary' :
+                  card.rarity === 'B' ? 'bg-success' : 'bg-secondary'
+                }`}>
+                  {RARITY_LABELS[card.rarity as keyof typeof RARITY_LABELS]}
+                </span>
               </div>
-            </div>
 
-            {/* カード情報 */}
-            <div className="p-4">
-              <h3 className="font-bold text-lg text-gray-800 mb-2 truncate">
-                {card.card_name}
-              </h3>
-              <div className="space-y-1 text-sm text-gray-600 mb-4">
-                <p>商品コード: {card.product_code}</p>
-                <p className="font-semibold text-lg text-green-600">
-                  ¥{card.market_price?.toLocaleString() || '0'}
+              {/* カード情報 */}
+              <div className="card-body">
+                <h5 className="card-title">{card.card_name}</h5>
+                <p className="card-text">
+                  <small className="text-muted">商品コード: {card.product_code}</small><br/>
+                  <span className="text-success fw-bold">¥{card.market_price?.toLocaleString() || '0'}</span>
                 </p>
-              </div>
-
-              {/* アクション */}
-              <div className="flex gap-2">
-                <Link
-                  href={`/admin/cards/${card.id}/edit`}
-                  className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 text-center text-sm flex items-center justify-center gap-1"
-                >
-                  <PencilIcon className="w-4 h-4" />
-                  編集
-                </Link>
-                <button
-                  onClick={() => deleteCard(card.id)}
-                  className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 text-sm flex items-center justify-center"
-                >
-                  <TrashIcon className="w-4 h-4" />
-                </button>
+                
+                {/* アクション */}
+                <div className="d-grid gap-2">
+                  <div className="btn-group">
+                    <Link
+                      href={`/admin/cards/${card.id}/edit`}
+                      className="btn btn-outline-primary btn-sm"
+                    >
+                      ✏️ 編集
+                    </Link>
+                    <button
+                      onClick={() => deleteCard(card.id)}
+                      className="btn btn-outline-danger btn-sm"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -224,20 +234,19 @@ export default function CardsPage() {
       </div>
 
       {cards.length === 0 && (
-        <div className="text-center py-12">
-          <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
+        <div className="text-center py-5">
+          <div className="mb-4">
+            <div className="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style={{width: '80px', height: '80px'}}>
+              <span style={{fontSize: '2rem'}}>🎴</span>
+            </div>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">カードがありません</h3>
-          <p className="text-gray-500 mb-4">新しいカードを追加してください</p>
+          <h4>カードがありません</h4>
+          <p className="text-muted mb-4">新しいカードを追加してください</p>
           <Link
             href="/admin/cards/new"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            className="btn btn-primary"
           >
-            <PlusIcon className="w-5 h-5" />
-            新規カード追加
+            ➕ 新規カード追加
           </Link>
         </div>
       )}

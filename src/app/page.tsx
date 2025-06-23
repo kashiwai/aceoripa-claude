@@ -12,42 +12,84 @@ import 'swiper/css/pagination'
 import CampaignBanner from '@/components/CampaignBanner'
 
 export default function HomePage() {
-  const [loading, setLoading] = useState(true)
-  const [gachaProducts, setGachaProducts] = useState<any[]>([])
+  // フォールバックデータを初期値として設定
+  const gachaProductsFallback = [
+    { 
+      id: '1', 
+      name: 'ピカチュウ大祭り', 
+      price: 150, 
+      image: '/images/banners/real-gacha/S__44392515_0.jpg',
+      remaining: 850,
+      total: 1000,
+      status: 'active'
+    },
+    { 
+      id: '2', 
+      name: 'ナンジャモ大量発生オリパ', 
+      price: 200, 
+      image: '/images/banners/real-gacha/S__44392516_0.jpg',
+      remaining: 650,
+      total: 1000,
+      status: 'active'
+    },
+    { 
+      id: '3', 
+      name: 'リザードン祭盤 炎のプレミアオリパ', 
+      price: 300, 
+      image: '/images/banners/real-gacha/S__44392517_0.jpg',
+      remaining: 420,
+      total: 1000,
+      status: 'ending_soon'
+    },
+    { 
+      id: '4', 
+      name: 'ブラッキー超感謝祭', 
+      price: 250, 
+      image: '/images/banners/real-gacha/S__44392521_0.jpg',
+      remaining: 780,
+      total: 1000,
+      status: 'active'
+    },
+    { 
+      id: '5', 
+      name: 'リーリエ×マリオピカチュウ 超豪華オリパ', 
+      price: 400, 
+      image: '/images/banners/real-gacha/S__44392523_0.jpg',
+      remaining: 120,
+      total: 1000,
+      status: 'ending_soon'
+    },
+  ]
+
+  const [loading, setLoading] = useState(false)
+  const [gachaProducts, setGachaProducts] = useState<any[]>(gachaProductsFallback)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   // APIからガチャ商品データを取得
   useEffect(() => {
     const fetchGachaProducts = async () => {
-      console.log('Starting to fetch gacha products...')
       try {
         const response = await fetch('/api/gacha/products')
-        console.log('Response status:', response.status)
         if (!response.ok) {
           throw new Error('ガチャ商品の取得に失敗しました')
         }
         const data = await response.json()
-        console.log('Fetched data:', data)
         setGachaProducts(data.products || [])
-        console.log('Setting loading to false')
       } catch (err) {
         console.error('Error fetching gacha products:', err)
         setError(err instanceof Error ? err.message : 'エラーが発生しました')
         // フォールバックデータを使用
         setGachaProducts(gachaProductsFallback)
-        console.log('Using fallback data, setting loading to false')
       } finally {
         setLoading(false)
-        console.log('Loading set to false in finally block')
       }
     }
 
-    // 短いタイムアウトを追加して確実にローディングを解除
+    // 強制的にローディングを解除（1秒後）
     const timeoutId = setTimeout(() => {
-      console.log('Timeout: forcing loading to false')
       setLoading(false)
-    }, 5000)
+    }, 1000)
 
     fetchGachaProducts().then(() => {
       clearTimeout(timeoutId)
@@ -80,46 +122,6 @@ export default function HomePage() {
       subtitle: '10連ガチャ20%OFF', 
       color: 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B]',
       image: '/images/ポケモンカード151オリパ.jpg'
-    },
-  ]
-
-  // フォールバックデータ（APIエラー時）
-  const gachaProductsFallback = [
-    { 
-      id: 1, 
-      name: 'ポケモン151オリパ', 
-      price: 800, 
-      image: '/images/ポケモンカード151オリパ.png',
-      remaining: 1100,
-      total: 3000,
-      status: 'active'
-    },
-    { 
-      id: 2, 
-      name: 'シャイニートレジャー', 
-      price: 1200, 
-      image: '/images/メインキャンペーンバナー.png',
-      remaining: 450,
-      total: 2000,
-      status: 'active'
-    },
-    { 
-      id: 3, 
-      name: 'ワンピース頂上決戦', 
-      price: 1500, 
-      image: '/images/ワンピース頂上決戦オリパ.png',
-      remaining: 50,
-      total: 1500,
-      status: 'ending_soon'
-    },
-    { 
-      id: 4, 
-      name: '遊戯王レアコレ', 
-      price: 2000, 
-      image: '/images/遊戯王レアコレオリパ.png',
-      remaining: 0,
-      total: 1000,
-      status: 'sold_out'
     },
   ]
 

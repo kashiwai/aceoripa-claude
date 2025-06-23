@@ -51,9 +51,36 @@ export default function GachaDetailPage() {
   const gachaId = params.id as string
   const countParam = searchParams.get('count')
   
-  const [gacha, setGacha] = useState<GachaProduct | null>(null)
-  const [cards, setCards] = useState<Card[]>([])
-  const [loading, setLoading] = useState(true)
+  // フォールバックデータを初期値として設定
+  const fallbackGacha: GachaProduct = {
+    id: gachaId,
+    name: 'ピカチュウ大祭り',
+    description: 'ピカチュウの特別なカードが大量出現！\nSSR確率アップ中！',
+    imageUrl: '/images/banners/real-gacha/S__44392515_0.jpg',
+    price: 150,
+    remaining: 850,
+    total: 1000,
+    status: 'active'
+  }
+
+  const fallbackCards: Card[] = [
+    // SS賞
+    { id: '1', name: 'ピカチュウ プロモ PSA10', rarity: 'SS', imageUrl: '/images/ngcard.jpg', probability: 1 },
+    { id: '2', name: 'マリオピカチュウ PSA10', rarity: 'SS', imageUrl: '/images/ngcard.jpg', probability: 1 },
+    // S賞
+    { id: '3', name: 'ピカチュウex', rarity: 'S', imageUrl: '/images/ngcard.jpg', probability: 4 },
+    { id: '4', name: 'ライチュウex', rarity: 'S', imageUrl: '/images/ngcard.jpg', probability: 4 },
+    // A賞
+    { id: '5', name: 'ピカチュウ CHR', rarity: 'A', imageUrl: '/images/ngcard.jpg', probability: 15 },
+    // B賞
+    { id: '6', name: 'ピカチュウ', rarity: 'B', imageUrl: '/images/ngcard.jpg', probability: 30 },
+    // C賞
+    { id: '7', name: 'ピチュー', rarity: 'C', imageUrl: '/images/ngcard.jpg', probability: 45 },
+  ]
+
+  const [gacha, setGacha] = useState<GachaProduct | null>(fallbackGacha)
+  const [cards, setCards] = useState<Card[]>(fallbackCards)
+  const [loading, setLoading] = useState(false)
   const [customCount, setCustomCount] = useState('')
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [selectedCount, setSelectedCount] = useState(1)
@@ -63,14 +90,11 @@ export default function GachaDetailPage() {
   // APIからガチャ情報とカード情報を取得
   useEffect(() => {
     const fetchGachaData = async () => {
-      console.log('Starting to fetch gacha data for ID:', gachaId)
       try {
         // ガチャ商品情報を取得
         const productResponse = await fetch(`/api/gacha/products/${gachaId}`)
-        console.log('Product response status:', productResponse.status)
         if (productResponse.ok) {
           const productData = await productResponse.json()
-          console.log('Product data:', productData)
           if (productData.success && productData.product) {
             setGacha(productData.product)
           }
@@ -78,67 +102,23 @@ export default function GachaDetailPage() {
         
         // カードプール情報を取得
         const poolResponse = await fetch(`/api/gacha/products/${gachaId}/pool`)
-        console.log('Pool response status:', poolResponse.status)
         if (poolResponse.ok) {
           const poolData = await poolResponse.json()
-          console.log('Pool data:', poolData)
           if (poolData.success && poolData.cards) {
             setCards(poolData.cards)
           }
         }
       } catch (error) {
         console.error('Error fetching gacha data:', error)
-        // フォールバックデータを使用
-        const dummyGacha: GachaProduct = {
-          id: gachaId,
-          name: 'ポケモンカード151オリパ',
-          description: '151番限定の激レアカードが出現！\nリザードンexやミュウexなど豪華ラインナップ！',
-          imageUrl: '/images/ポケモンカード151オリパ.png',
-          price: 800,
-          remaining: 1100,
-          total: 3000,
-          status: 'active'
-        }
-        
-        // フォールバックカード情報
-        const dummyCards: Card[] = [
-          // SSR (3%)
-          { id: '1', name: 'リザードンex', rarity: 'SSR', imageUrl: '/api/placeholder/400/400?text=リザードンex', probability: 1 },
-          { id: '2', name: 'ミュウex', rarity: 'SSR', imageUrl: '/api/placeholder/400/400?text=ミュウex', probability: 1 },
-          { id: '3', name: 'ピカチュウex', rarity: 'SSR', imageUrl: '/api/placeholder/400/400?text=ピカチュウex', probability: 1 },
-          // SR (12%)
-          { id: '4', name: 'フシギバナex', rarity: 'SR', imageUrl: '/api/placeholder/400/400?text=フシギバナex', probability: 3 },
-          { id: '5', name: 'カメックスex', rarity: 'SR', imageUrl: '/api/placeholder/400/400?text=カメックスex', probability: 3 },
-          { id: '6', name: 'フリーザーex', rarity: 'SR', imageUrl: '/api/placeholder/400/400?text=フリーザーex', probability: 3 },
-          { id: '7', name: 'サンダーex', rarity: 'SR', imageUrl: '/api/placeholder/400/400?text=サンダーex', probability: 3 },
-          // R (25%)
-          { id: '8', name: 'ニドクイン', rarity: 'R', imageUrl: '/api/placeholder/400/400?text=ニドクイン', probability: 5 },
-          { id: '9', name: 'ニドキング', rarity: 'R', imageUrl: '/api/placeholder/400/400?text=ニドキング', probability: 5 },
-          { id: '10', name: 'ゴルダック', rarity: 'R', imageUrl: '/api/placeholder/400/400?text=ゴルダック', probability: 5 },
-          { id: '11', name: 'ウインディ', rarity: 'R', imageUrl: '/api/placeholder/400/400?text=ウインディ', probability: 5 },
-          { id: '12', name: 'アラカザム', rarity: 'R', imageUrl: '/api/placeholder/400/400?text=アラカザム', probability: 5 },
-          // N (60%)
-          { id: '13', name: 'フシギダネ', rarity: 'N', imageUrl: '/api/placeholder/400/400?text=フシギダネ', probability: 10 },
-          { id: '14', name: 'ヒトカゲ', rarity: 'N', imageUrl: '/api/placeholder/400/400?text=ヒトカゲ', probability: 10 },
-          { id: '15', name: 'ゼニガメ', rarity: 'N', imageUrl: '/api/placeholder/400/400?text=ゼニガメ', probability: 10 },
-          { id: '16', name: 'ピカチュウ', rarity: 'N', imageUrl: '/api/placeholder/400/400?text=ピカチュウ', probability: 10 },
-          { id: '17', name: 'ニャース', rarity: 'N', imageUrl: '/api/placeholder/400/400?text=ニャース', probability: 10 },
-          { id: '18', name: 'コダック', rarity: 'N', imageUrl: '/api/placeholder/400/400?text=コダック', probability: 10 },
-        ]
-        
-        setGacha(dummyGacha)
-        setCards(dummyCards)
-        console.log('Using fallback data')
+        // 既に初期値でfallbackデータが設定されているので何もしない
       }
-      console.log('Setting loading to false')
       setLoading(false)
     }
     
-    // 短いタイムアウトを追加して確実にローディングを解除
+    // 強制的にローディングを解除（1秒後）
     const timeoutId = setTimeout(() => {
-      console.log('Timeout: forcing loading to false')
       setLoading(false)
-    }, 3000)
+    }, 1000)
 
     fetchGachaData().then(() => {
       clearTimeout(timeoutId)
