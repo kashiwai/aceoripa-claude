@@ -9,6 +9,7 @@ import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
+import CampaignBanner from '@/components/CampaignBanner'
 
 export default function HomePage() {
   const [loading, setLoading] = useState(true)
@@ -133,75 +134,80 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* メインバナー */}
-      <section className="relative">
-        <Swiper
-          modules={[Autoplay, Navigation, Pagination]}
-          spaceBetween={0}
-          slidesPerView={1}
-          navigation
-          pagination={{ clickable: true }}
-          autoplay={{ delay: 5000 }}
-          className="h-[500px]"
-        >
-          {banners.map((banner) => (
-            <SwiperSlide key={banner.id}>
-              <div className={`h-full ${banner.color} flex items-center justify-center relative overflow-hidden`}>
-                {/* 背景画像 */}
-                <div className="absolute inset-0">
-                  <Image
-                    src={banner.image}
-                    alt={banner.title}
-                    fill
-                    className="object-cover"
-                    priority
-                    unoptimized
-                  />
+      {/* キャンペーンバナー */}
+      <CampaignBanner />
+
+      {/* メインバナースライダー（小さめ） */}
+      <section className="bg-gray-100 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Swiper
+            modules={[Autoplay, Navigation]}
+            spaceBetween={20}
+            slidesPerView={3}
+            navigation
+            autoplay={{ delay: 3000 }}
+            className="h-[200px]"
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
+          >
+            {banners.map((banner) => (
+              <SwiperSlide key={banner.id}>
+                <div 
+                  onClick={() => router.push(`/gacha/${banner.gachaId}`)}
+                  className="h-full bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform"
+                >
+                  <div className={`h-2/3 ${banner.color} relative flex items-center justify-center`}>
+                    <h3 className="text-xl font-black text-white text-center px-4">{banner.title}</h3>
+                  </div>
+                  <div className="h-1/3 p-3 flex items-center justify-center">
+                    <p className="text-sm font-bold text-gray-700 text-center">{banner.subtitle}</p>
+                  </div>
                 </div>
-                
-                {/* オーバーレイ */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent"></div>
-                
-                {/* コンテンツ */}
-                <div className="text-center text-white relative z-10">
-                  <h2 className="text-6xl font-black mb-4 drop-shadow-lg dopa-gaming-title">{banner.title}</h2>
-                  <p className="text-3xl font-bold drop-shadow-md">{banner.subtitle}</p>
-                  <button 
-                    onClick={() => router.push(`/gacha/${banner.gachaId}`)}
-                    className="mt-8 dopa-gacha-button"
-                  >
-                    今すぐ引く！
-                  </button>
-                </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
       </section>
 
-      {/* ガチャ商品一覧 */}
+      {/* メインガチャ商品（1024x1024縦並び） */}
       <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-black text-center text-dopa-red mb-12">
             オリパラインナップ
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="space-y-8">
             {gachaProducts.map((product) => (
-              <Link key={product.id} href={`/gacha/${product.id}`}>
-                <div className="dopa-card cursor-pointer group">
-                  <div className="relative h-64 bg-gray-100 overflow-hidden">
-                    <div className="absolute inset-0 bg-dopa-gradient opacity-0 group-hover:opacity-20 transition"></div>
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-300"
-                      unoptimized
-                    />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-dopa-dark mb-2">{product.name}</h3>
-                    <p className="text-3xl font-black text-dopa-red">¥{product.price}</p>
+              <div key={product.id} className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                {/* 1024x1024 ガチャ画像 */}
+                <div className="aspect-square relative bg-gray-100">
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    width={1024}
+                    height={1024}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                  />
+                  
+                  {/* ステータスバッジ */}
+                  {product.status === 'sold_out' && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <span className="text-6xl font-black text-white rotate-[-15deg]">SOLD OUT</span>
+                    </div>
+                  )}
+                  {product.status === 'ending_soon' && (
+                    <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-full font-bold animate-pulse">
+                      残りわずか！
+                    </div>
+                  )}
+                </div>
+                
+                {/* 商品情報 */}
+                <div className="p-8">
+                  <h3 className="text-3xl font-black text-dopa-dark mb-4">{product.name}</h3>
                     
                     {/* 残り枚数と進行状況バー */}
                     <div className="mt-4 mb-4">
@@ -252,35 +258,56 @@ export default function HomePage() {
                       )}
                     </div>
                     
-                    {/* 価格表示（DOPAスタイル） */}
-                    <div className="mb-3">
-                      <div className="flex items-baseline justify-between">
-                        <div className="flex items-baseline">
-                          <span className="text-sm text-gray-600">1口</span>
-                          <span className="text-3xl font-black text-dopa-dark mx-2">{product.price.toLocaleString()}</span>
-                          <span className="text-sm text-gray-600">PT</span>
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          残 {product.remaining.toLocaleString()} / {product.total.toLocaleString()}
-                        </div>
+                  {/* 価格表示 */}
+                  <div className="mb-6">
+                    <div className="flex items-baseline justify-between mb-4">
+                      <div className="flex items-baseline">
+                        <span className="text-lg text-gray-600">1口</span>
+                        <span className="text-4xl font-black text-dopa-red mx-2">{product.price.toLocaleString()}</span>
+                        <span className="text-lg text-gray-600">PT</span>
+                      </div>
+                      <div className="text-lg text-gray-600 font-bold">
+                        残 {product.remaining.toLocaleString()} / {product.total.toLocaleString()}
                       </div>
                     </div>
                     
-                    {/* ガチャボタン（DOPAスタイル - 大きな10連ボタン） */}
+                    {/* プログレスバー */}
+                    <div className="relative w-full h-8 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`absolute top-0 left-0 h-full transition-all duration-500 ease-out ${
+                          product.status === 'sold_out' ? 'bg-gray-400' :
+                          product.status === 'ending_soon' ? 'bg-gradient-to-r from-red-500 to-red-600' :
+                          'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B]'
+                        }`}
+                        style={{ width: `${(product.remaining / product.total) * 100}%` }}
+                      >
+                        {product.status !== 'sold_out' && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                        )}
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-sm font-bold text-gray-700">
+                          {Math.round((product.remaining / product.total) * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                    
+                  {/* ガチャボタン */}
+                  <Link href={`/gacha/${product.id}`}>
                     <button 
-                      className={`w-full text-center font-black py-4 rounded-xl transition text-xl ${
+                      className={`w-full text-center font-black py-6 rounded-xl transition text-2xl ${
                         product.status === 'sold_out' 
                           ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
-                          : 'bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white hover:scale-105 shadow-lg'
+                          : 'bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white hover:scale-105 shadow-lg transform'
                       }`}
                       disabled={product.status === 'sold_out'}
-                      onClick={() => router.push(`/gacha/${product.id}`)}
                     >
-                      {product.status === 'sold_out' ? '完売' : '10連ガチャ'}
+                      {product.status === 'sold_out' ? '完売' : 'ガチャを引く'}
                     </button>
-                  </div>
+                  </Link>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>

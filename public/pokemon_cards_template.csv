@@ -1,0 +1,13 @@
+カード名,商品コード,レアリティ,還元pt,カード画像URL,ローカル画像パス
+リザードンex,PKM-151-001,SSR,50000,https://example.com/charizard-ex.jpg,
+ミュウex,PKM-151-002,SSR,30000,https://example.com/mew-ex.jpg,
+ピカチュウex,PKM-151-003,SSR,25000,,pikachu-ex.jpg
+フシギバナex,PKM-SV-001,SR,10000,,fushigibana-ex.jpg
+カメックスex,PKM-SV-002,SR,8000,,kamex-ex.jpg
+フリーザーex,PKM-151-010,SR,5000,,freezer-ex.jpg
+ニドクイン,PKM-151-020,R,1000,,nidoqueen.jpg
+ニドキング,PKM-151-021,R,1000,,nidoking.jpg
+フシギダネ,PKM-151-050,N,100,,fushigidane.jpg
+ヒトカゲ,PKM-151-051,N,100,,hitokage.jpg
+ゼニガメ,PKM-151-052,N,100,,zenigame.jpg
+ピカチュウ,PKM-151-053,N,100,,pikachu.jpg

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useNotificationPermission } from '@/hooks/useNotificationPermission'
+import CampaignSection from '@/components/CampaignSection'
 
 interface UserInfo {
   id: string
@@ -220,7 +221,7 @@ function SettingsTab() {
 export default function MyPage() {
   const [user, setUser] = useState<UserInfo | null>(null)
   const [gachaHistory, setGachaHistory] = useState<GachaHistory[]>([])
-  const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'collection' | 'settings'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'collection' | 'campaigns' | 'settings'>('overview')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -383,6 +384,7 @@ export default function MyPage() {
                   { id: 'overview', label: '概要', icon: '📊' },
                   { id: 'history', label: 'ガチャ履歴', icon: '📜' },
                   { id: 'collection', label: 'コレクション', icon: '🎴' },
+                  { id: 'campaigns', label: 'キャンペーン', icon: '🎁' },
                   { id: 'settings', label: '設定', icon: '⚙️' },
                 ].map((tab) => (
                   <button
@@ -581,6 +583,13 @@ export default function MyPage() {
                     <p className="text-gray-400 text-xl font-bold">カード一覧表示機能は準備中です</p>
                     <p className="text-gray-500 mt-2">まもなく公開予定！</p>
                   </div>
+                </div>
+              )}
+
+              {/* キャンペーンタブ */}
+              {activeTab === 'campaigns' && (
+                <div className="p-6">
+                  <CampaignSection />
                 </div>
               )}
 

@@ -50,14 +50,20 @@ export async function POST(request: NextRequest) {
     // レアリティマッピング
     const mapRarity = (rarity: string) => {
       const rarityMap: { [key: string]: string } = {
-        'プロモカード': 'SSR',
-        'その他': 'SR',
-        'SSR': 'SSR',
-        'SR': 'SR', 
-        'R': 'R',
-        'N': 'N'
+        'SS': 'SS',
+        'S': 'S',
+        'A': 'A',
+        'B': 'B',
+        'C': 'C',
+        // 互換性のため旧形式もサポート
+        'SSR': 'SS',
+        'SR': 'S',
+        'R': 'A',
+        'N': 'C',
+        'プロモカード': 'SS',
+        'その他': 'S'
       }
-      return rarityMap[rarity] || 'N'
+      return rarityMap[rarity] || 'C'
     }
 
     // データ変換とバリデーション（日本語ヘッダー対応）
@@ -93,7 +99,7 @@ export async function POST(request: NextRequest) {
       })
     
     // レアリティ検証
-    const validRarities = ['SSR', 'SR', 'R', 'N']
+    const validRarities = ['SS', 'S', 'A', 'B', 'C']
     const invalidCards = validCards.filter(card => !validRarities.includes(card.rarity))
     
     if (invalidCards.length > 0) {

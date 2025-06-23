@@ -27,19 +27,21 @@ interface GachaProduct {
   status?: string
 }
 
-const RARITY_ORDER = ['SSR', 'SR', 'R', 'N']
+const RARITY_ORDER = ['SS', 'S', 'A', 'B', 'C']
 const RARITY_LABELS: { [key: string]: string } = {
-  'SSR': 'SSR賞',
-  'SR': 'SR賞', 
-  'R': 'R賞',
-  'N': 'N賞'
+  'SS': 'SS賞',
+  'S': 'S賞', 
+  'A': 'A賞',
+  'B': 'B賞',
+  'C': 'C賞'
 }
 
 const RARITY_COLORS: { [key: string]: string } = {
-  'SSR': 'bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500',
-  'SR': 'bg-gradient-to-r from-purple-400 to-pink-400',
-  'R': 'bg-gradient-to-r from-blue-400 to-cyan-400',
-  'N': 'bg-gradient-to-r from-gray-400 to-gray-500'
+  'SS': 'bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500',
+  'S': 'bg-gradient-to-r from-purple-400 to-pink-400',
+  'A': 'bg-gradient-to-r from-blue-400 to-cyan-400',
+  'B': 'bg-gradient-to-r from-green-400 to-emerald-400',
+  'C': 'bg-gradient-to-r from-gray-400 to-gray-500'
 }
 
 export default function GachaDetailPage() {
@@ -303,19 +305,23 @@ export default function GachaDetailPage() {
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-3 bg-gradient-to-r from-yellow-400/20 to-red-500/20 rounded-lg">
-                  <span className="font-bold text-yellow-400">SSR</span>
-                  <span className="text-white font-bold">3%</span>
+                  <span className="font-bold text-yellow-400">SS</span>
+                  <span className="text-white font-bold">1%</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-lg">
-                  <span className="font-bold text-purple-400">SR</span>
-                  <span className="text-white font-bold">12%</span>
+                  <span className="font-bold text-purple-400">S</span>
+                  <span className="text-white font-bold">4%</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-lg">
-                  <span className="font-bold text-blue-400">R</span>
-                  <span className="text-white font-bold">35%</span>
+                  <span className="font-bold text-blue-400">A</span>
+                  <span className="text-white font-bold">15%</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-400/20 to-emerald-400/20 rounded-lg">
+                  <span className="font-bold text-green-400">B</span>
+                  <span className="text-white font-bold">30%</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-700/50 rounded-lg">
-                  <span className="font-bold text-gray-400">N</span>
+                  <span className="font-bold text-gray-400">C</span>
                   <span className="text-white font-bold">50%</span>
                 </div>
               </div>

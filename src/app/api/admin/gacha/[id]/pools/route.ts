@@ -93,36 +93,54 @@ export async function POST(
   }
 }
 
-// PUT: ガチャプール確率更新
+// PUT: カードプールを完全に更新
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const supabase = await createClient()
-    const body = await request.json()
     
-    // 複数の確率を一括更新
-    const updatePromises = body.updates.map((update: any) =>
-      supabase
-        .from('gacha_pools')
-        .update({ drop_rate: update.drop_rate })
-        .eq('id', update.pool_id)
-    )
-    
-    const results = await Promise.all(updatePromises)
-    
-    // エラーチェック
-    const errors = results.filter(r => r.error)
-    if (errors.length > 0) {
-      throw new Error('Some updates failed')
+    // 管理者権限チェック
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user || user.email !== process.env.ADMIN_EMAIL) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
-    return NextResponse.json({
-      message: 'Drop rates updated successfully'
+    const { pools } = await request.json()
+    const gachaId = params.id
+    
+    // トランザクション的な処理
+    // 1. 既存のプールを削除
+    const { error: deleteError } = await supabase
+      .from('gacha_pools')
+      .delete()
+      .eq('product_id', gachaId)
+    
+    if (deleteError) throw deleteError
+    
+    // 2. 新しいプールを挿入
+    if (pools.length > 0) {
+      const poolsToInsert = pools.map((pool: any) => ({
+        product_id: gachaId,
+        card_id: pool.card_id,
+        drop_rate: pool.drop_rate
+      }))
+      
+      const { error: insertError } = await supabase
+        .from('gacha_pools')
+        .insert(poolsToInsert)
+      
+      if (insertError) throw insertError
+    }
+    
+    return NextResponse.json({ 
+      success: true,
+      message: 'Card pools updated successfully'
     })
+    
   } catch (error: any) {
-    console.error('Admin gacha pools PUT error:', error)
+    console.error('Pools update error:', error)
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

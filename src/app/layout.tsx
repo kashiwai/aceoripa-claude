@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Inter, Noto_Sans_JP } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
+import AnnouncementPopupManager from '@/components/common/AnnouncementPopupManager'
 
 const inter = Inter({ subsets: ['latin'] })
 const notoSansJP = Noto_Sans_JP({ 
@@ -34,6 +35,7 @@ export default function RootLayout({
             },
           }}
         />
+        <AnnouncementPopupManager />
         {children}
       </body>
     </html>

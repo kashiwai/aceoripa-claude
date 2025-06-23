@@ -5,21 +5,18 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { FINCODE_CONFIG } from '@/lib/fincode/config';
+import Script from 'next/script';
 
 export default function PaymentPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [userPoints, setUserPoints] = useState({ free: 0, paid: 0, total: 0 });
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  const paymentPlans = [
-    { id: 'plan1', points: 150, price: 120, bonus: 0 },
-    { id: 'plan2', points: 500, price: 400, bonus: 50 },
-    { id: 'plan3', points: 1000, price: 800, bonus: 150 },
-    { id: 'plan4', points: 3000, price: 2400, bonus: 600 },
-    { id: 'plan5', points: 5000, price: 4000, bonus: 1200 },
-    { id: 'plan6', points: 10000, price: 8000, bonus: 3000 },
-  ];
+  const [paymentPlans, setPaymentPlans] = useState<any[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -49,23 +46,98 @@ export default function PaymentPage() {
     fetchUserPoints();
   }, [user]);
 
+  useEffect(() => {
+    const fetchPaymentPlans = async () => {
+      try {
+        const response = await fetch('/api/payment/packages');
+        if (response.ok) {
+          const data = await response.json();
+          setPaymentPlans(data.packages || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch payment plans:', error);
+      }
+    };
+    
+    fetchPaymentPlans();
+  }, []);
+
   const handlePurchase = async (plan: any) => {
-    toast.success(`${plan.points + plan.bonus}ポイント購入処理を開始します`);
-    // TODO: 実際の決済処理実装
-    router.push('/gacha');
+    if (!isScriptLoaded) {
+      toast.error('決済システムを初期化中です。もう一度お試しください。');
+      return;
+    }
+
+    setSelectedPlan(plan.id);
+    setIsProcessing(true);
+    
+    try {
+      // 決済セッション作成
+      const response = await fetch('/api/payment/create-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageId: plan.id,
+          amount: plan.price,
+          points: plan.points + plan.bonus
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('決済セッションの作成に失敗しました');
+      }
+
+      const { sessionId, orderId } = await response.json();
+      
+      // チェックアウトページへリダイレクト
+      router.push(`/payment/checkout?package=${plan.id}&order=${orderId}`)
+    } catch (error) {
+      console.error('Purchase error:', error);
+      toast.error('決済処理の開始に失敗しました');
+      setIsProcessing(false);
+    }
+  };
+
+  const handlePaymentSuccess = async (orderId: string, plan: any) => {
+    try {
+      const response = await fetch('/api/payment/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId })
+      });
+
+      if (response.ok) {
+        toast.success(`${plan.points + plan.bonus}ポイントを購入しました！`);
+        router.push('/gacha');
+      } else {
+        throw new Error('ポイント付与処理に失敗しました');
+      }
+    } catch (error) {
+      console.error('Payment confirmation error:', error);
+      toast.error('ポイント付与処理中にエラーが発生しました');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white">
-      <header className="bg-gray-800 p-4 border-b border-gray-700">
-        <div className="container mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold">ポイント購入</h1>
-          <div className="flex items-center space-x-2">
-            <span className="text-yellow-400">💎</span>
-            <span>{userPoints.total.toLocaleString()}</span>
+    <>
+      <Script
+        src="https://js.fincode.jp/v1/fincode.js"
+        strategy="afterInteractive"
+        onLoad={() => setIsScriptLoaded(true)}
+      />
+      
+      <main className="min-h-screen bg-gray-900 text-white">
+        <header className="bg-gray-800 p-4 border-b border-gray-700">
+          <div className="container mx-auto flex items-center justify-between">
+            <h1 className="text-2xl font-bold">ポイント購入</h1>
+            <div className="flex items-center space-x-2">
+              <span className="text-yellow-400">💎</span>
+              <span>{userPoints.total.toLocaleString()}</span>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       <div className="container mx-auto px-4 py-8">
         {/* 現在のポイント */}
@@ -91,9 +163,10 @@ export default function PaymentPage() {
               <button
                 key={plan.id}
                 onClick={() => handlePurchase(plan)}
+                disabled={isProcessing}
                 className={`bg-gray-800 rounded-xl p-6 text-left hover:bg-gray-700 transition-colors relative overflow-hidden ${
-                  plan.bonus > 0 ? 'ring-2 ring-yellow-400' : ''
-                }`}
+                  plan.popular ? 'ring-2 ring-yellow-400' : ''
+                } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {plan.bonus > 0 && (
                   <div className="absolute top-2 right-2 bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-bold">
@@ -141,5 +214,6 @@ export default function PaymentPage() {
         </div>
       </div>
     </main>
+    </>
   );
 }

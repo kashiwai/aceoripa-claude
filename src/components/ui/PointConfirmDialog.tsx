@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
 
 interface PointConfirmDialogProps {
   isOpen: boolean
@@ -24,7 +25,9 @@ export default function PointConfirmDialog({
   totalCost
 }: PointConfirmDialogProps) {
   const { points } = useAuth()
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [countdown, setCountdown] = useState(3)
   const hasEnoughPoints = points >= totalCost
 
   const handleConfirm = async () => {
@@ -38,6 +41,28 @@ export default function PointConfirmDialog({
     await onConfirm()
     setIsLoading(false)
   }
+
+  // ポイント不足時は自動的に3秒後に決済画面へ遷移
+  useEffect(() => {
+    if (isOpen && !hasEnoughPoints) {
+      // カウントダウン開始
+      setCountdown(3)
+      const countInterval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countInterval)
+            router.push('/purchase')
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+      
+      return () => {
+        clearInterval(countInterval)
+      }
+    }
+  }, [isOpen, hasEnoughPoints, router])
 
   return (
     <AnimatePresence>
@@ -125,6 +150,9 @@ export default function PointConfirmDialog({
                 >
                   <p className="text-red-400 text-sm font-bold">
                     ⚠️ ポイントが不足しています。購入するにはポイントをチャージしてください。
+                  </p>
+                  <p className="text-yellow-400 text-xs mt-2 text-center">
+                    {countdown}秒後に自動的にポイント購入画面へ移動します...
                   </p>
                 </motion.div>
               )}

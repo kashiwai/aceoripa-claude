@@ -15,6 +15,11 @@ interface Announcement {
   end_date?: string
   priority: number
   push_notification: boolean
+  show_popup: boolean
+  popup_delay_seconds: number
+  cta_text?: string
+  cta_url?: string
+  image_url?: string
   created_at: string
   updated_at: string
 }
@@ -37,7 +42,12 @@ export default function AnnouncementsPage() {
     publish_date: '',
     end_date: '',
     priority: 1,
-    push_notification: false
+    push_notification: false,
+    show_popup: true,
+    popup_delay_seconds: 0,
+    cta_text: '',
+    cta_url: '',
+    image_url: ''
   })
 
   useEffect(() => {
@@ -72,6 +82,8 @@ export default function AnnouncementsPage() {
           .from('announcements')
           .update({
             ...formData,
+            is_active: formData.status === 'published',
+            start_date: formData.publish_date,
             updated_at: new Date().toISOString()
           })
           .eq('id', editingAnnouncement.id)
@@ -83,6 +95,8 @@ export default function AnnouncementsPage() {
           .from('announcements')
           .insert([{
             ...formData,
+            is_active: formData.status === 'published',
+            start_date: formData.publish_date,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }])
@@ -130,7 +144,12 @@ export default function AnnouncementsPage() {
       publish_date: '',
       end_date: '',
       priority: 1,
-      push_notification: false
+      push_notification: false,
+      show_popup: true,
+      popup_delay_seconds: 0,
+      cta_text: '',
+      cta_url: '',
+      image_url: ''
     })
   }
 
@@ -144,7 +163,12 @@ export default function AnnouncementsPage() {
       publish_date: announcement.publish_date.split('T')[0],
       end_date: announcement.end_date ? announcement.end_date.split('T')[0] : '',
       priority: announcement.priority,
-      push_notification: announcement.push_notification
+      push_notification: announcement.push_notification,
+      show_popup: announcement.show_popup ?? true,
+      popup_delay_seconds: announcement.popup_delay_seconds ?? 0,
+      cta_text: announcement.cta_text || '',
+      cta_url: announcement.cta_url || '',
+      image_url: announcement.image_url || ''
     })
     setShowModal(true)
   }
@@ -396,6 +420,71 @@ export default function AnnouncementsPage() {
                 <label htmlFor="push_notification" className="ml-2 block text-sm text-gray-900">
                   プッシュ通知を送信
                 </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="show_popup"
+                  checked={formData.show_popup}
+                  onChange={(e) => setFormData({ ...formData, show_popup: e.target.checked })}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="show_popup" className="ml-2 block text-sm text-gray-900">
+                  ポップアップで表示
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ポップアップ表示遅延（秒）
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.popup_delay_seconds}
+                  onChange={(e) => setFormData({ ...formData, popup_delay_seconds: parseInt(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  画像URL（任意）
+                </label>
+                <input
+                  type="text"
+                  value={formData.image_url}
+                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  CTAボタンテキスト（任意）
+                </label>
+                <input
+                  type="text"
+                  value={formData.cta_text}
+                  onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="詳細を見る"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  CTAリンク先URL（任意）
+                </label>
+                <input
+                  type="text"
+                  value={formData.cta_url}
+                  onChange={(e) => setFormData({ ...formData, cta_url: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="/gacha/1"
+                />
               </div>
 
               <div className="flex justify-end space-x-3 pt-4">

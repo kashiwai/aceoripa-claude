@@ -67,6 +67,13 @@ export default async function CardsPage({
         <h1 className="text-2xl font-bold text-gray-800">ポケモンカード管理</h1>
         <div className="flex space-x-4">
           <Link
+            href="/admin/cards/upload"
+            className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+          >
+            <ArrowUpTrayIcon className="h-5 w-5 mr-2" />
+            画像アップロード
+          </Link>
+          <Link
             href="/admin/cards/import"
             className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
           >

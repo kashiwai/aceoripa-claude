@@ -48,6 +48,34 @@ export async function POST(request: Request) {
         paid_points: 0
       })
     
+    // 新規登録ボーナスを付与
+    const { data: signupBonus } = await adminClient
+      .from('free_point_settings')
+      .select('*')
+      .eq('type', 'signup')
+      .eq('is_active', true)
+      .single()
+    
+    if (signupBonus && signupBonus.points > 0) {
+      // ポイントを付与
+      await adminClient
+        .from('users')
+        .update({ free_points: signupBonus.points })
+        .eq('id', authData.user.id)
+      
+      // ポイント履歴を記録
+      await adminClient
+        .from('point_history')
+        .insert({
+          user_id: authData.user.id,
+          type: 'signup_bonus',
+          amount: signupBonus.points,
+          description: signupBonus.description || '新規登録ボーナス',
+          balance_after: signupBonus.points,
+          created_at: new Date().toISOString()
+        })
+    }
+    
     return NextResponse.json({ user: authData.user })
   } catch (error) {
     console.error('Signup error:', error)

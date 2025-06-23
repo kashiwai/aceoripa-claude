@@ -90,13 +90,14 @@ export default function CardImportPage() {
             </a>
           </div>
           <div className="bg-gray-100 p-4 rounded text-sm font-mono">
-            card_name,product_code,rarity,product_points,card_image_url,card_image_filename
+            カード名,商品コード,レアリティ,還元pt,カード画像URL,ローカル画像パス
           </div>
           <p className="text-sm text-gray-600 mt-2">
-            ※ レアリティ: SSR, SR, R, N<br/>
-            ※ 商品PT: ポイント数値（例: 50000）<br/>
+            ※ レアリティ: SS（超大当たり）, S（大当たり）, A（当たり）, B（普通）, C（ハズレ）<br/>
+            ※ 還元pt: カードの市場価値・買取価格（例: 50000）<br/>
             ※ 画像: URLまたはファイル名のいずれかを入力<br/>
-            ※ ファイル名指定時は /images/cards/ フォルダに配置
+            ※ ファイル名指定時は /images/cards/ フォルダに配置<br/>
+            ※ 英語ヘッダーも対応: card_name,product_code,rarity,product_points,card_image_url,card_image_filename
           </p>
         </div>
         
@@ -138,10 +139,11 @@ export default function CardImportPage() {
                       <td className="px-4 py-2 text-sm font-mono">{row.product_code}</td>
                       <td className="px-4 py-2 text-sm">
                         <span className={`px-2 py-1 rounded text-xs font-semibold
-                          ${row.rarity === 'SSR' ? 'bg-yellow-100 text-yellow-800' :
-                            row.rarity === 'SR' ? 'bg-purple-100 text-purple-800' :
-                            row.rarity === 'R' ? 'bg-blue-100 text-blue-800' :
-                            'bg-gray-100 text-gray-800'}`}>
+                          ${row.rarity === 'SS' ? 'bg-gradient-to-r from-yellow-400 to-red-500 text-white' :
+                            row.rarity === 'S' ? 'bg-gradient-to-r from-purple-400 to-pink-500 text-white' :
+                            row.rarity === 'A' ? 'bg-blue-500 text-white' :
+                            row.rarity === 'B' ? 'bg-green-500 text-white' :
+                            'bg-gray-500 text-white'}`}>
                           {row.rarity}
                         </span>
                       </td>

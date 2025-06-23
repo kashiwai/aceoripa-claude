@@ -1,91 +1,38 @@
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  // CSVサンプルデータ（新フォーマット）
-  const sampleData = [
-    {
-      card_name: 'ピカチュウ',
-      product_code: 'PKM151-025',
-      rarity: 'SSR',
-      product_points: '50000',
-      card_image_url: 'https://example.com/images/pikachu.jpg',
-      card_image_filename: 'pikachu_025.jpg'
-    },
-    {
-      card_name: 'リザードン',
-      product_code: 'PKM151-006',
-      rarity: 'SSR',
-      product_points: '100000',
-      card_image_url: 'https://example.com/images/charizard.jpg',
-      card_image_filename: 'charizard_006.jpg'
-    },
-    {
-      card_name: 'フシギダネ',
-      product_code: 'PKM151-001',
-      rarity: 'SR',
-      product_points: '15000',
-      card_image_url: '',
-      card_image_filename: 'bulbasaur_001.jpg'
-    },
-    {
-      card_name: 'ゼニガメ',
-      product_code: 'PKM151-007',
-      rarity: 'SR',
-      product_points: '12000',
-      card_image_url: '',
-      card_image_filename: 'squirtle_007.jpg'
-    },
-    {
-      card_name: 'ポケモンボール',
-      product_code: 'PKM151-164',
-      rarity: 'R',
-      product_points: '800',
-      card_image_url: 'https://example.com/images/pokeball.jpg',
-      card_image_filename: ''
-    },
-    {
-      card_name: 'オーキド博士の研究',
-      product_code: 'PKM151-190',
-      rarity: 'R',
-      product_points: '500',
-      card_image_url: 'https://example.com/images/professor-oak.jpg',
-      card_image_filename: ''
-    },
-    {
-      card_name: '基本電気エネルギー',
-      product_code: 'PKM151-232',
-      rarity: 'N',
-      product_points: '50',
-      card_image_url: '',
-      card_image_filename: 'electric_energy_232.jpg'
-    },
-    {
-      card_name: 'コラッタ',
-      product_code: 'PKM151-019',
-      rarity: 'N',
-      product_points: '100',
-      card_image_url: '',
-      card_image_filename: 'rattata_019.jpg'
-    }
-  ]
+  // CSVテンプレートの内容（日本語ヘッダー対応）
+  const csvContent = `カード名,商品コード,レアリティ,還元pt,カード画像URL,ローカル画像パス
+リザードンex SAR,PKM-151-001,SS,50000,https://example.com/charizard-ex.jpg,
+ミュウex SAR,PKM-151-002,SS,30000,https://example.com/mew-ex.jpg,
+ピカチュウex SAR,PKM-151-003,SS,25000,,pikachu-ex.jpg
+フシギバナex SR,PKM-SV-001,S,10000,,fushigibana-ex.jpg
+カメックスex SR,PKM-SV-002,S,8000,,kamex-ex.jpg
+フリーザーex SR,PKM-151-010,S,5000,,freezer-ex.jpg
+サンダーex SR,PKM-151-011,S,5000,,thunder-ex.jpg
+ファイヤーex SR,PKM-151-012,S,5000,,fire-ex.jpg
+ニドクイン,PKM-151-020,A,1000,,nidoqueen.jpg
+ニドキング,PKM-151-021,A,1000,,nidoking.jpg
+ウインディ,PKM-151-022,A,800,,windie.jpg
+ゴルダック,PKM-151-023,B,300,,golduck.jpg
+アラカザム,PKM-151-024,B,300,,alakazam.jpg
+フシギダネ,PKM-151-050,B,200,,fushigidane.jpg
+ヒトカゲ,PKM-151-051,C,100,,hitokage.jpg
+ゼニガメ,PKM-151-052,C,100,,zenigame.jpg
+ピカチュウ,PKM-151-053,C,100,,pikachu.jpg
+ニャース,PKM-151-054,C,50,,nyarth.jpg
+コダック,PKM-151-055,C,50,,koduck.jpg`
 
-  // CSVヘッダー
-  const headers = Object.keys(sampleData[0])
-  
-  // CSV形式に変換
-  const csvContent = [
-    headers.join(','),
-    ...sampleData.map(row => 
-      headers.map(header => `"${row[header as keyof typeof row]}"`).join(',')
-    )
-  ].join('\n')
+  // BOMを追加（Excelで開いた時の文字化け防止）
+  const BOM = '\uFEFF'
+  const csvWithBOM = BOM + csvContent
 
   // レスポンスを返す
-  return new NextResponse(csvContent, {
+  return new NextResponse(csvWithBOM, {
     status: 200,
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': 'attachment; filename="pokemon_cards_sample.csv"',
+      'Content-Disposition': 'attachment; filename="pokemon_cards_template.csv"',
     },
   })
 }
