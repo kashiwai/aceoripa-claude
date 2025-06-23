@@ -587,10 +587,69 @@ export default function MyPage() {
                     </div>
                   </div>
 
-                  <div className="text-center py-12 bg-gray-800 rounded-xl border border-gray-700">
-                    <div className="text-6xl mb-4 animate-bounce">🎴</div>
-                    <p className="text-gray-400 text-xl font-bold">カード一覧表示機能は準備中です</p>
-                    <p className="text-gray-500 mt-2">まもなく公開予定！</p>
+                  {/* 獲得カード一覧 */}
+                  <div className="space-y-6">
+                    {/* フィルター */}
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {['全て', 'SS', 'S', 'A', 'その他'].map((filter) => (
+                        <button
+                          key={filter}
+                          className={`px-4 py-2 rounded-lg font-bold transition ${
+                            filter === '全て' 
+                              ? 'bg-[#FF0033] text-white' 
+                              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                          }`}
+                        >
+                          {filter}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* 獲得カードグリッド */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {gachaHistory.flatMap(history => history.results).map((card, index) => (
+                        <motion.div
+                          key={`${card.id}-${index}`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="relative group"
+                        >
+                          <div className="aspect-square bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-[#FF0033] transition">
+                            <Image
+                              src={card.imageUrl}
+                              alt={card.name}
+                              width={300}
+                              height={300}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                              unoptimized
+                            />
+                            {/* レアリティバッジ */}
+                            <div className={`absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-bold ${getRarityColor(card.rarity)}`}>
+                              {card.rarity}
+                            </div>
+                            {/* カード情報オーバーレイ */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="absolute bottom-0 left-0 right-0 p-4">
+                                <p className="text-white font-bold text-sm">{card.name}</p>
+                                <p className="text-gray-300 text-xs">取得日: {new Date().toLocaleDateString('ja-JP')}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {/* カードがない場合 */}
+                    {gachaHistory.flatMap(history => history.results).length === 0 && (
+                      <div className="text-center py-12 bg-gray-800 rounded-xl border border-gray-700">
+                        <div className="text-6xl mb-4">📦</div>
+                        <p className="text-gray-400 text-xl font-bold">まだカードを獲得していません</p>
+                        <Link href="/gacha" className="mt-4 inline-block bg-[#FF0033] text-white font-bold px-6 py-3 rounded-lg hover:bg-[#FF6B6B] transition">
+                          ガチャを引いてみる
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

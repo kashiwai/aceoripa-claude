@@ -354,24 +354,13 @@ export default function GachaDetailPage() {
                 </div>
               </div>
 
-              {/* 計算式の説明 */}
-              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-400/30 rounded-lg">
-                <p className="text-xs text-blue-300 mb-2">
-                  <span className="font-bold">📊 計算根拠：</span>
-                </p>
-                <p className="text-xs text-blue-200 leading-relaxed">
-                  • SS賞確率: 1-(0.99)^10 = 約9.56% → 複数回で87%<br/>
-                  • S賞確率: 1-(0.96)^10 = 約33.5% → 複数回で99.7%<br/>
-                  • 期待値理論に基づく統計学的な確率計算
-                </p>
-              </div>
             </div>
           </div>
 
           {/* 右側：カード一覧（スクロール可能） */}
           <div className="space-y-8">
             <h2 className="text-3xl font-black text-white text-center mb-8">
-              排出カードラインナップ
+              ゲットできるカード一覧
             </h2>
             
             {RARITY_ORDER.map((rarity) => {
@@ -397,7 +386,7 @@ export default function GachaDetailPage() {
                   
                   {/* カードグリッド */}
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                    {rarityCards.map((card) => (
+                    {(rarity === 'OTHER' ? rarityCards.slice(0, 6) : rarityCards).map((card) => (
                       <div
                         key={card.id}
                         className="group relative bg-gray-900 rounded-lg overflow-hidden hover:ring-4 hover:ring-white/50 transition-all duration-200 hover:scale-105"
@@ -427,6 +416,20 @@ export default function GachaDetailPage() {
                       </div>
                     ))}
                   </div>
+                  
+                  {/* OTHERカテゴリの場合、追加説明を表示 */}
+                  {rarity === 'OTHER' && rarityCards.length > 6 && (
+                    <div className="mt-4 p-4 bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-400/30 rounded-lg">
+                      <p className="text-center text-white">
+                        <span className="text-lg font-bold">✨ これ以外にも同じレベルのカードが多数あります ✨</span><br/>
+                        <span className="text-sm mt-2 block">
+                          上記は一部のカードを抜粋して表示しています。<br/>
+                          実際のガチャでは、この他にも魅力的なカードの中から<br/>
+                          ランダムに1枚を付与いたします。
+                        </span>
+                      </p>
+                    </div>
+                  )}
                 </div>
               )
             })}

@@ -144,9 +144,9 @@ export default function HomePage() {
               <Link href="/mypage" className="text-dopa-dark hover:text-dopa-red font-bold text-lg transition">
                 マイページ
               </Link>
-              <button className="bg-dopa-gradient text-white font-bold px-6 py-3 rounded-full hover:scale-105 transition transform">
+              <Link href="/purchase" className="bg-dopa-gradient text-white font-bold px-6 py-3 rounded-full hover:scale-105 transition transform">
                 ポイント購入
-              </button>
+              </Link>
             </nav>
           </div>
         </div>
@@ -155,8 +155,8 @@ export default function HomePage() {
       {/* キャンペーンバナー */}
       <CampaignBanner />
 
-      {/* メインバナースライダー（小さめ） */}
-      <section className="bg-gray-100 py-4">
+      {/* メインバナースライダー（400x400） */}
+      <section className="bg-gray-100 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Swiper
             modules={[Autoplay, Navigation]}
@@ -164,7 +164,7 @@ export default function HomePage() {
             slidesPerView={3}
             navigation
             autoplay={{ delay: 3000 }}
-            className="h-[200px]"
+            className="h-[400px]"
             breakpoints={{
               320: { slidesPerView: 1 },
               640: { slidesPerView: 2 },
@@ -175,13 +175,13 @@ export default function HomePage() {
               <SwiperSlide key={banner.id}>
                 <div 
                   onClick={() => router.push(`/gacha/${banner.gachaId}`)}
-                  className="h-full bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform"
+                  className="aspect-square w-full bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform"
                 >
                   <div className={`h-2/3 ${banner.color} relative flex items-center justify-center`}>
-                    <h3 className="text-xl font-black text-white text-center px-4">{banner.title}</h3>
+                    <h3 className="text-2xl font-black text-white text-center px-4">{banner.title}</h3>
                   </div>
-                  <div className="h-1/3 p-3 flex items-center justify-center">
-                    <p className="text-sm font-bold text-gray-700 text-center">{banner.subtitle}</p>
+                  <div className="h-1/3 p-4 flex items-center justify-center">
+                    <p className="text-base font-bold text-gray-700 text-center">{banner.subtitle}</p>
                   </div>
                 </div>
               </SwiperSlide>
@@ -199,8 +199,11 @@ export default function HomePage() {
           <div className="space-y-8">
             {gachaProducts.map((product) => (
               <div key={product.id} className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                {/* 1024x1024 ガチャ画像 */}
-                <div className="aspect-square relative bg-gray-100">
+                {/* 1024x1024 ガチャ画像（クリック可能） */}
+                <div 
+                  onClick={() => router.push(`/gacha/${product.id}`)}
+                  className="aspect-square relative bg-gray-100 cursor-pointer hover:scale-105 transition-transform duration-300"
+                >
                   <Image
                     src={product.image}
                     alt={product.name}

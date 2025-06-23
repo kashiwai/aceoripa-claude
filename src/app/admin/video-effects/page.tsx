@@ -6,7 +6,15 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { AlertTriangle, Play, Download, Settings, Trash2, Edit, Plus } from 'lucide-react';
+import { 
+  ExclamationTriangleIcon as AlertTriangle, 
+  PlayIcon as Play, 
+  ArrowDownTrayIcon as Download, 
+  CogIcon as Settings, 
+  TrashIcon as Trash2, 
+  PencilIcon as Edit, 
+  PlusIcon as Plus 
+} from '@heroicons/react/24/outline';
 
 interface VideoEffect {
   id: string;

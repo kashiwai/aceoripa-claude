@@ -52,29 +52,36 @@ export default function GachaPlayPage() {
     { id: '10', name: 'アセロラ', rarity: 'B', imageUrl: '/images/pokemon/028_アセロラ_PK-0028.jpg' },
   ]
 
-  // ガチャロジック（シンプル版デバッグ）
+  // ガチャロジック（本番仕様）
   const executeGacha = () => {
-    console.log('🎰 ガチャ開始！', { count, isPlaying, currentPhase })
     setIsPlaying(true)
     setCurrentPhase('spinning')
-    console.log('✅ 状態更新完了:', { isPlaying: true, currentPhase: 'spinning' })
+    setRevealedCards([])
+    setCurrentRevealIndex(0)
     
-    // 簡単なテスト：2秒でスピニング、その後結果表示
+    // フェーズ1: スピニング演出（3秒）
     setTimeout(() => {
-      console.log('⏰ 2秒経過、結果生成中...')
+      setCurrentPhase('revealing')
       
-      // ガチャ結果を生成
+      // ガチャ結果を事前計算
       const gachaResults: Card[] = []
+      
       for (let i = 0; i < count; i++) {
         const random = Math.random()
         let selectedCard: Card
         
-        if (random < 0.1) { // テスト用に10%でSS
-          selectedCard = sampleCards.find(c => c.rarity === 'SS') || sampleCards[0]
-        } else if (random < 0.3) { // 20%でS
-          selectedCard = sampleCards.find(c => c.rarity === 'S') || sampleCards[0]
-        } else {
-          selectedCard = sampleCards.find(c => c.rarity === 'B') || sampleCards[0]
+        if (random < 0.01) { // 1% SS
+          const ssCards = sampleCards.filter(c => c.rarity === 'SS')
+          selectedCard = ssCards[Math.floor(Math.random() * ssCards.length)]
+        } else if (random < 0.05) { // 4% S
+          const sCards = sampleCards.filter(c => c.rarity === 'S')
+          selectedCard = sCards[Math.floor(Math.random() * sCards.length)]
+        } else if (random < 0.20) { // 15% A
+          const aCards = sampleCards.filter(c => c.rarity === 'A')
+          selectedCard = aCards[Math.floor(Math.random() * aCards.length)]
+        } else { // その他（B, C賞など）
+          const otherCards = sampleCards.filter(c => ['B', 'C'].includes(c.rarity))
+          selectedCard = otherCards[Math.floor(Math.random() * otherCards.length)]
         }
         
         gachaResults.push({
@@ -83,12 +90,11 @@ export default function GachaPlayPage() {
         })
       }
       
-      console.log('🎯 生成された結果:', gachaResults)
       setResults(gachaResults)
-      setCurrentPhase('celebration')
-      setIsPlaying(false)
-      setShowResults(true)
-    }, 2000)
+      
+      // フェーズ2: カード順次公開演出
+      revealCardsSequentially(gachaResults)
+    }, 3000)
   }
   
   // 簡単な演出エフェクト（テスト用）
@@ -101,7 +107,7 @@ export default function GachaPlayPage() {
     }, 500)
   }
   
-  // 元の関数（使わないが残しておく）
+  // カード順次公開演出
   const revealCardsSequentially = (cards: Card[]) => {
     let index = 0
     const revealInterval = setInterval(() => {
@@ -110,7 +116,7 @@ export default function GachaPlayPage() {
         setCurrentRevealIndex(index)
         
         // SS/S賞の場合は特別演出
-        if (cards[index].rarity === 'SS' || cards[index].rarity === 'S') {
+        if (cards[index]?.rarity === 'SS' || cards[index]?.rarity === 'S') {
           // 画面震動エフェクト
           document.body.style.animation = 'shake 0.5s'
           setTimeout(() => {
@@ -231,22 +237,10 @@ export default function GachaPlayPage() {
                 ✨ 激レアカードが出現するかも！？
               </p>
               
-              {/* アニメーションテスト表示 */}
-              <div className="mt-4 p-4 bg-gray-800 rounded-lg">
-                <p className="text-sm text-gray-400 mb-2">アニメーションテスト:</p>
-                <div className="flex justify-center space-x-4">
-                  <div className="w-8 h-8 bg-blue-500 animate-spin rounded-full border-2 border-t-transparent"></div>
-                  <div className="w-8 h-8 bg-green-500 animate-bounce rounded-full"></div>
-                  <div className="w-8 h-8 bg-red-500 animate-pulse rounded-full"></div>
-                </div>
-              </div>
             </div>
             
             <button
-              onClick={() => {
-                testEffect() // テスト演出を先に発動
-                executeGacha()
-              }}
+              onClick={executeGacha}
               className="bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white font-black text-2xl px-12 py-6 rounded-2xl hover:scale-105 transition transform shadow-2xl"
             >
               🎲 ガチャを回す！
@@ -257,9 +251,6 @@ export default function GachaPlayPage() {
         {/* ガチャ実行中演出 */}
         {isPlaying && (
           <div className="text-center">
-            <div className="text-sm text-gray-400 mb-4">
-              Debug: isPlaying={isPlaying.toString()}, currentPhase={currentPhase}
-            </div>
             {currentPhase === 'spinning' && (
               <div className="mb-8">
                 <div className="relative mb-8">
