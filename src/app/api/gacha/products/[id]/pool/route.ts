@@ -3,52 +3,51 @@ import { NextResponse } from 'next/server'
 // ガチャプール（カードリスト）のサンプルデータ
 const GACHA_POOLS = {
   '1': [ // ピカチュウ大祭り
-    { id: 'PK-M001', name: 'ポンチョを着たピカチュウ(黒リザ) PSA10', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'PK-M002', name: 'ニンフィアGX PSA10', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'PK-M006', name: 'ポンチョを着たピカチュウ(黒レックウザ) PSA10', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'PK-M007', name: 'ナンジャモ PSA10（SAR）', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'PK-M003', name: 'レイジングサーフ BOX', rarity: 'S', image: '/images/ngcard.jpg' },
-    { id: 'PK-M004', name: 'ミュウツーVSTAR', rarity: 'S', image: '/images/ngcard.jpg' },
-    { id: 'PK-M008', name: '熱風のアリーナ BOX', rarity: 'S', image: '/images/ngcard.jpg' },
-    { id: 'PK-M005', name: 'ラティアス', rarity: 'A', image: '/images/ngcard.jpg' },
-    { id: 'PK-M042', name: 'ピカチュウV', rarity: 'C', image: '/images/ngcard.jpg' }
+    { id: 'PK-M001', name: 'マリオピカチュウ PSA10', rarity: 'SS', image: '/images/pokemon/008_マリオピカチュウ PSA10_PK-0008.jpg' },
+    { id: 'PK-M002', name: 'ポンチョを着たピカチュウ(黒リザ) PSA10', rarity: 'SS', image: '/images/pokemon/010_ポンチョを着たピカチュウ(黒リザ) PSA10_PK-0010.jpg' },
+    { id: 'PK-M006', name: 'ポンチョを着たピカチュウ(黒レックウザ) PSA10', rarity: 'SS', image: '/images/pokemon/019_ポンチョを着たピカチュウ(黒レックウザ) PSA10_PK-0019.jpg' },
+    { id: 'PK-M003', name: 'アセロラ(エクバ) PSA10', rarity: 'S', image: '/images/pokemon/003_アセロラ(エクバ) PSA10_PK-0003.jpg' },
+    { id: 'PK-M004', name: 'ブルーの探索 PSA10', rarity: 'S', image: '/images/pokemon/185_ブルーの探索 PSA10_PK-0187.jpg' },
+    { id: 'PK-M008', name: 'ブラッキーex PSA10', rarity: 'S', image: '/images/pokemon/197_ブラッキーex PSA10_PK-0199.jpg' },
+    { id: 'PK-M005', name: 'ポンチョを着たピカチュウ(リザ) PSA10', rarity: 'A', image: '/images/pokemon/016_ポンチョを着たピカチュウ(リザ) PSA10_PK-0016.jpg' },
+    { id: 'PK-M042', name: 'アローラの仲間たち PSA10', rarity: 'A', image: '/images/pokemon/032_アローラの仲間たち PSA10_PK-0032.jpg' }
   ],
   '2': [ // ナンジャモ大量発生オリパ
-    { id: 'NJ-T001', name: 'ナンジャモ SAR PSA10', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'NJ-T002', name: 'ナンジャモSR PSA10', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'NJ-T003', name: 'サナ SR PSA10', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'NJ-T007', name: 'カリンの信念 PSA10', rarity: 'S', image: '/images/ngcard.jpg' },
-    { id: 'NJ-T017', name: 'スノーハザード BOX', rarity: 'A', image: '/images/ngcard.jpg' },
-    { id: 'NJ-T027', name: 'テツノカシラex SAR', rarity: 'B', image: '/images/ngcard.jpg' },
-    { id: 'NJ-T037', name: 'マッギョ AR', rarity: 'C', image: '/images/ngcard.jpg' },
-    { id: 'NJ-T047', name: 'かがやくルチャブル K', rarity: 'D', image: '/images/ngcard.jpg' }
+    { id: 'NJ-T001', name: 'おじょうさま PSA10', rarity: 'SS', image: '/images/pokemon/204_おじょうさま PSA10_PK-0206.jpg' },
+    { id: 'NJ-T002', name: 'ヒガナ PSA10', rarity: 'SS', image: '/images/pokemon/220_ヒガナ PSA10_PK-0223.jpg' },
+    { id: 'NJ-T003', name: 'アセロラ PSA10', rarity: 'SS', image: '/images/pokemon/015_アセロラ PSA10_PK-0015.jpg' },
+    { id: 'NJ-T007', name: 'ニンフィアEX PSA10（エラー版）', rarity: 'S', image: '/images/pokemon/137_ニンフィアEX PSA10（エラー版）_PK-0139.jpg' },
+    { id: 'NJ-T017', name: 'ポンチョを着たピカチュウ(レックウザ) PSA10', rarity: 'A', image: '/images/pokemon/020_ポンチョを着たピカチュウ(レックウザ) PSA10_PK-0020.jpg' },
+    { id: 'NJ-T027', name: 'アセロラ（エクバ）', rarity: 'B', image: '/images/pokemon/009_アセロラ（エクバ）_PK-0009.jpg' },
+    { id: 'NJ-T037', name: 'アセロラ', rarity: 'C', image: '/images/pokemon/028_アセロラ_PK-0028.jpg' },
+    { id: 'NJ-T047', name: 'アローラの仲間たち', rarity: 'C', image: '/images/pokemon/061_アローラの仲間たち_PK-0061.jpg' }
   ],
   '3': [ // リザードン祭盤
-    { id: 'CZ-F001', name: 'リザードンVMAX(HR仕様) PSA10', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'CZ-F002', name: 'ブラッキーGX HR PSA10', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'CZ-F004', name: 'ホワイトコレクション 1パック', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'CZ-F007', name: 'リザードンGX PSA10', rarity: 'S', image: '/images/ngcard.jpg' },
-    { id: 'CZ-F025', name: 'サンダース PSA10', rarity: 'A', image: '/images/ngcard.jpg' },
-    { id: 'CZ-F038', name: 'ブラッキー(マスターボールミラー) PSA10', rarity: 'B', image: '/images/ngcard.jpg' },
-    { id: 'CZ-F050', name: 'フシギダネ C', rarity: 'C', image: '/images/ngcard.jpg' }
+    { id: 'CZ-F001', name: 'マリオピカチュウ PSA10', rarity: 'SS', image: '/images/pokemon/081_マリオピカチュウ PSA10_PK-0081.jpg' },
+    { id: 'CZ-F002', name: 'ブルーの探索 PSA10', rarity: 'SS', image: '/images/pokemon/235_ブルーの探索 PSA10_PK-0238.jpg' },
+    { id: 'CZ-F004', name: 'ホロンの研究塔 1パック', rarity: 'SS', image: '/images/pokemon/123_ホロンの研究塔 1パック_PK-0124.jpg' },
+    { id: 'CZ-F007', name: 'ポンチョを着たピカチュウ(ロコン)', rarity: 'S', image: '/images/pokemon/151_ポンチョを着たピカチュウ(ロコン)_PK-0153.jpg' },
+    { id: 'CZ-F025', name: 'ブルーの探索', rarity: 'A', image: '/images/pokemon/248_ブルーの探索_PK-0251.jpg' },
+    { id: 'CZ-F038', name: 'THE BEST OF XY 1BOX', rarity: 'B', image: '/images/pokemon/034_THE BEST OF XY 1BOX_PK-0034.jpg' },
+    { id: 'CZ-F050', name: 'アセロラ', rarity: 'C', image: '/images/pokemon/028_アセロラ_PK-0028.jpg' }
   ],
   '4': [ // ブラッキー超感謝祭
-    { id: 'BK-A001', name: 'ブラッキーVMAX PSA10（PROMO）', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'BK-A002', name: 'ルチアのアピール PSA10', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'BK-A005', name: 'ムゲンゾーン パック', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'BK-A006', name: 'サンダースVMAX PSA10', rarity: 'S', image: '/images/ngcard.jpg' },
-    { id: 'BK-A016', name: 'イーブイヒーローズ イーブイズセット 1BOX', rarity: 'A', image: '/images/ngcard.jpg' },
-    { id: 'BK-A031', name: 'ブラッキーGX SSR PSA10', rarity: 'B', image: '/images/ngcard.jpg' },
-    { id: 'BK-A044', name: 'ミュウV(SA) PSA10', rarity: 'C', image: '/images/ngcard.jpg' }
+    { id: 'BK-A001', name: 'ブラッキーex PSA10', rarity: 'SS', image: '/images/pokemon/197_ブラッキーex PSA10_PK-0199.jpg' },
+    { id: 'BK-A002', name: 'おじょうさま PSA10', rarity: 'SS', image: '/images/pokemon/204_おじょうさま PSA10_PK-0206.jpg' },
+    { id: 'BK-A005', name: 'ヒガナ PSA10', rarity: 'SS', image: '/images/pokemon/220_ヒガナ PSA10_PK-0223.jpg' },
+    { id: 'BK-A006', name: 'マリオピカチュウ PSA10', rarity: 'S', image: '/images/pokemon/008_マリオピカチュウ PSA10_PK-0008.jpg' },
+    { id: 'BK-A016', name: 'アセロラ(エクバ) PSA10', rarity: 'A', image: '/images/pokemon/003_アセロラ(エクバ) PSA10_PK-0003.jpg' },
+    { id: 'BK-A031', name: 'ブルーの探索 PSA10', rarity: 'B', image: '/images/pokemon/185_ブルーの探索 PSA10_PK-0187.jpg' },
+    { id: 'BK-A044', name: 'ニンフィアEX PSA10（エラー版）', rarity: 'C', image: '/images/pokemon/137_ニンフィアEX PSA10（エラー版）_PK-0139.jpg' }
   ],
   '5': [ // リーリエ×マリオピカチュウ
-    { id: 'LM-P001', name: 'リーリエ PSA10', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'LM-P002', name: 'コイキング&ホエルオーGX PSA10', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'LM-P003', name: 'ホワイトコレクション 1パック', rarity: 'SS', image: '/images/ngcard.jpg' },
-    { id: 'LM-P011', name: 'マリオピカチュウ PSA10', rarity: 'S', image: '/images/ngcard.jpg' },
-    { id: 'LM-P021', name: 'N PSA10', rarity: 'A', image: '/images/ngcard.jpg' },
-    { id: 'LM-P036', name: 'コイキング&ホエルオー SR PSA10', rarity: 'B', image: '/images/ngcard.jpg' },
-    { id: 'LM-P045', name: 'ニンフィアex PSA10', rarity: 'C', image: '/images/ngcard.jpg' }
+    { id: 'LM-P001', name: 'アローラの仲間たち PSA10', rarity: 'SS', image: '/images/pokemon/032_アローラの仲間たち PSA10_PK-0032.jpg' },
+    { id: 'LM-P002', name: 'ポンチョを着たピカチュウ(黒リザ) PSA10', rarity: 'SS', image: '/images/pokemon/010_ポンチョを着たピカチュウ(黒リザ) PSA10_PK-0010.jpg' },
+    { id: 'LM-P003', name: 'ポンチョを着たピカチュウ(リザ) PSA10', rarity: 'SS', image: '/images/pokemon/016_ポンチョを着たピカチュウ(リザ) PSA10_PK-0016.jpg' },
+    { id: 'LM-P011', name: 'マリオピカチュウ PSA10', rarity: 'S', image: '/images/pokemon/081_マリオピカチュウ PSA10_PK-0081.jpg' },
+    { id: 'LM-P021', name: 'ポンチョを着たピカチュウ(黒レックウザ) PSA10', rarity: 'A', image: '/images/pokemon/019_ポンチョを着たピカチュウ(黒レックウザ) PSA10_PK-0019.jpg' },
+    { id: 'LM-P036', name: 'ポンチョを着たピカチュウ(レックウザ) PSA10', rarity: 'B', image: '/images/pokemon/020_ポンチョを着たピカチュウ(レックウザ) PSA10_PK-0020.jpg' },
+    { id: 'LM-P045', name: 'ポンチョを着たピカチュウ(ロコン)', rarity: 'C', image: '/images/pokemon/151_ポンチョを着たピカチュウ(ロコン)_PK-0153.jpg' }
   ]
 }
 
@@ -66,7 +65,16 @@ export async function GET(
       return NextResponse.json({ error: 'Pool not found' }, { status: 404 })
     }
     
-    return NextResponse.json({ cards: poolCards })
+    // フロントエンドのCard interfaceに合わせてフィールド名を変換
+    const formattedCards = poolCards.map(card => ({
+      id: card.id,
+      name: card.name,
+      rarity: card.rarity,
+      imageUrl: card.image,
+      probability: 1 // デフォルト確率
+    }))
+    
+    return NextResponse.json({ success: true, cards: formattedCards })
   } catch (error) {
     console.error('Error fetching gacha pool:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

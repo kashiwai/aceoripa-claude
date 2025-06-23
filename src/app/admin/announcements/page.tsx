@@ -297,189 +297,183 @@ export default function AnnouncementsPage() {
 
       {/* モーダル */}
       {showModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">
-              {editingAnnouncement ? 'お知らせ編集' : 'お知らせ作成'}
-            </h2>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  タイトル
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
+        <div className="modal fade show" style={{display: 'block', backgroundColor: 'rgba(0,0,0,0.5)'}}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  {editingAnnouncement ? 'お知らせ編集' : 'お知らせ作成'}
+                </h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={() => {
+                    setShowModal(false)
+                    setEditingAnnouncement(null)
+                    resetForm()
+                  }}
+                ></button>
               </div>
+              <div className="modal-body">
+                <form onSubmit={handleSubmit}>
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">タイトル</label>
+                      <input
+                        type="text"
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        className="form-control"
+                        required
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">種類</label>
+                      <select
+                        value={formData.type}
+                        onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                        className="form-select"
+                      >
+                        <option value="news">ニュース</option>
+                        <option value="maintenance">メンテナンス</option>
+                        <option value="campaign">キャンペーン</option>
+                        <option value="important">重要</option>
+                      </select>
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  内容
-                </label>
-                <textarea
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
+                  <div className="mb-3">
+                    <label className="form-label">内容</label>
+                    <textarea
+                      value={formData.content}
+                      onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                      rows={4}
+                      className="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div className="row">
+                    <div className="col-md-4 mb-3">
+                      <label className="form-label">ステータス</label>
+                      <select
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                        className="form-select"
+                      >
+                        <option value="draft">下書き</option>
+                        <option value="published">公開</option>
+                        <option value="archived">アーカイブ</option>
+                      </select>
+                    </div>
+                    <div className="col-md-4 mb-3">
+                      <label className="form-label">公開日</label>
+                      <input
+                        type="date"
+                        value={formData.publish_date}
+                        onChange={(e) => setFormData({ ...formData, publish_date: e.target.value })}
+                        className="form-control"
+                        required
+                      />
+                    </div>
+                    <div className="col-md-4 mb-3">
+                      <label className="form-label">終了日（任意）</label>
+                      <input
+                        type="date"
+                        value={formData.end_date}
+                        onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                        className="form-control"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="row">
+                    <div className="col-md-4 mb-3">
+                      <label className="form-label">優先度（1-10）</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={formData.priority}
+                        onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) })}
+                        className="form-control"
+                        required
+                      />
+                    </div>
+                    <div className="col-md-4 mb-3">
+                      <label className="form-label">ポップアップ表示遅延（秒）</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={formData.popup_delay_seconds}
+                        onChange={(e) => setFormData({ ...formData, popup_delay_seconds: parseInt(e.target.value) || 0 })}
+                        className="form-control"
+                      />
+                    </div>
+                    <div className="col-md-4 mb-3">
+                      <div className="form-check mt-4">
+                        <input
+                          type="checkbox"
+                          id="push_notification"
+                          checked={formData.push_notification}
+                          onChange={(e) => setFormData({ ...formData, push_notification: e.target.checked })}
+                          className="form-check-input"
+                        />
+                        <label className="form-check-label" htmlFor="push_notification">
+                          プッシュ通知を送信
+                        </label>
+                      </div>
+                      <div className="form-check">
+                        <input
+                          type="checkbox"
+                          id="show_popup"
+                          checked={formData.show_popup}
+                          onChange={(e) => setFormData({ ...formData, show_popup: e.target.checked })}
+                          className="form-check-input"
+                        />
+                        <label className="form-check-label" htmlFor="show_popup">
+                          ポップアップで表示
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">画像URL（任意）</label>
+                    <input
+                      type="text"
+                      value={formData.image_url}
+                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                      className="form-control"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
+
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">CTAボタンテキスト（任意）</label>
+                      <input
+                        type="text"
+                        value={formData.cta_text}
+                        onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
+                        className="form-control"
+                        placeholder="詳細を見る"
+                      />
+                    </div>
+                    <div className="col-md-6 mb-3">
+                      <label className="form-label">CTAリンク先URL（任意）</label>
+                      <input
+                        type="text"
+                        value={formData.cta_url}
+                        onChange={(e) => setFormData({ ...formData, cta_url: e.target.value })}
+                        className="form-control"
+                        placeholder="/gacha/1"
+                      />
+                    </div>
+                  </div>
+                </form>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  種類
-                </label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="news">ニュース</option>
-                  <option value="maintenance">メンテナンス</option>
-                  <option value="campaign">キャンペーン</option>
-                  <option value="important">重要</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ステータス
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="draft">下書き</option>
-                  <option value="published">公開</option>
-                  <option value="archived">アーカイブ</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  公開日
-                </label>
-                <input
-                  type="date"
-                  value={formData.publish_date}
-                  onChange={(e) => setFormData({ ...formData, publish_date: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  終了日（任意）
-                </label>
-                <input
-                  type="date"
-                  value={formData.end_date}
-                  onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  優先度（1-10）
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="push_notification"
-                  checked={formData.push_notification}
-                  onChange={(e) => setFormData({ ...formData, push_notification: e.target.checked })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="push_notification" className="ml-2 block text-sm text-gray-900">
-                  プッシュ通知を送信
-                </label>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="show_popup"
-                  checked={formData.show_popup}
-                  onChange={(e) => setFormData({ ...formData, show_popup: e.target.checked })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="show_popup" className="ml-2 block text-sm text-gray-900">
-                  ポップアップで表示
-                </label>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ポップアップ表示遅延（秒）
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.popup_delay_seconds}
-                  onChange={(e) => setFormData({ ...formData, popup_delay_seconds: parseInt(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  画像URL（任意）
-                </label>
-                <input
-                  type="text"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  CTAボタンテキスト（任意）
-                </label>
-                <input
-                  type="text"
-                  value={formData.cta_text}
-                  onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="詳細を見る"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  CTAリンク先URL（任意）
-                </label>
-                <input
-                  type="text"
-                  value={formData.cta_url}
-                  onChange={(e) => setFormData({ ...formData, cta_url: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="/gacha/1"
-                />
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4">
+              <div className="modal-footer">
                 <button
                   type="button"
                   onClick={() => {
@@ -487,19 +481,25 @@ export default function AnnouncementsPage() {
                     setEditingAnnouncement(null)
                     resetForm()
                   }}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                  className="btn btn-secondary"
                 >
                   キャンセル
                 </button>
                 <button
                   type="submit"
+                  onClick={handleSubmit}
                   disabled={loading}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  className="btn btn-primary"
                 >
-                  {loading ? '保存中...' : '保存'}
+                  {loading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                      保存中...
+                    </>
+                  ) : '保存'}
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

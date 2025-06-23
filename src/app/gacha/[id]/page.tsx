@@ -65,17 +65,24 @@ export default function GachaDetailPage() {
 
   const fallbackCards: Card[] = [
     // SS賞
-    { id: '1', name: 'ピカチュウ プロモ PSA10', rarity: 'SS', imageUrl: '/images/ngcard.jpg', probability: 1 },
-    { id: '2', name: 'マリオピカチュウ PSA10', rarity: 'SS', imageUrl: '/images/ngcard.jpg', probability: 1 },
+    { id: '1', name: 'マリオピカチュウ PSA10', rarity: 'SS', imageUrl: '/images/pokemon/008_マリオピカチュウ PSA10_PK-0008.jpg', probability: 1 },
+    { id: '2', name: 'ポンチョを着たピカチュウ(黒リザ) PSA10', rarity: 'SS', imageUrl: '/images/pokemon/010_ポンチョを着たピカチュウ(黒リザ) PSA10_PK-0010.jpg', probability: 1 },
     // S賞
-    { id: '3', name: 'ピカチュウex', rarity: 'S', imageUrl: '/images/ngcard.jpg', probability: 4 },
-    { id: '4', name: 'ライチュウex', rarity: 'S', imageUrl: '/images/ngcard.jpg', probability: 4 },
+    { id: '3', name: 'アセロラ(エクバ) PSA10', rarity: 'S', imageUrl: '/images/pokemon/003_アセロラ(エクバ) PSA10_PK-0003.jpg', probability: 4 },
+    { id: '4', name: 'ブルーの探索 PSA10', rarity: 'S', imageUrl: '/images/pokemon/185_ブルーの探索 PSA10_PK-0187.jpg', probability: 4 },
+    { id: '5', name: 'ブラッキーex PSA10', rarity: 'S', imageUrl: '/images/pokemon/197_ブラッキーex PSA10_PK-0199.jpg', probability: 4 },
     // A賞
-    { id: '5', name: 'ピカチュウ CHR', rarity: 'A', imageUrl: '/images/ngcard.jpg', probability: 15 },
+    { id: '6', name: 'ポンチョを着たピカチュウ(リザ) PSA10', rarity: 'A', imageUrl: '/images/pokemon/016_ポンチョを着たピカチュウ(リザ) PSA10_PK-0016.jpg', probability: 5 },
+    { id: '7', name: 'アローラの仲間たち PSA10', rarity: 'A', imageUrl: '/images/pokemon/032_アローラの仲間たち PSA10_PK-0032.jpg', probability: 5 },
+    { id: '8', name: 'おじょうさま PSA10', rarity: 'A', imageUrl: '/images/pokemon/204_おじょうさま PSA10_PK-0206.jpg', probability: 5 },
     // B賞
-    { id: '6', name: 'ピカチュウ', rarity: 'B', imageUrl: '/images/ngcard.jpg', probability: 30 },
+    { id: '9', name: 'アセロラ（エクバ）', rarity: 'B', imageUrl: '/images/pokemon/009_アセロラ（エクバ）_PK-0009.jpg', probability: 10 },
+    { id: '10', name: 'アセロラ', rarity: 'B', imageUrl: '/images/pokemon/028_アセロラ_PK-0028.jpg', probability: 10 },
+    { id: '11', name: 'アローラの仲間たち', rarity: 'B', imageUrl: '/images/pokemon/061_アローラの仲間たち_PK-0061.jpg', probability: 10 },
     // C賞
-    { id: '7', name: 'ピチュー', rarity: 'C', imageUrl: '/images/ngcard.jpg', probability: 45 },
+    { id: '12', name: 'ポンチョを着たピカチュウ(ロコン)', rarity: 'C', imageUrl: '/images/pokemon/151_ポンチョを着たピカチュウ(ロコン)_PK-0153.jpg', probability: 15 },
+    { id: '13', name: 'ブルーの探索', rarity: 'C', imageUrl: '/images/pokemon/248_ブルーの探索_PK-0251.jpg', probability: 15 },
+    { id: '14', name: 'THE BEST OF XY 1BOX', rarity: 'C', imageUrl: '/images/pokemon/034_THE BEST OF XY 1BOX_PK-0034.jpg', probability: 15 },
   ]
 
   const [gacha, setGacha] = useState<GachaProduct | null>(fallbackGacha)
