@@ -33,6 +33,10 @@ export default function GachaPlayPage() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [showResults, setShowResults] = useState(false)
   const [results, setResults] = useState<Card[]>([])
+  const [currentPhase, setCurrentPhase] = useState<'idle' | 'spinning' | 'revealing' | 'celebration'>('idle')
+  const [revealedCards, setRevealedCards] = useState<Card[]>([])
+  const [currentRevealIndex, setCurrentRevealIndex] = useState(0)
+  const [sparkles, setSparkles] = useState<Array<{id: number, x: number, y: number}>>([])
 
   // サンプルカードプール
   const sampleCards: Card[] = [
@@ -48,27 +52,29 @@ export default function GachaPlayPage() {
     { id: '10', name: 'アセロラ', rarity: 'B', imageUrl: '/images/pokemon/028_アセロラ_PK-0028.jpg' },
   ]
 
-  // ガチャロジック
+  // ガチャロジック（シンプル版デバッグ）
   const executeGacha = () => {
+    console.log('🎰 ガチャ開始！', { count, isPlaying, currentPhase })
     setIsPlaying(true)
+    setCurrentPhase('spinning')
+    console.log('✅ 状態更新完了:', { isPlaying: true, currentPhase: 'spinning' })
     
-    // 2秒後に結果を表示
+    // 簡単なテスト：2秒でスピニング、その後結果表示
     setTimeout(() => {
-      const gachaResults: Card[] = []
+      console.log('⏰ 2秒経過、結果生成中...')
       
+      // ガチャ結果を生成
+      const gachaResults: Card[] = []
       for (let i = 0; i < count; i++) {
         const random = Math.random()
         let selectedCard: Card
         
-        if (random < 0.01) { // 1% SS
-          selectedCard = sampleCards.filter(c => c.rarity === 'SS')[Math.floor(Math.random() * 2)]
-        } else if (random < 0.05) { // 4% S
-          selectedCard = sampleCards.filter(c => c.rarity === 'S')[Math.floor(Math.random() * 3)]
-        } else if (random < 0.20) { // 15% A
-          selectedCard = sampleCards.filter(c => c.rarity === 'A')[Math.floor(Math.random() * 3)]
-        } else { // その他（B, C賞など）
-          const otherCards = sampleCards.filter(c => ['B', 'C'].includes(c.rarity))
-          selectedCard = otherCards[Math.floor(Math.random() * otherCards.length)]
+        if (random < 0.1) { // テスト用に10%でSS
+          selectedCard = sampleCards.find(c => c.rarity === 'SS') || sampleCards[0]
+        } else if (random < 0.3) { // 20%でS
+          selectedCard = sampleCards.find(c => c.rarity === 'S') || sampleCards[0]
+        } else {
+          selectedCard = sampleCards.find(c => c.rarity === 'B') || sampleCards[0]
         }
         
         gachaResults.push({
@@ -77,10 +83,104 @@ export default function GachaPlayPage() {
         })
       }
       
+      console.log('🎯 生成された結果:', gachaResults)
       setResults(gachaResults)
+      setCurrentPhase('celebration')
       setIsPlaying(false)
       setShowResults(true)
     }, 2000)
+  }
+  
+  // 簡単な演出エフェクト（テスト用）
+  const testEffect = () => {
+    console.log('✨ テスト演出発動！')
+    // 画面に少し震動エフェクト
+    document.body.style.animation = 'shake 0.5s'
+    setTimeout(() => {
+      document.body.style.animation = ''
+    }, 500)
+  }
+  
+  // 元の関数（使わないが残しておく）
+  const revealCardsSequentially = (cards: Card[]) => {
+    let index = 0
+    const revealInterval = setInterval(() => {
+      if (index < cards.length) {
+        setRevealedCards(prev => [...prev, cards[index]])
+        setCurrentRevealIndex(index)
+        
+        // SS/S賞の場合は特別演出
+        if (cards[index].rarity === 'SS' || cards[index].rarity === 'S') {
+          // 画面震動エフェクト
+          document.body.style.animation = 'shake 0.5s'
+          setTimeout(() => {
+            document.body.style.animation = ''
+          }, 500)
+          
+          // 星エフェクト生成
+          generateSparkles()
+          
+          // 音効果（ブラウザの音声API使用）
+          playSound(cards[index].rarity)
+        }
+        
+        index++
+      } else {
+        clearInterval(revealInterval)
+        // フェーズ3: 最終お祝い演出
+        setTimeout(() => {
+          setCurrentPhase('celebration')
+          setIsPlaying(false)
+          setShowResults(true)
+        }, 1000)
+      }
+    }, 800) // 0.8秒間隔でカード公開
+  }
+  
+  // 星エフェクト生成
+  const generateSparkles = () => {
+    const newSparkles = Array.from({ length: 20 }, (_, i) => ({
+      id: Date.now() + i,
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight
+    }))
+    setSparkles(newSparkles)
+    
+    // 3秒後に星を消去
+    setTimeout(() => setSparkles([]), 3000)
+  }
+  
+  // 音効果再生
+  const playSound = (rarity: string) => {
+    try {
+      // Web Audio APIを使用した簡単な音生成
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+      
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+      
+      if (rarity === 'SS') {
+        // SS賞: 豪華な和音
+        oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime) // C5
+        oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1) // E5
+        oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2) // G5
+      } else if (rarity === 'S') {
+        // S賞: 明るい音
+        oscillator.frequency.setValueAtTime(440, audioContext.currentTime) // A4
+        oscillator.frequency.setValueAtTime(554.37, audioContext.currentTime + 0.1) // C#5
+      }
+      
+      oscillator.type = 'triangle'
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5)
+      
+      oscillator.start(audioContext.currentTime)
+      oscillator.stop(audioContext.currentTime + 0.5)
+    } catch (error) {
+      console.log('Audio not supported:', error)
+    }
   }
 
   const getRarityBadge = (rarity: string) => {
@@ -130,10 +230,23 @@ export default function GachaPlayPage() {
               <p className="text-lg text-yellow-400">
                 ✨ 激レアカードが出現するかも！？
               </p>
+              
+              {/* アニメーションテスト表示 */}
+              <div className="mt-4 p-4 bg-gray-800 rounded-lg">
+                <p className="text-sm text-gray-400 mb-2">アニメーションテスト:</p>
+                <div className="flex justify-center space-x-4">
+                  <div className="w-8 h-8 bg-blue-500 animate-spin rounded-full border-2 border-t-transparent"></div>
+                  <div className="w-8 h-8 bg-green-500 animate-bounce rounded-full"></div>
+                  <div className="w-8 h-8 bg-red-500 animate-pulse rounded-full"></div>
+                </div>
+              </div>
             </div>
             
             <button
-              onClick={executeGacha}
+              onClick={() => {
+                testEffect() // テスト演出を先に発動
+                executeGacha()
+              }}
               className="bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white font-black text-2xl px-12 py-6 rounded-2xl hover:scale-105 transition transform shadow-2xl"
             >
               🎲 ガチャを回す！
@@ -141,32 +254,141 @@ export default function GachaPlayPage() {
           </div>
         )}
 
-        {/* ガチャ実行中 */}
+        {/* ガチャ実行中演出 */}
         {isPlaying && (
           <div className="text-center">
-            <div className="mb-8">
-              <div className="w-32 h-32 border-8 border-[#FF0033] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-              <h2 className="text-4xl font-black text-white mb-4">
-                🎰 ガチャ実行中...
-              </h2>
-              <p className="text-xl text-yellow-400 animate-pulse">
-                激レアカードを抽選中！
-              </p>
+            <div className="text-sm text-gray-400 mb-4">
+              Debug: isPlaying={isPlaying.toString()}, currentPhase={currentPhase}
             </div>
+            {currentPhase === 'spinning' && (
+              <div className="mb-8">
+                <div className="relative mb-8">
+                  {/* メインスピナー */}
+                  <div className="w-40 h-40 border-8 border-[#FF0033] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+                  {/* 内側のスピナー */}
+                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-32 h-32 border-4 border-yellow-400 border-b-transparent rounded-full animate-spin" style={{animationDirection: 'reverse'}}></div>
+                  {/* 中央のガチャマシン */}
+                  <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-6xl animate-bounce">
+                    🎰
+                  </div>
+                </div>
+                <h2 className="text-5xl font-black text-white mb-4 animate-pulse">
+                  ガチャ抽選中...
+                </h2>
+                <div className="flex justify-center space-x-2 mb-4">
+                  <div className="w-3 h-3 bg-[#FF0033] rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+                  <div className="w-3 h-3 bg-[#FF0033] rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  <div className="w-3 h-3 bg-[#FF0033] rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+                </div>
+                <p className="text-2xl text-yellow-400 animate-pulse font-bold">
+                  ✨ 激レアカードを抽選中！ ✨
+                </p>
+              </div>
+            )}
+            
+            {currentPhase === 'revealing' && (
+              <div className="mb-8">
+                <h2 className="text-4xl font-black text-white mb-8 animate-pulse">
+                  🎊 カード公開中... {currentRevealIndex + 1}/{count}
+                </h2>
+                
+                {/* 公開済みカードを表示 */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {revealedCards.map((card, index) => {
+                    const badge = getRarityBadge(card?.rarity || 'B')
+                    const isLatest = index === revealedCards.length - 1
+                    
+                    return (
+                      <motion.div
+                        key={card.id}
+                        initial={{ opacity: 0, scale: 0, rotateY: 180 }}
+                        animate={{ 
+                          opacity: 1, 
+                          scale: isLatest ? [1, 1.2, 1] : 1, 
+                          rotateY: 0 
+                        }}
+                        transition={{ 
+                          duration: 0.8,
+                          scale: { duration: 0.6, times: [0, 0.5, 1] }
+                        }}
+                        className={`bg-gray-900 rounded-xl overflow-hidden shadow-xl card-reveal-animation ${
+                          card?.rarity === 'SS' ? 'ring-4 ring-yellow-400 ss-explosion' :
+                          card?.rarity === 'S' ? 'ring-4 ring-purple-400 animate-pulse' :
+                          ''
+                        }`}
+                      >
+                        <div className="relative aspect-square">
+                          <Image
+                            src={card.imageUrl}
+                            alt={card.name}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                          {/* 特別演出オーバーレイ */}
+                          {(card?.rarity === 'SS' || card?.rarity === 'S') && isLatest && (
+                            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 via-transparent to-yellow-400/30 animate-pulse"></div>
+                          )}
+                          <div className="absolute top-2 right-2">
+                            <span className={`${RARITY_COLORS[card?.rarity || 'B']} text-white text-xs font-bold px-2 py-1 rounded-full`}>
+                              {badge.text}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-3">
+                          <h3 className="text-white font-bold text-sm text-center truncate">
+                            {card?.name || 'Unknown Card'}
+                          </h3>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                  
+                  {/* 未公開カードスロット */}
+                  {Array.from({ length: count - revealedCards.length }).map((_, index) => (
+                    <div key={`placeholder-${index}`} className="bg-gray-800 rounded-xl aspect-square flex items-center justify-center">
+                      <div className="text-6xl animate-spin">❓</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* 結果表示 */}
-        {showResults && (
+        {/* 最終結果表示 */}
+        {showResults && currentPhase === 'celebration' && (
           <div>
-            <div className="text-center mb-8">
-              <h2 className="text-4xl font-black text-white mb-4">
-                🎉 ガチャ結果発表！
-              </h2>
-              <p className="text-xl text-gray-300">
-                {count}回のガチャ結果
-              </p>
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-8"
+            >
+              <div className="mb-6">
+                {/* お祝い花火エフェクト */}
+                <div className="text-8xl mb-4 animate-bounce">
+                  🎊🎉🎊
+                </div>
+                <h2 className="text-6xl font-black rainbow-text mb-4">
+                  ガチャ結果発表！
+                </h2>
+                <p className="text-2xl text-gray-300 mb-4">
+                  {count}回のガチャ結果
+                </p>
+                
+                {/* SS賞獲得時の特別メッセージ */}
+                {results.some(r => r.rarity === 'SS') && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: [0, 1.2, 1] }}
+                    transition={{ delay: 0.5 }}
+                    className="bg-gradient-to-r from-yellow-400 to-red-500 text-white p-4 rounded-xl mb-4 font-black text-xl"
+                  >
+                    🏆 超激レアSS賞獲得おめでとうございます！ 🏆
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
 
             {/* カード結果グリッド */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
@@ -177,27 +399,32 @@ export default function GachaPlayPage() {
                     key={card.id}
                     initial={{ opacity: 0, scale: 0.8, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="bg-gray-900 rounded-xl overflow-hidden shadow-xl hover:scale-105 transition-transform"
+                    transition={{ delay: index * 0.05 }}
+                    whileHover={{ scale: 1.05, rotateY: 5 }}
+                    className={`bg-gray-900 rounded-xl overflow-hidden shadow-xl transition-transform ${
+                      card?.rarity === 'SS' ? 'ring-4 ring-yellow-400 shadow-yellow-400/50' :
+                      card?.rarity === 'S' ? 'ring-2 ring-purple-400 shadow-purple-400/30' :
+                      ''
+                    }`}
                   >
                     <div className="relative aspect-square">
                       <Image
-                        src={card.imageUrl}
-                        alt={card.name}
+                        src={card?.imageUrl || '/images/ngcard.jpg'}
+                        alt={card?.name || 'Card'}
                         fill
                         className="object-cover"
                         unoptimized
                       />
                       {/* レアリティバッジ */}
                       <div className="absolute top-2 right-2">
-                        <span className={`${RARITY_COLORS[card.rarity]} text-white text-xs font-bold px-2 py-1 rounded-full`}>
+                        <span className={`${RARITY_COLORS[card?.rarity || 'B']} text-white text-xs font-bold px-2 py-1 rounded-full`}>
                           {badge.text}
                         </span>
                       </div>
                     </div>
                     <div className="p-3">
                       <h3 className="text-white font-bold text-sm text-center truncate">
-                        {card.name}
+                        {card?.name || 'Unknown Card'}
                       </h3>
                     </div>
                   </motion.div>
@@ -212,8 +439,8 @@ export default function GachaPlayPage() {
                 {['SS', 'S', 'A', 'OTHER'].map(rarity => {
                   // OTHERの場合はB, C, Dをまとめてカウント
                   const count = rarity === 'OTHER' 
-                    ? results.filter(r => ['B', 'C', 'D'].includes(r.rarity)).length
-                    : results.filter(r => r.rarity === rarity).length
+                    ? results.filter(r => ['B', 'C', 'D'].includes(r?.rarity || '')).length
+                    : results.filter(r => r?.rarity === rarity).length
                   const badge = rarity === 'OTHER' 
                     ? { text: '🎉 ワクワクカード', color: 'text-green-400' }
                     : getRarityBadge(rarity)
@@ -235,8 +462,11 @@ export default function GachaPlayPage() {
                 onClick={() => {
                   setShowResults(false)
                   setResults([])
+                  setRevealedCards([])
+                  setCurrentRevealIndex(0)
+                  setCurrentPhase('idle')
                 }}
-                className="bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white font-bold px-8 py-4 rounded-xl hover:scale-105 transition transform"
+                className="bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white font-bold px-8 py-4 rounded-xl hover:scale-105 transition transform shadow-lg"
               >
                 🎲 もう一度回す
               </button>
@@ -248,6 +478,21 @@ export default function GachaPlayPage() {
             </div>
           </div>
         )}
+        
+        {/* 星エフェクト */}
+        {sparkles.map(sparkle => (
+          <div
+            key={sparkle.id}
+            className="sparkle-star fixed pointer-events-none text-2xl z-50"
+            style={{
+              left: `${sparkle.x}px`,
+              top: `${sparkle.y}px`,
+              animationDelay: `${Math.random() * 0.5}s`
+            }}
+          >
+            ⭐
+          </div>
+        ))}
       </div>
     </div>
   )
