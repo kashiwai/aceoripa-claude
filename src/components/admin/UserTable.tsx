@@ -46,71 +46,61 @@ export default function UserTable({ users, currentPage, totalPages }: UserTableP
   
   return (
     <>
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead className="bg-gray-50">
+      <div className="table-responsive">
+        <table className="table table-hover mb-0">
+          <thead className="table-light">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                ユーザー情報
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                登録日
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                ポイント残高
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                所持カード
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                アクション
-              </th>
+              <th>ユーザー情報</th>
+              <th>登録日</th>
+              <th>ポイント残高</th>
+              <th>所持カード</th>
+              <th>アクション</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody>
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+              <tr key={user.id}>
+                <td>
+                  <div className="d-flex align-items-center">
+                    <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style={{width: '32px', height: '32px', fontSize: '14px'}}>
                       {user.email.charAt(0).toUpperCase()}
                     </div>
-                    <div className="ml-3">
-                      <div className="text-sm font-medium text-gray-900">{user.email}</div>
-                      <div className="text-xs text-gray-500">ID: {user.id.slice(0, 8)}...</div>
+                    <div>
+                      <div className="fw-medium">{user.email}</div>
+                      <small className="text-muted">ID: {user.id.slice(0, 8)}...</small>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{formatDate(user.created_at)}</div>
+                <td>
+                  <small>{formatDate(user.created_at)}</small>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    <div className="font-semibold">{getTotalPoints(user).toLocaleString()}pt</div>
+                <td>
+                  <div>
+                    <div className="fw-bold">{getTotalPoints(user).toLocaleString()}pt</div>
                     {user.user_points?.[0] && (
-                      <div className="text-xs text-gray-500">
+                      <small className="text-muted">
                         無料: {user.user_points[0].free_points.toLocaleString()} / 
                         有料: {user.user_points[0].paid_points.toLocaleString()}
-                      </div>
+                      </small>
                     )}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                <td>
+                  <span className="badge bg-primary">
                     {getCardCount(user)}枚
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-2">
+                <td>
+                  <div className="btn-group btn-group-sm">
                     <Link
                       href={`/admin/users/${user.id}`}
-                      className="text-blue-600 hover:text-blue-900"
+                      className="btn btn-outline-primary"
                     >
                       詳細
                     </Link>
                     <Link
                       href={`/admin/users/${user.id}/points`}
-                      className="text-green-600 hover:text-green-900"
+                      className="btn btn-outline-success"
                     >
                       ポイント
                     </Link>
@@ -123,71 +113,50 @@ export default function UserTable({ users, currentPage, totalPages }: UserTableP
       </div>
       
       {/* ページネーション */}
-      <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-        <div className="flex-1 flex justify-between sm:hidden">
-          <Link
-            href={`/admin/users?page=${currentPage - 1}`}
-            className={`relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 ${
-              currentPage <= 1 ? 'opacity-50 pointer-events-none' : ''
-            }`}
-          >
-            前へ
-          </Link>
-          <Link
-            href={`/admin/users?page=${currentPage + 1}`}
-            className={`ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 ${
-              currentPage >= totalPages ? 'opacity-50 pointer-events-none' : ''
-            }`}
-          >
-            次へ
-          </Link>
-        </div>
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+      <div className="card-footer">
+        <div className="d-flex justify-content-between align-items-center">
           <div>
-            <p className="text-sm text-gray-700">
-              ページ <span className="font-medium">{currentPage}</span> / <span className="font-medium">{totalPages}</span>
-            </p>
+            <small className="text-muted">
+              ページ <span className="fw-medium">{currentPage}</span> / <span className="fw-medium">{totalPages}</span>
+            </small>
           </div>
-          <div>
-            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-              <Link
-                href={`/admin/users?page=${currentPage - 1}`}
-                className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${
-                  currentPage <= 1 ? 'opacity-50 pointer-events-none' : ''
-                }`}
-              >
-                <ChevronLeftIcon className="h-5 w-5" />
-              </Link>
+          <nav aria-label="Page navigation">
+            <ul className="pagination pagination-sm mb-0">
+              <li className={`page-item ${currentPage <= 1 ? 'disabled' : ''}`}>
+                <Link
+                  href={`/admin/users?page=${currentPage - 1}`}
+                  className="page-link"
+                >
+                  <ChevronLeftIcon style={{width: '16px', height: '16px'}} />
+                </Link>
+              </li>
               
               {[...Array(Math.min(5, totalPages))].map((_, i) => {
                 const pageNum = currentPage - 2 + i;
                 if (pageNum < 1 || pageNum > totalPages) return null;
                 
                 return (
-                  <Link
-                    key={pageNum}
-                    href={`/admin/users?page=${pageNum}`}
-                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                      pageNum === currentPage
-                        ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                    }`}
-                  >
-                    {pageNum}
-                  </Link>
+                  <li key={pageNum} className={`page-item ${pageNum === currentPage ? 'active' : ''}`}>
+                    <Link
+                      href={`/admin/users?page=${pageNum}`}
+                      className="page-link"
+                    >
+                      {pageNum}
+                    </Link>
+                  </li>
                 );
               })}
               
-              <Link
-                href={`/admin/users?page=${currentPage + 1}`}
-                className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 ${
-                  currentPage >= totalPages ? 'opacity-50 pointer-events-none' : ''
-                }`}
-              >
-                <ChevronRightIcon className="h-5 w-5" />
-              </Link>
-            </nav>
-          </div>
+              <li className={`page-item ${currentPage >= totalPages ? 'disabled' : ''}`}>
+                <Link
+                  href={`/admin/users?page=${currentPage + 1}`}
+                  className="page-link"
+                >
+                  <ChevronRightIcon style={{width: '16px', height: '16px'}} />
+                </Link>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </>

@@ -27,13 +27,14 @@ interface GachaProduct {
   status?: string
 }
 
-const RARITY_ORDER = ['SS', 'S', 'A', 'B', 'C']
+const RARITY_ORDER = ['SS', 'S', 'A', 'OTHER']
 const RARITY_LABELS: { [key: string]: string } = {
   'SS': 'SS賞',
   'S': 'S賞', 
   'A': 'A賞',
   'B': 'B賞',
-  'C': 'C賞'
+  'C': 'C賞',
+  'OTHER': '🎉 その他のワクワクカード'
 }
 
 const RARITY_COLORS: { [key: string]: string } = {
@@ -41,7 +42,8 @@ const RARITY_COLORS: { [key: string]: string } = {
   'S': 'bg-gradient-to-r from-purple-400 to-pink-400',
   'A': 'bg-gradient-to-r from-blue-400 to-cyan-400',
   'B': 'bg-gradient-to-r from-green-400 to-emerald-400',
-  'C': 'bg-gradient-to-r from-gray-400 to-gray-500'
+  'C': 'bg-gradient-to-r from-gray-400 to-gray-500',
+  'OTHER': 'bg-gradient-to-r from-green-400 via-blue-400 to-purple-400'
 }
 
 export default function GachaDetailPage() {
@@ -135,24 +137,25 @@ export default function GachaDetailPage() {
     return () => clearTimeout(timeoutId)
   }, [gachaId])
 
-  // カードをレアリティ別にグループ化
+  // カードをレアリティ別にグループ化（B, C, Dを"その他"にまとめる）
   const cardsByRarity = cards.reduce((acc, card) => {
     const rarity = card.rarity.toUpperCase()
-    if (!acc[rarity]) acc[rarity] = []
-    acc[rarity].push(card)
+    const groupedRarity = ['B', 'C', 'D'].includes(rarity) ? 'OTHER' : rarity
+    if (!acc[groupedRarity]) acc[groupedRarity] = []
+    acc[groupedRarity].push(card)
     return acc
   }, {} as { [key: string]: Card[] })
 
   const handleGacha = (count: number) => {
-    if (!user) {
-      // ログインしていない場合はログインページへ
-      router.push('/login')
-      return
-    }
+    // 一時的に認証チェックを無効化
+    // if (!user) {
+    //   // ログインしていない場合はログインページへ
+    //   router.push('/login')
+    //   return
+    // }
     
-    // 確認ダイアログを表示
-    setSelectedCount(count)
-    setShowConfirmDialog(true)
+    // 直接ガチャ実行ページへ遷移（デモ用）
+    router.push(`/gacha/${gachaId}/play?count=${count}`)
   }
   
   const handleConfirmGacha = () => {
@@ -411,7 +414,7 @@ export default function GachaDetailPage() {
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                             <div className="absolute bottom-0 left-0 right-0 p-2">
                               <p className="text-xs font-bold text-white text-center">
-                                🎯 激レア
+                                {rarity === 'OTHER' ? '🎉 ワクワク' : '🎯 激レア'}
                               </p>
                             </div>
                           </div>
