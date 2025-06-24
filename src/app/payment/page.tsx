@@ -5,14 +5,12 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { FINCODE_CONFIG } from '@/lib/fincode/config';
-import Script from 'next/script';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function PaymentPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [userPoints, setUserPoints] = useState({ free: 0, paid: 0, total: 0 });
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -63,11 +61,7 @@ export default function PaymentPage() {
   }, []);
 
   const handlePurchase = async (plan: any) => {
-    if (!isScriptLoaded) {
-      toast.error('決済システムを初期化中です。もう一度お試しください。');
-      return;
-    }
-
+    // スクリプトの読み込みを待たずに進める
     setSelectedPlan(plan.id);
     setIsProcessing(true);
     
@@ -75,7 +69,10 @@ export default function PaymentPage() {
       // 決済セッション作成
       const response = await fetch('/api/payment/create-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // クッキーを含める
         body: JSON.stringify({
           packageId: plan.id,
           amount: plan.price,
@@ -84,7 +81,17 @@ export default function PaymentPage() {
       });
 
       if (!response.ok) {
-        throw new Error('決済セッションの作成に失敗しました');
+        const errorData = await response.json();
+        console.error('決済セッション作成エラー:', errorData);
+        
+        // 401エラーの場合は再ログインを促す
+        if (response.status === 401) {
+          toast.error('セッションが切れました。再度ログインしてください。');
+          router.push('/auth/login?redirect=/payment');
+          return;
+        }
+        
+        throw new Error(errorData.error || '決済セッションの作成に失敗しました');
       }
 
       const { sessionId, orderId } = await response.json();
@@ -93,7 +100,7 @@ export default function PaymentPage() {
       router.push(`/payment/checkout?package=${plan.id}&order=${orderId}`)
     } catch (error) {
       console.error('Purchase error:', error);
-      toast.error('決済処理の開始に失敗しました');
+      toast.error(error instanceof Error ? error.message : '決済処理の開始に失敗しました');
       setIsProcessing(false);
     }
   };
@@ -121,14 +128,7 @@ export default function PaymentPage() {
   };
 
   return (
-    <>
-      <Script
-        src="https://js.fincode.jp/v1/fincode.js"
-        strategy="afterInteractive"
-        onLoad={() => setIsScriptLoaded(true)}
-      />
-      
-      <main className="min-h-screen bg-gray-900 text-white">
+    <main className="min-h-screen bg-gray-900 text-white">
         <header className="bg-gray-800 p-4 border-b border-gray-700">
           <div className="container mx-auto flex items-center justify-between">
             <h1 className="text-2xl font-bold">ポイント購入</h1>
@@ -204,16 +204,24 @@ export default function PaymentPage() {
         </section>
 
         {/* 戻るボタン */}
-        <div className="mt-8 text-center">
+        <div className="mt-8 flex justify-center space-x-4">
+          <Link
+            href="/"
+            className="inline-block px-8 py-3 bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] hover:scale-105 rounded-lg font-bold transition-transform text-white"
+          >
+            🏠 TOPに戻る
+          </Link>
           <Link
             href="/gacha"
             className="inline-block px-8 py-3 bg-gray-600 hover:bg-gray-700 rounded-lg font-bold transition-colors"
           >
-            ガチャに戻る
+            🎰 ガチャに戻る
           </Link>
         </div>
       </div>
+      
+      {/* 処理中のローディング表示 */}
+      {isProcessing && <LoadingSpinner fullScreen size="large" />}
     </main>
-    </>
   );
 }

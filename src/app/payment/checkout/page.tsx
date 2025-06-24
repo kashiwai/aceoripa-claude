@@ -99,29 +99,55 @@ function CheckoutContent() {
     setIsLoading(true);
     
     try {
-      const response = await fetch('/api/payment/new-card-checkout', {
+      // カード情報を使用して決済処理
+      const response = await fetch('/api/payment/process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderId,
-          packageId,
-          amount: packageInfo.price,
-          points: packageInfo.points + packageInfo.bonus,
-          cardData,
-          saveCard: true, // デフォルトでカードを保存
+          cardNumber: cardData.cardNumber,
+          cardholderName: cardData.cardholderName,
+          expiryMonth: cardData.expiryMonth,
+          expiryYear: cardData.expiryYear,
+          cvv: cardData.cvv,
+          saveCard: cardData.saveCard,
         }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || '決済に失敗しました');
+        throw new Error(error.error || '決済に失敗しました');
       }
 
       const result = await response.json();
       
       if (result.requires3DSecure) {
         // 3Dセキュア認証が必要な場合
-        window.location.href = result.authUrl;
+        // 3DSフォームを作成して送信
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = result.authUrl;
+        
+        const paReqInput = document.createElement('input');
+        paReqInput.type = 'hidden';
+        paReqInput.name = 'PaReq';
+        paReqInput.value = result.paReq;
+        form.appendChild(paReqInput);
+        
+        const termUrlInput = document.createElement('input');
+        termUrlInput.type = 'hidden';
+        termUrlInput.name = 'TermUrl';
+        termUrlInput.value = result.termUrl;
+        form.appendChild(termUrlInput);
+        
+        const mdInput = document.createElement('input');
+        mdInput.type = 'hidden';
+        mdInput.name = 'MD';
+        mdInput.value = orderId;
+        form.appendChild(mdInput);
+        
+        document.body.appendChild(form);
+        form.submit();
       } else {
         // 決済完了
         toast.success('決済が完了しました！');

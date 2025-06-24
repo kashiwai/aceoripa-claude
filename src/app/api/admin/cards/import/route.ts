@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
         
         // プログレス表示用（大容量ファイル処理時）
         if (i % 200 === 0) {
-          console.log(`Processed ${i} / ${validCards.length} cards`)
+          // console.log(`Processed ${i} / ${validCards.length} cards`)
         }
         
       } catch (batchError) {

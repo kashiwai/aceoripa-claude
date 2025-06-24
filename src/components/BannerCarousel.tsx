@@ -29,54 +29,54 @@ interface Banner {
 const fallbackBanners: Banner[] = [
   {
     id: '1',
+    title: '🎊 新規登録キャンペーン',
+    subtitle: '今なら500ポイントプレゼント！',
+    description: '新規登録で500ポイント＋初回ガチャ割引クーポンプレゼント！',
+    imageUrl: '/images/banners/new-user-campaign.jpg',
+    linkUrl: '/auth/register',
+    linkType: 'campaign',
+    priority: 1,
+    isActive: true,
+    backgroundColor: 'from-yellow-400 via-pink-500 to-purple-600',
+    textColor: 'text-white'
+  },
+  {
+    id: '2',
+    title: '👥 友達紹介キャンペーン',
+    subtitle: '紹介で1000ポイントゲット！',
+    description: '友達を紹介するとあなたも友達も1000ポイントプレゼント！',
+    imageUrl: '/images/banners/referral-campaign.jpg',
+    linkUrl: '/mypage/referral',
+    linkType: 'campaign',
+    priority: 2,
+    isActive: true,
+    backgroundColor: 'from-blue-500 via-purple-500 to-pink-500',
+    textColor: 'text-white'
+  },
+  {
+    id: '3',
     title: 'ピカチュウ大祭り！',
     subtitle: 'SSR確率2倍UP開催中',
     description: '期間限定でSSR確率が2倍！この機会をお見逃しなく！',
     imageUrl: '/images/banners/real-gacha/S__44392515_0.jpg',
     linkUrl: '/gacha/1',
     linkType: 'gacha',
-    priority: 1,
+    priority: 3,
     isActive: true,
     backgroundColor: 'from-yellow-400 to-orange-500',
     textColor: 'text-white'
   },
   {
-    id: '2',
-    title: 'ナンジャモコレクション',
-    subtitle: '新登場プレミアムガチャ',
-    description: 'ナンジャモの限定カードが大量出現！',
-    imageUrl: '/images/banners/real-gacha/S__44392516_0.jpg',
-    linkUrl: '/gacha/2',
-    linkType: 'gacha',
-    priority: 2,
-    isActive: true,
-    backgroundColor: 'from-purple-500 to-pink-500',
-    textColor: 'text-white'
-  },
-  {
-    id: '3',
+    id: '4',
     title: 'リザードン祭盤',
     subtitle: '炎のプレミアオリパ開催',
     description: 'リザードン系カードの確率大幅UP！',
     imageUrl: '/images/banners/real-gacha/S__44392517_0.jpg',
     linkUrl: '/gacha/3',
     linkType: 'gacha',
-    priority: 3,
-    isActive: true,
-    backgroundColor: 'from-red-500 to-orange-600',
-    textColor: 'text-white'
-  },
-  {
-    id: '4',
-    title: '新規登録キャンペーン',
-    subtitle: '初回500ポイントプレゼント',
-    description: '今なら新規登録で500ポイントをプレゼント！',
-    imageUrl: '/images/banners/campaign-banner.jpg',
-    linkUrl: '/auth/register',
-    linkType: 'campaign',
     priority: 4,
     isActive: true,
-    backgroundColor: 'from-green-500 to-blue-500',
+    backgroundColor: 'from-red-500 to-orange-600',
     textColor: 'text-white'
   }
 ]
@@ -97,7 +97,7 @@ export default function BannerCarousel() {
           }
         }
       } catch (error) {
-        console.error('Error fetching banners:', error)
+        // console.error('Error fetching banners:', error)
         // フォールバックデータを使用
       } finally {
         setLoading(false)
@@ -113,7 +113,7 @@ export default function BannerCarousel() {
 
   if (loading || activeBanners.length === 0) {
     return (
-      <div className="w-full h-[300px] md:h-[400px] bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] flex items-center justify-center">
+      <div className="w-full h-[200px] md:h-[250px] bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] flex items-center justify-center">
         <div className="text-center text-white">
           <h2 className="text-3xl md:text-5xl font-black mb-2">ACEORIPA</h2>
           <p className="text-lg md:text-xl font-bold opacity-90">
@@ -151,7 +151,7 @@ export default function BannerCarousel() {
           slideShadows: true,
         }}
         loop={activeBanners.length > 1}
-        className="w-full h-[300px] md:h-[400px] lg:h-[500px]"
+        className="w-full h-[200px] md:h-[250px] lg:h-[300px]"
       >
         {activeBanners.map((banner) => (
           <SwiperSlide key={banner.id}>
@@ -172,10 +172,10 @@ export default function BannerCarousel() {
               {/* コンテンツ */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center px-4 max-w-4xl">
-                  <h2 className={`text-3xl md:text-5xl lg:text-6xl font-black mb-4 ${banner.textColor || 'text-white'} drop-shadow-2xl`}>
+                  <h2 className={`text-2xl md:text-3xl lg:text-4xl font-black mb-2 ${banner.textColor || 'text-white'} drop-shadow-2xl`}>
                     {banner.title}
                   </h2>
-                  <p className={`text-lg md:text-2xl lg:text-3xl font-bold mb-6 ${banner.textColor || 'text-white'} opacity-90 drop-shadow-lg`}>
+                  <p className={`text-base md:text-lg lg:text-xl font-bold mb-3 ${banner.textColor || 'text-white'} opacity-90 drop-shadow-lg`}>
                     {banner.subtitle}
                   </p>
                   {banner.description && (
@@ -185,8 +185,8 @@ export default function BannerCarousel() {
                   )}
                   
                   {/* CTAボタン */}
-                  <div className="mt-8">
-                    <span className="inline-block bg-white/20 backdrop-blur-sm border-2 border-white/30 hover:bg-white/30 hover:border-white/50 text-white font-black px-8 py-4 rounded-full text-lg md:text-xl transition-all duration-300 hover:scale-105 transform">
+                  <div className="mt-4">
+                    <span className="inline-block bg-white/20 backdrop-blur-sm border-2 border-white/30 hover:bg-white/30 hover:border-white/50 text-white font-black px-6 py-2 rounded-full text-sm md:text-base transition-all duration-300 hover:scale-105 transform">
                       {banner.linkType === 'gacha' ? 'ガチャを引く' : 
                        banner.linkType === 'campaign' ? 'キャンペーン詳細' : 
                        '詳細を見る'}

@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@supabase/supabase-js'
 import { toast } from 'react-hot-toast'
 import Link from 'next/link'
-import Image from 'next/image'
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 interface Card {
   id: string
@@ -34,33 +32,46 @@ const RARITY_COLORS = {
   'C': 'bg-gradient-to-r from-gray-400 to-gray-500'
 }
 
+// サービスロールキーで直接接続
+const supabaseAdmin = createClient(
+  'https://vshkekffhjbvszzpagjt.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzaGtla2ZmaGpidnN6enBhZ2p0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDQwMjYyNywiZXhwIjoyMDY1OTc4NjI3fQ.rIPYTr2iHWRoe6Q57GT1wz907luOMnYkUyJd6ZFvmIE'
+)
+
 export default function CardsPage() {
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
   const [rarityFilter, setRarityFilter] = useState('')
-  
-  const supabase = createClientComponentClient()
 
   const fetchCards = async () => {
     try {
-      let query = supabase
+      console.log('Fetching cards directly from Supabase...')
+      
+      // 直接Supabaseから取得
+      let query = supabaseAdmin
         .from('pokemon_cards')
         .select('*')
         .order('created_at', { ascending: false })
 
+      // 検索条件追加
       if (filter) {
-        query = query.ilike('card_name', `%${filter}%`)
+        query = query.or(`card_name.ilike.%${filter}%,product_code.ilike.%${filter}%`)
       }
-      
       if (rarityFilter) {
         query = query.eq('rarity', rarityFilter)
       }
 
       const { data, error } = await query
-
-      if (error) throw error
+      
+      // console.log('Supabase response:', { data, error })
+      
+      if (error) {
+        throw new Error(error.message)
+      }
+      
       setCards(data || [])
+      // console.log('Cards loaded:', data?.length || 0)
     } catch (error) {
       console.error('Error fetching cards:', error)
       toast.error('カード一覧の取得に失敗しました')
@@ -70,6 +81,7 @@ export default function CardsPage() {
   }
 
   useEffect(() => {
+    // console.log('CardsPage mounted, fetching cards...')
     fetchCards()
   }, [filter, rarityFilter])
 
@@ -77,12 +89,16 @@ export default function CardsPage() {
     if (!confirm('このカードを削除しますか？')) return
 
     try {
-      const { error } = await supabase
+      console.log('Deleting card:', id)
+      
+      const { error } = await supabaseAdmin
         .from('pokemon_cards')
         .delete()
         .eq('id', id)
-
-      if (error) throw error
+      
+      if (error) {
+        throw new Error(error.message)
+      }
 
       toast.success('カードを削除しました')
       fetchCards()
@@ -100,6 +116,8 @@ export default function CardsPage() {
     )
   }
 
+  // console.log('Rendering CardsPage, cards:', cards.length, cards)
+  
   return (
     <div>
       {/* ヘッダー */}
@@ -180,15 +198,17 @@ export default function CardsPage() {
             <div className="card h-100">
               {/* カード画像 */}
               <div className="position-relative" style={{aspectRatio: '2/3', backgroundColor: '#f8f9fa'}}>
-                <Image
+                <img
                   src={card.image_url || '/images/ngcard.jpg'}
                   alt={card.card_name}
-                  fill
-                  className="card-img-top"
+                  className="card-img-top w-100 h-100"
                   style={{objectFit: 'cover'}}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement
-                    target.src = '/images/ngcard.jpg'
+                    // エラー時はAPIルートを試す
+                    if (target.src.includes('/images/ngcard.jpg')) {
+                      target.src = '/api/test-image'
+                    }
                   }}
                 />
                 {/* レアリティバッジ */}

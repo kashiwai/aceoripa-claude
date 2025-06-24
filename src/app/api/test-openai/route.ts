@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 400 });
     }
 
-    console.log('Testing DALL-E 3 with prompt:', prompt);
+    // console.log('Testing DALL-E 3 with prompt:', prompt);
 
     const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       }, { status: response.status });
     }
 
-    console.log('DALL-E 3 generation successful:', data);
+    // console.log('DALL-E 3 generation successful:', data);
 
     return NextResponse.json({
       success: true,

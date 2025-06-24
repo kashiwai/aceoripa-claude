@@ -7,6 +7,10 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { UltimateGachaExperience } from '@/components/effects/UltimateGachaExperience'
 import { EmotionalGachaEffects } from '@/components/effects/EmotionalGachaEffects'
+import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/useAuth'
+import { usePoints } from '@/hooks/usePoints'
+import { toast } from 'react-hot-toast'
 
 interface Card {
   id: string
@@ -23,6 +27,13 @@ const RARITY_COLORS: { [key: string]: string } = {
   'B': 'bg-gradient-to-r from-green-400 to-emerald-400',
   'C': 'bg-gradient-to-r from-gray-400 to-gray-500',
   'OTHER': 'bg-gradient-to-r from-green-400 via-blue-400 to-purple-400'
+}
+
+interface GachaProduct {
+  id: string
+  name: string
+  price: number
+  imageUrl?: string
 }
 
 export default function GachaPlayPage() {
@@ -42,6 +53,59 @@ export default function GachaPlayPage() {
   const [showUltimateEffect, setShowUltimateEffect] = useState(false)
   const [currentEffectCard, setCurrentEffectCard] = useState<Card | null>(null)
   const [effectQueue, setEffectQueue] = useState<Card[]>([])
+  const [gachaInfo, setGachaInfo] = useState<GachaProduct | null>(null)
+  const [authChecking, setAuthChecking] = useState(true)
+
+  // 認証とポイント管理
+  const { user, loading: authLoading } = useAuth()
+  const { points, fetchPoints, hasEnoughPoints } = usePoints()
+  const supabase = createClient()
+
+  // 認証チェック
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        // 未ログインの場合、ログインページへリダイレクト
+        const currentUrl = window.location.pathname + window.location.search
+        router.push(`/auth/login?redirect=${encodeURIComponent(currentUrl)}`)
+        return
+      }
+      
+      setAuthChecking(false)
+    }
+    
+    checkAuth()
+  }, [router, supabase])
+
+  // ガチャ情報の取得
+  useEffect(() => {
+    const fetchGachaInfo = async () => {
+      try {
+        const response = await fetch(`/api/gacha/products/${gachaId}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.product) {
+            setGachaInfo(data.product)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching gacha info:', error)
+        // フォールバック
+        setGachaInfo({
+          id: gachaId,
+          name: 'ポケモンガチャ',
+          price: 150,
+          imageUrl: '/images/banners/real-gacha/S__44392515_0.jpg'
+        })
+      }
+    }
+    
+    if (!authChecking) {
+      fetchGachaInfo()
+    }
+  }, [gachaId, authChecking])
 
   // サンプルカードプール
   const sampleCards: Card[] = [
@@ -58,7 +122,17 @@ export default function GachaPlayPage() {
   ]
 
   // ガチャロジック（本番仕様）
-  const executeGacha = () => {
+  const executeGacha = async () => {
+    // ポイントチェック
+    const requiredPoints = (gachaInfo?.price || 150) * count
+    
+    if (!hasEnoughPoints(requiredPoints)) {
+      toast.error(`ポイントが不足しています。必要ポイント: ${requiredPoints}`)
+      // ポイント不足の場合、支払いページへリダイレクト
+      router.push('/payment')
+      return
+    }
+    
     setIsPlaying(true)
     setCurrentPhase('spinning')
     setRevealedCards([])
@@ -252,7 +326,7 @@ export default function GachaPlayPage() {
       oscillator.start(audioContext.currentTime)
       oscillator.stop(audioContext.currentTime + 0.5)
     } catch (error) {
-      console.log('Audio not supported:', error)
+      // console.log('Audio not supported:', error)
     }
   }
 
@@ -264,6 +338,18 @@ export default function GachaPlayPage() {
       case 'B': case 'C': case 'D': return { text: '🎉 ワクワクカード', color: 'text-green-400' }
       default: return { text: '🎉 ワクワクカード', color: 'text-green-400' }
     }
+  }
+
+  // 認証チェック中またはローディング中の表示
+  if (authChecking || authLoading) {
+    return (
+      <div className="fixed inset-0 bg-[#1a1a1a] z-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-32 h-32 border-8 border-[#FF0033] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-2xl font-bold text-[#FF0033]">認証確認中...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -337,8 +423,16 @@ export default function GachaPlayPage() {
                 ガチャ実行
               </h1>
             </div>
-            <div className="text-lg font-bold text-gray-700">
-              {count}回ガチャ
+            <div className="flex items-center space-x-6">
+              <div className="text-right">
+                <p className="text-xs text-gray-600">保有ポイント</p>
+                <p className="text-xl font-black text-[#FF0033]">
+                  {points.total_points.toLocaleString()}P
+                </p>
+              </div>
+              <div className="text-lg font-bold text-gray-700">
+                {count}回ガチャ
+              </div>
             </div>
           </div>
         </div>
@@ -359,6 +453,20 @@ export default function GachaPlayPage() {
                 ✨ 激レアカードが出現するかも！？
               </p>
               
+              {/* ポイント情報表示 */}
+              <div className="mt-6 bg-gray-800 rounded-xl p-4 inline-block">
+                <p className="text-gray-400 mb-2">必要ポイント</p>
+                <p className="text-3xl font-black text-yellow-400">
+                  {((gachaInfo?.price || 150) * count).toLocaleString()}P
+                </p>
+                <div className="mt-2 text-sm">
+                  {hasEnoughPoints((gachaInfo?.price || 150) * count) ? (
+                    <p className="text-green-400">✓ ポイント残高OK</p>
+                  ) : (
+                    <p className="text-red-400">✗ ポイントが不足しています</p>
+                  )}
+                </div>
+              </div>
             </div>
             
             <button

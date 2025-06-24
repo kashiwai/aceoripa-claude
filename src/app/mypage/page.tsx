@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 // import { useNotificationPermission } from '@/hooks/useNotificationPermission'
 // import CampaignSection from '@/components/CampaignSection'
 
@@ -214,7 +216,31 @@ function SettingsTab() {
                 <span className="text-gray-400">→</span>
               </div>
             </button>
-            <button className="w-full text-left bg-red-900/50 hover:bg-red-900/70 border border-red-800 rounded-lg p-4 transition text-red-400">
+            <button 
+              onClick={async () => {
+                // 完全ログアウト処理
+                await supabase.auth.signOut()
+                
+                // ローカルストレージとセッションストレージをクリア
+                if (typeof window !== 'undefined') {
+                  localStorage.clear()
+                  sessionStorage.clear()
+                  
+                  // Supabase関連のクッキーを削除
+                  document.cookie.split(";").forEach((c) => {
+                    const cookie = c.trim()
+                    const eqPos = cookie.indexOf("=")
+                    const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie
+                    if (name.startsWith('sb-')) {
+                      document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+                    }
+                  })
+                }
+                
+                // ログアウトページへリダイレクト
+                router.push('/auth/logout')
+              }}
+              className="w-full text-left bg-red-900/50 hover:bg-red-900/70 border border-red-800 rounded-lg p-4 transition text-red-400">
               <div className="flex items-center justify-between">
                 <span className="font-medium">ログアウト</span>
                 <span className="text-red-400">→</span>
@@ -232,64 +258,73 @@ export default function MyPage() {
   const [gachaHistory, setGachaHistory] = useState<GachaHistory[]>([])
   const [activeTab, setActiveTab] = useState<'overview' | 'history' | 'collection' | 'campaigns' | 'settings'>('overview')
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const supabase = createClientComponentClient()
 
   useEffect(() => {
-    fetchUserData()
+    checkAuth()
   }, [])
+
+  const checkAuth = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        // 未ログインの場合はログインページへリダイレクト
+        router.push('/auth/login?redirect=/mypage')
+        return
+      }
+      
+      // ログイン済みの場合はユーザーデータを取得
+      fetchUserData()
+    } catch (error) {
+      console.error('Auth check error:', error)
+      router.push('/auth/login?redirect=/mypage')
+    }
+  }
 
   const fetchUserData = async () => {
     try {
-      // ダミーデータ（より充実したデータ）
+      // 実際のデータベースから取得
+      const response = await fetch('/api/user/profile')
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile')
+      }
+
+      const data = await response.json()
+      
+      // ユーザー情報を設定
       setUser({
-        id: '1',
-        name: 'ガチャマスター',
-        email: 'user@example.com',
-        avatar: '/api/placeholder/200/200',
-        points: 15000,
-        level: 25,
-        totalSpent: 50000,
-        joinDate: '2024-01-15'
+        id: data.profile.id,
+        name: data.profile.name,
+        email: data.profile.email,
+        avatar: data.profile.avatar,
+        points: data.profile.points,
+        level: data.profile.level,
+        totalSpent: data.profile.totalSpent,
+        joinDate: data.profile.joinDate
       })
 
-      setGachaHistory([
-        {
-          id: '1',
-          gachaName: 'ポケモンカード151ガチャ',
-          date: '2024-06-20',
-          count: 10,
-          amount: 8000,
-          results: [
-            { id: '1', name: 'リザードンex', rarity: 'SSR', imageUrl: '/api/placeholder/200/200?text=リザードンex' },
-            { id: '2', name: 'ピカチュウ', rarity: 'SR', imageUrl: '/api/placeholder/200/200?text=ピカチュウ' },
-            { id: '3', name: 'フシギバナ', rarity: 'R', imageUrl: '/api/placeholder/200/200?text=フシギバナ' },
-            { id: '4', name: 'カメックス', rarity: 'R', imageUrl: '/api/placeholder/200/200?text=カメックス' },
-            { id: '5', name: 'フシギダネ', rarity: 'N', imageUrl: '/api/placeholder/200/200?text=フシギダネ' },
-          ]
-        },
-        {
-          id: '2',
-          gachaName: 'シャイニートレジャー',
-          date: '2024-06-19',
-          count: 5,
-          amount: 6000,
-          results: [
-            { id: '6', name: 'ミュウex', rarity: 'SSR', imageUrl: '/api/placeholder/200/200?text=ミュウex' },
-            { id: '7', name: 'イーブイ', rarity: 'SR', imageUrl: '/api/placeholder/200/200?text=イーブイ' },
-          ]
-        },
-        {
-          id: '3',
-          gachaName: 'ポケモンカード151ガチャ',
-          date: '2024-06-18',
-          count: 1,
-          amount: 800,
-          results: [
-            { id: '8', name: 'コイキング', rarity: 'N', imageUrl: '/api/placeholder/200/200?text=コイキング' },
-          ]
-        }
-      ])
+      // ガチャ履歴を設定
+      setGachaHistory(data.gachaHistory)
+      
     } catch (error) {
       console.error('Failed to fetch user data:', error)
+      
+      // エラー時はダミーデータを表示（開発用）
+      setUser({
+        id: '1',
+        name: 'ゲストユーザー',
+        email: 'guest@example.com',
+        avatar: '/images/ngcard.jpg',
+        points: 0,
+        level: 1,
+        totalSpent: 0,
+        joinDate: new Date().toISOString()
+      })
+      
+      setGachaHistory([])
     } finally {
       setLoading(false)
     }

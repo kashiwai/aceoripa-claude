@@ -11,8 +11,13 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import CampaignBanner from '@/components/CampaignBanner'
 import BannerCarousel from '@/components/BannerCarousel'
+import LoadingSpinner from '@/components/LoadingSpinner'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 export default function HomePage() {
+  const supabase = createClientComponentClient()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  
   // フォールバックデータを初期値として設定
   const gachaProductsFallback = [
     { 
@@ -65,7 +70,39 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false)
   const [gachaProducts, setGachaProducts] = useState<any[]>(gachaProductsFallback)
   const [error, setError] = useState<string | null>(null)
+  const [showSquareBanners, setShowSquareBanners] = useState(true)
   const router = useRouter()
+
+  // ログイン状態とバナー設定をチェック
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setIsLoggedIn(!!user)
+    }
+    
+    const fetchBannerSettings = async () => {
+      try {
+        const response = await fetch('/api/admin/square-banners')
+        if (response.ok) {
+          const data = await response.json()
+          // console.log('Square banner settings response:', data)
+          if (data.success && data.data) {
+            // console.log('showSquareBanners:', data.data.showSquareBanners)
+            setShowSquareBanners(data.data.showSquareBanners ?? true)
+            if (data.data.banners && Array.isArray(data.data.banners)) {
+              setSquareBanners(data.data.banners)
+            }
+          }
+        }
+      } catch (error) {
+        // console.error('Banner settings fetch error:', error)
+        // エラーの場合はデフォルト設定を使用
+      }
+    }
+    
+    checkUser()
+    fetchBannerSettings()
+  }, [])
 
   // APIからガチャ商品データを取得
   useEffect(() => {
@@ -78,7 +115,7 @@ export default function HomePage() {
         const data = await response.json()
         setGachaProducts(data.products || [])
       } catch (err) {
-        console.error('Error fetching gacha products:', err)
+        // console.error('Error fetching gacha products:', err)
         setError(err instanceof Error ? err.message : 'エラーが発生しました')
         // フォールバックデータを使用
         setGachaProducts(gachaProductsFallback)
@@ -87,47 +124,95 @@ export default function HomePage() {
       }
     }
 
+    const fetchSquareBanners = async () => {
+      try {
+        const response = await fetch('/api/banners/square')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.banners && data.banners.length > 0) {
+            setSquareBanners(data.banners)
+          }
+        }
+      } catch (error) {
+        // console.error('Error fetching square banners:', error)
+        // フォールバックデータを使用
+      }
+    }
+
     // 強制的にローディングを解除（1秒後）
     const timeoutId = setTimeout(() => {
       setLoading(false)
     }, 1000)
 
-    fetchGachaProducts().then(() => {
+    Promise.all([fetchGachaProducts(), fetchSquareBanners()]).then(() => {
       clearTimeout(timeoutId)
     })
 
     return () => clearTimeout(timeoutId)
   }, [])
 
-  const banners = [
+  const [squareBanners, setSquareBanners] = useState([
     { 
       id: 1, 
       gachaId: '1',
-      title: 'ポケモンカード151', 
-      subtitle: 'リザードンex確率UP!', 
-      color: 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B]',
-      image: '/images/pokemon-151.jpg'
+      title: '激アツ！ピカチュウ祭り', 
+      subtitle: 'マリオピカチュウPSA10確定！', 
+      color: 'bg-gradient-to-r from-[#FFD700] to-[#FF6600]',
+      image: '/images/basebg/A_luxurious_gold-framed_Pokmon_trading_card_is_t-1750539990520.png'
     },
     { 
       id: 2, 
       gachaId: '2',
-      title: 'シャイニートレジャー', 
-      subtitle: 'SSR確定オリパ', 
-      color: 'bg-gradient-to-r from-[#FF0033] to-[#FFD700]',
-      image: '/images/メインキャンペーンバナー.jpg'
+      title: 'プレミアムBOX', 
+      subtitle: 'SSレア確率50%UP！', 
+      color: 'bg-gradient-to-r from-[#9333EA] to-[#EC4899]',
+      image: '/images/basebg/A_dazzling_spectacle_featuring_a_dazzling_Pokmon_-1750539986706.png'
     },
     { 
       id: 3, 
       gachaId: '3',
-      title: '期間限定キャンペーン', 
-      subtitle: '10連ガチャ20%OFF', 
-      color: 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B]',
-      image: '/images/ポケモンカード151オリパ.jpg'
+      title: '限定100パック！', 
+      subtitle: 'ナンジャモ&リーリエ狙い撃ち', 
+      color: 'bg-gradient-to-r from-[#0EA5E9] to-[#6366F1]',
+      image: '/images/basebg/A_vibrant_and_colorful_backdrop_featuring_a_rainbo-1750539998852.png'
     },
-  ]
+    { 
+      id: 4, 
+      gachaId: '4',
+      title: '新春超豪華オリパ', 
+      subtitle: 'アセロラPSA10大量封入！', 
+      color: 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B]',
+      image: '/images/basebg/A_festive_scene_with_a_large_shimmering_drum_at_t-1750539994085.png'
+    },
+    { 
+      id: 5, 
+      gachaId: '5',
+      title: 'ブラッキー感謝祭', 
+      subtitle: 'ブラッキーex PSA10確率3倍！', 
+      color: 'bg-gradient-to-r from-[#1F2937] to-[#7C3AED]',
+      image: '/images/basebg/A_cosmic_scene_featuring_a_dazzling_trading_card_-1750539978161.png'
+    },
+  ])
 
   return (
     <div className="min-h-screen bg-white">
+      <style jsx global>{`
+        .banner-swiper {
+          padding: 0 !important;
+        }
+        .banner-swiper .swiper-wrapper {
+          padding: 8px 0;
+        }
+        .banner-swiper .swiper-slide {
+          width: 300px !important;
+        }
+        /* スマホ用のスタイル */
+        @media (max-width: 640px) {
+          .banner-swiper .swiper-slide {
+            width: 150px !important;
+          }
+        }
+      `}</style>
       {/* ヘッダー */}
       <header className="bg-white shadow-lg sticky top-0 z-50 border-b-4 border-[#FF0033]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -138,16 +223,29 @@ export default function HomePage() {
                 ONLINE
               </span>
             </div>
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link href="/gacha" className="text-gray-700 hover:text-[#FF0033] font-bold text-lg transition">
+            <nav className="flex items-center space-x-2 md:space-x-8">
+              <Link href="/gacha" className="text-gray-700 hover:text-[#FF0033] font-bold text-sm md:text-lg transition">
                 ガチャ
               </Link>
-              <Link href="/mypage" className="text-gray-700 hover:text-[#FF0033] font-bold text-lg transition">
-                マイページ
-              </Link>
-              <Link href="/purchase" className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white font-bold px-6 py-3 rounded-full hover:scale-105 transition transform">
-                ポイント購入
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <Link href="/mypage" className="text-gray-700 hover:text-[#FF0033] font-bold text-sm md:text-lg transition">
+                    マイページ
+                  </Link>
+                  <Link href="/purchase" className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white font-bold px-3 py-2 md:px-6 md:py-3 rounded-full hover:scale-105 transition transform text-sm md:text-base">
+                    ポイント購入
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/auth/login" className="text-gray-700 hover:text-[#FF0033] font-bold text-sm md:text-lg transition">
+                    ログイン
+                  </Link>
+                  <Link href="/auth/register" className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white font-bold px-3 py-2 md:px-6 md:py-3 rounded-full hover:scale-105 transition transform text-sm md:text-base">
+                    新規登録
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </div>
@@ -157,42 +255,75 @@ export default function HomePage() {
       <BannerCarousel />
 
       {/* キャンペーンバナー */}
-      <CampaignBanner />
-
-      {/* メインバナースライダー（400x400） */}
-      <section className="bg-gray-100 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Swiper
-            modules={[Autoplay, Navigation]}
-            spaceBetween={20}
-            slidesPerView="auto"
-            navigation
-            autoplay={{ delay: 3000 }}
-            className="banner-swiper"
-          >
-            {banners.map((banner) => (
-              <SwiperSlide key={banner.id}>
+      <div className="-mb-4">
+        <CampaignBanner />
+      </div>
+      {/* メインバナースライダー（300x300） */}
+      {showSquareBanners && squareBanners.filter(banner => banner.isActive !== false).length > 0 && (
+        <section className="bg-gray-100 -mb-2">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-0">
+            <Swiper
+              modules={[Autoplay, Navigation]}
+              spaceBetween={8}
+              slidesPerView="auto"
+              navigation
+              autoplay={{ delay: 3000 }}
+              className="banner-swiper"
+            >
+              {squareBanners.filter(banner => banner.isActive !== false).map((banner) => (
+              <SwiperSlide key={banner.id} className="!w-[150px] sm:!w-[300px]">
                 <div 
                   onClick={() => router.push(`/gacha/${banner.gachaId}`)}
-                  className="w-full h-full bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform"
+                  className="w-[150px] h-[150px] sm:w-[300px] sm:h-[300px] bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform relative"
                 >
-                  <div className={`h-2/3 ${banner.color} relative flex items-center justify-center`}>
-                    <h3 className="text-2xl font-black text-white text-center px-4">{banner.title}</h3>
-                  </div>
-                  <div className="h-1/3 p-4 flex items-center justify-center">
-                    <p className="text-base font-bold text-gray-700 text-center">{banner.subtitle}</p>
-                  </div>
+                  {/* 画像バナー */}
+                  {banner.image ? (
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={banner.image}
+                        alt={banner.title}
+                        fill
+                        sizes="(max-width: 640px) 150px, 300px"
+                        className="object-cover"
+                        unoptimized
+                        priority
+                      />
+                      {/* テキストオーバーレイ */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-2 sm:p-4">
+                        <h3 className="text-sm sm:text-xl font-black text-white mb-0.5 sm:mb-1 drop-shadow-lg">
+                          {banner.title}
+                        </h3>
+                        <p className="text-xs sm:text-sm font-bold text-white/90 drop-shadow-md">
+                          {banner.subtitle}
+                        </p>
+                      </div>
+                      {/* 装飾的な要素 */}
+                      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-[#FF0033] text-white px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold animate-pulse">
+                        NEW
+                      </div>
+                    </div>
+                  ) : (
+                    /* 画像がない場合のフォールバック */
+                    <>
+                      <div className={`h-2/3 ${banner.color} relative flex items-center justify-center`}>
+                        <h3 className="text-2xl font-black text-white text-center px-4">{banner.title}</h3>
+                      </div>
+                      <div className="h-1/3 p-4 flex items-center justify-center">
+                        <p className="text-base font-bold text-gray-700 text-center">{banner.subtitle}</p>
+                      </div>
+                    </>
+                  )}
                 </div>
               </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
-      </section>
-
+              ))}
+            </Swiper>
+          </div>
+        </section>
+      )}
       {/* メインガチャ商品（1024x1024縦並び） */}
-      <section className="py-16">
+      <section className="-mt-6">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-black text-center text-[#FF0033] mb-12">
+          <h2 className="text-4xl font-black text-center text-[#FF0033] mb-8">
             オリパラインナップ
           </h2>
           <div className="space-y-8">
@@ -226,11 +357,11 @@ export default function HomePage() {
                 </div>
                 
                 {/* 商品情報 */}
-                <div className="p-8">
-                  <h3 className="text-3xl font-black text-gray-800 mb-4">{product.name}</h3>
+                <div className="p-4">
+                  <h3 className="text-3xl font-black text-gray-800 mb-2">{product.name}</h3>
                     
                     {/* 残り枚数と進行状況バー */}
-                    <div className="mt-4 mb-4">
+                    <div className="mb-2">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-bold text-gray-700">
                           残り {product.remaining.toLocaleString()}枚 / {product.total.toLocaleString()}枚中
@@ -279,7 +410,7 @@ export default function HomePage() {
                     </div>
                     
                   {/* 価格表示 */}
-                  <div className="mb-6">
+                  <div className="mb-3">
                     <div className="flex items-baseline justify-center">
                       <span className="text-lg text-gray-600">1口</span>
                       <span className="text-4xl font-black text-[#FF0033] mx-2">{product.price.toLocaleString()}</span>
@@ -319,14 +450,7 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {loading && (
-        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-32 h-32 border-8 border-[#FF0033] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-2xl font-bold text-[#FF0033]">Loading...</p>
-          </div>
-        </div>
-      )}
+      {loading && <LoadingSpinner fullScreen size="large" />}
     </div>
   )
 }

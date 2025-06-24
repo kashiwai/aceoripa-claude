@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     
     // タイムアウトエラーの場合
     if (error.name === 'AbortError') {
-      console.log('AI generation timeout - returning placeholder');
+      // console.log('AI generation timeout - returning placeholder');
       return NextResponse.json({
         url: `/api/placeholder/1024/1024?text=${encodeURIComponent('Generated Card')}`,
         revised_prompt: 'Timeout - returning placeholder',

@@ -68,7 +68,7 @@ export const ColorfulBannerSection = () => {
             gachaType={selectedGachaType}
             onClose={() => setShowGachaUI(false)}
             onPull={(count) => {
-              console.log(`${count}回ガチャを実行`);
+              // console.log(`${count}回ガチャを実行`);
               // ここでガチャ実行処理
             }}
           />

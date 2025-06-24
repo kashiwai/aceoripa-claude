@@ -10,23 +10,27 @@ export async function PATCH(
     const body = await request.json()
     const supabase = await createClient()
 
+    const updateData: any = {}
+    
+    // フロントエンド → DB カラムマッピング
+    if (body.title !== undefined) updateData.title = body.title
+    if (body.subtitle !== undefined) updateData.subtitle = body.subtitle
+    if (body.description !== undefined) updateData.description = body.description
+    if (body.imageUrl !== undefined) updateData.image_url = body.imageUrl
+    if (body.linkUrl !== undefined) updateData.link_url = body.linkUrl
+    if (body.linkType !== undefined) updateData.link_type = body.linkType
+    if (body.priority !== undefined) updateData.priority = body.priority
+    if (body.isActive !== undefined) updateData.is_active = body.isActive
+    if (body.startDate !== undefined) updateData.start_date = body.startDate
+    if (body.endDate !== undefined) updateData.end_date = body.endDate
+    if (body.backgroundColor !== undefined) updateData.background_color = body.backgroundColor
+    if (body.textColor !== undefined) updateData.text_color = body.textColor
+    
+    updateData.updated_at = new Date().toISOString()
+
     const { data: banner, error } = await supabase
       .from('banners')
-      .update({
-        title: body.title,
-        subtitle: body.subtitle,
-        description: body.description,
-        image_url: body.imageUrl,
-        link_url: body.linkUrl,
-        link_type: body.linkType,
-        priority: body.priority,
-        is_active: body.isActive,
-        start_date: body.startDate,
-        end_date: body.endDate,
-        background_color: body.backgroundColor,
-        text_color: body.textColor,
-        updated_at: new Date().toISOString()
-      })
+      .update(updateData)
       .eq('id', params.id)
       .select()
       .single()
@@ -39,9 +43,28 @@ export async function PATCH(
       }, { status: 500 })
     }
 
+    // カラムマッピング（DB → フロントエンド）
+    const mappedBanner = {
+      id: banner.id,
+      title: banner.title,
+      subtitle: banner.subtitle,
+      description: banner.description,
+      imageUrl: banner.image_url,
+      linkUrl: banner.link_url,
+      linkType: banner.link_type,
+      priority: banner.priority,
+      isActive: banner.is_active,
+      startDate: banner.start_date,
+      endDate: banner.end_date,
+      backgroundColor: banner.background_color,
+      textColor: banner.text_color,
+      createdAt: banner.created_at,
+      updatedAt: banner.updated_at
+    }
+
     return NextResponse.json({
       success: true,
-      banner
+      banner: mappedBanner
     })
   } catch (error) {
     console.error('Error updating banner:', error)

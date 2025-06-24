@@ -32,14 +32,14 @@ export class OpenAIVideoAPI {
     }
 
     // Soraは現在一般公開されていないため、DALL-E 3 + Canvas アニメーションを使用
-    console.log('Soraは現在利用できません。DALL-E 3 + Canvas アニメーションを使用します。');
+    // console.log('Soraは現在利用できません。DALL-E 3 + Canvas アニメーションを使用します。');
     return await this.generatePseudoVideoWithDALLE(request);
   }
 
   // DALL-E 3で画像生成 + CSS/WebGL動画演出
   async generatePseudoVideoWithDALLE(request: OpenAIVideoRequest): Promise<OpenAIVideoResponse> {
     try {
-      console.log('DALL-E 3で画像生成開始...', request.prompt);
+      // console.log('DALL-E 3で画像生成開始...', request.prompt);
       
       // DALL-E 3で高品質画像を生成
       const imageResponse = await fetch(`${this.baseUrl}/images/generations`, {
@@ -66,7 +66,7 @@ export class OpenAIVideoAPI {
       }
 
       const imageData = await imageResponse.json();
-      console.log('DALL-E 3画像生成成功:', imageData);
+      // console.log('DALL-E 3画像生成成功:', imageData);
       
       const imageUrl = imageData.data[0].url;
 

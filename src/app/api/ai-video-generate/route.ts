@@ -21,10 +21,10 @@ export async function POST(request: NextRequest) {
     // OpenAI (DALL-E 3 + アニメーション) を試行
     if (preferredService === 'openai' || preferredService === 'auto' || !preferredService) {
       try {
-        console.log('🤖 OpenAI DALL-E 3での生成を試行...');
+        // console.log('🤖 OpenAI DALL-E 3での生成を試行...');
         result = await generateOpenAIGachaVideo(pokemonName, pokemonType, rarity);
         serviceUsed = 'OpenAI DALL-E 3';
-        console.log('✅ OpenAI生成成功:', result);
+        // console.log('✅ OpenAI生成成功:', result);
       } catch (error) {
         console.warn('⚠️ OpenAI生成失敗:', error);
         if (preferredService === 'openai') {
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         console.log('🎨 Leonardo.aiでの生成を試行...');
         result = await generateGachaVideo(pokemonName, pokemonType, rarity);
         serviceUsed = 'Leonardo.ai';
-        console.log('✅ Leonardo生成成功:', result);
+        // console.log('✅ Leonardo生成成功:', result);
       } catch (error) {
         console.warn('⚠️ Leonardo生成失敗:', error);
         if (preferredService === 'leonardo') {

@@ -65,7 +65,7 @@ export default function AnnouncementPopupManager() {
         }
       }
     } catch (error) {
-      console.error('Failed to fetch announcements:', error)
+      // console.error('Failed to fetch announcements:', error)
     }
   }
 
@@ -77,7 +77,7 @@ export default function AnnouncementPopupManager() {
         body: JSON.stringify({ announcementId })
       })
     } catch (error) {
-      console.error('Failed to mark as read:', error)
+      // console.error('Failed to mark as read:', error)
     }
   }
 

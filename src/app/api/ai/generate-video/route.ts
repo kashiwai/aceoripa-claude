@@ -5,12 +5,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { effectType, scene, settings, prompt } = body
 
-    console.log('Video generation request:', {
-      effectType,
-      scene,
-      settings,
-      prompt
-    })
+    // console.log('Video generation request:', {
+    //   effectType,
+    //   scene,
+    //   settings,
+    //   prompt
+    // })
 
     // 現在はモック実装（デモ用）
     // 実際の動画生成AIサービスとの連携は今後実装予定

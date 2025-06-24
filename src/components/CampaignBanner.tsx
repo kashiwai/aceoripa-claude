@@ -23,6 +23,7 @@ export default function CampaignBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [showAllBanners, setShowAllBanners] = useState(true);
 
   useEffect(() => {
     fetchCampaignBanners();
@@ -40,7 +41,37 @@ export default function CampaignBanner() {
 
   const fetchCampaignBanners = async () => {
     try {
-      // 一旦ダミーデータを使用
+      // APIから設定を取得
+      const response = await fetch('/api/admin/campaign-banners')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.data) {
+          setShowAllBanners(data.data.showAllBanners ?? true)
+          if (!data.data.showAllBanners) {
+            setBanners([])
+            setLoading(false)
+            return
+          }
+          const activeBanners = data.data.banners
+            .filter((banner: any) => banner.isActive !== false)
+            .map((banner: any) => ({
+              id: banner.id,
+              title: banner.title,
+              subtitle: banner.subtitle,
+              imageUrl: '',
+              linkUrl: '/mypage?tab=campaigns',
+              bgColor: banner.bgColor,
+              textColor: 'text-white',
+              ctaText: '詳細を見る',
+              priority: banner.priority
+            }))
+          setBanners(activeBanners)
+          setLoading(false)
+          return
+        }
+      }
+      
+      // フォールバックデータ
       const dummyBanners: CampaignBanner[] = [
         {
           id: '1',
@@ -77,16 +108,16 @@ export default function CampaignBanner() {
         }
       ];
 
-      setBanners(dummyBanners);
-      setLoading(false);
+      setBanners(dummyBanners)
+      setLoading(false)
     } catch (error) {
-      console.error('Failed to fetch campaign banners:', error);
+      // console.error('Failed to fetch campaign banners:', error);
       setLoading(false);
     }
   };
 
-  if (loading || banners.length === 0 || !isVisible) {
-    return null;
+  if (loading || !showAllBanners || banners.length === 0 || !isVisible) {
+    return null
   }
 
   const currentBanner = banners[currentIndex];
@@ -103,19 +134,19 @@ export default function CampaignBanner() {
           className={`relative bg-gradient-to-r ${currentBanner.bgColor} ${currentBanner.textColor}`}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative py-8 md:py-12">
+            <div className="relative py-2 md:py-3">
               <div className="flex flex-col md:flex-row items-center justify-between">
                 {/* テキストコンテンツ */}
-                <div className="text-center md:text-left mb-4 md:mb-0 md:mr-8">
-                  <h2 className="text-2xl md:text-3xl font-black mb-2">
+                <div className="text-center md:text-left mb-2 md:mb-0 md:mr-8">
+                  <h2 className="text-xl md:text-2xl font-black mb-1">
                     {currentBanner.title}
                   </h2>
-                  <p className="text-lg md:text-xl opacity-90 mb-4">
+                  <p className="text-sm md:text-base opacity-90 mb-2">
                     {currentBanner.subtitle}
                   </p>
                   <Link
                     href={currentBanner.linkUrl}
-                    className="inline-block bg-white text-gray-900 font-bold px-6 py-3 rounded-full hover:bg-gray-100 transition transform hover:scale-105 shadow-lg"
+                    className="inline-block bg-white text-gray-900 font-bold px-4 py-2 rounded-full hover:bg-gray-100 transition transform hover:scale-105 shadow-lg text-sm"
                   >
                     {currentBanner.ctaText} →
                   </Link>

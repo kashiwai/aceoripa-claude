@@ -4,41 +4,47 @@ import { Suspense } from 'react'
 
 async function getUsers(page: number = 1, perPage: number = 20) {
   try {
-    const supabase = await createClient()
-    const offset = (page - 1) * perPage
+    // APIエンドポイントから取得
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/admin/users?page=${page}&perPage=${perPage}`,
+      { cache: 'no-store' }
+    )
     
-    const { data: users, count, error } = await supabase
-      .from('users')
-      .select(`
-        *,
-        user_points (free_points, paid_points),
-        user_cards (count)
-      `, { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(offset, offset + perPage - 1)
-    
-    if (error) {
-      console.error('Database error:', error)
-      return {
-        users: [],
-        totalCount: 0,
-        totalPages: 0,
-        error: error.message
-      }
+    if (!response.ok) {
+      throw new Error('Failed to fetch users')
     }
     
-    return {
-      users: users || [],
-      totalCount: count || 0,
-      totalPages: Math.ceil((count || 0) / perPage)
+    const data = await response.json()
+    
+    if (data.success) {
+      // UserTableコンポーネントが期待する形式に変換
+      const formattedUsers = data.users.map((user: any) => ({
+        id: user.id,
+        email: user.email,
+        display_name: user.display_name,
+        created_at: user.created_at,
+        user_points: [{
+          free_points: user.free_points,
+          paid_points: user.paid_points
+        }],
+        user_cards: [{ count: user.card_count || 0 }]
+      }))
+      
+      return {
+        users: formattedUsers,
+        totalCount: data.totalCount,
+        totalPages: data.totalPages
+      }
+    } else {
+      throw new Error(data.error || 'Failed to fetch users')
     }
   } catch (error) {
-    console.error('Connection error:', error)
+    console.error('Error fetching users:', error)
     return {
       users: [],
       totalCount: 0,
       totalPages: 0,
-      error: 'データベース接続エラー'
+      error: error instanceof Error ? error.message : 'データの取得に失敗しました'
     }
   }
 }

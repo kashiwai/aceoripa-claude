@@ -11,14 +11,18 @@ interface GachaProduct {
   id: string
   name: string
   description: string
-  single_price: number
-  multi_price: number
+  price?: number
+  single_price?: number
+  multi_price?: number
   is_active: boolean
   start_date: string | null
   end_date: string | null
   banner_image_url: string
   featured_card_ids: string[]
   guarantee_sr_on_multi: boolean
+  total_stock: number
+  sold_count: number
+  card_count?: number
 }
 
 export default function EditGachaPage() {
@@ -58,7 +62,9 @@ export default function EditGachaPage() {
       
       setFormData({
         ...data,
-        featured_card_ids: data.featured_card_ids || []
+        featured_card_ids: data.featured_card_ids || [],
+        total_stock: data.total_stock || 1000,
+        sold_count: data.sold_count || 0
       })
     } catch (error) {
       console.error('Error fetching gacha:', error)
@@ -80,14 +86,13 @@ export default function EditGachaPage() {
         .update({
           name: formData.name,
           description: formData.description,
-          single_price: formData.single_price,
-          multi_price: formData.multi_price,
+          price: formData.price || formData.single_price || 0,
+          card_count: formData.card_count,
           is_active: formData.is_active,
           start_date: formData.start_date || null,
           end_date: formData.end_date || null,
           banner_image_url: formData.banner_image_url,
-          featured_card_ids: formData.featured_card_ids,
-          guarantee_sr_on_multi: formData.guarantee_sr_on_multi
+          total_stock: formData.total_stock
         })
         .eq('id', params?.id)
       
@@ -195,12 +200,12 @@ export default function EditGachaPage() {
                   <div className="col-md-6">
                     <div className="mb-3">
                       <label className="form-label">
-                        単発価格（円）
+                        価格（円）
                       </label>
                       <input
                         type="number"
-                        value={formData.single_price}
-                        onChange={(e) => setFormData({ ...formData, single_price: Number(e.target.value) })}
+                        value={formData.price || formData.single_price || 0}
+                        onChange={(e) => setFormData({ ...formData, price: Number(e.target.value), single_price: Number(e.target.value) })}
                         className="form-control"
                         required
                       />
@@ -210,15 +215,57 @@ export default function EditGachaPage() {
                   <div className="col-md-6">
                     <div className="mb-3">
                       <label className="form-label">
-                        10連価格（円）
+                        カード枚数
                       </label>
                       <input
                         type="number"
-                        value={formData.multi_price}
-                        onChange={(e) => setFormData({ ...formData, multi_price: Number(e.target.value) })}
+                        value={formData.card_count || 1}
+                        onChange={(e) => setFormData({ ...formData, card_count: Number(e.target.value) })}
                         className="form-control"
                         required
+                        min="1"
                       />
+                      <div className="form-text">
+                        1回のガチャで出るカード枚数
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="form-label">
+                        総販売枚数
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.total_stock}
+                        onChange={(e) => setFormData({ ...formData, total_stock: Number(e.target.value) })}
+                        className="form-control"
+                        required
+                        min="1"
+                      />
+                      <div className="form-text">
+                        このガチャで販売する総枚数を設定
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="form-label">
+                        販売済み枚数
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.sold_count}
+                        className="form-control"
+                        disabled
+                      />
+                      <div className="form-text">
+                        残り: {formData.total_stock - formData.sold_count}枚
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -405,6 +452,19 @@ export default function EditGachaPage() {
                   <dd className="mt-1 small">
                     単発: ¥{formData.single_price}<br/>
                     10連: ¥{formData.multi_price}
+                  </dd>
+                </div>
+                <div className="col-12 mb-3">
+                  <dt className="small text-muted">販売状況</dt>
+                  <dd className="mt-1 small">
+                    販売済: {formData.sold_count}枚 / {formData.total_stock}枚<br/>
+                    <div className="progress mt-1" style={{height: '10px'}}>
+                      <div 
+                        className="progress-bar bg-success" 
+                        role="progressbar" 
+                        style={{width: `${(formData.sold_count / formData.total_stock) * 100}%`}}
+                      ></div>
+                    </div>
                   </dd>
                 </div>
                 <div className="col-12 mb-3">

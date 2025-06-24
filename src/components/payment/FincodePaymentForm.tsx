@@ -1,8 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { FincodeCardData, getFincodeErrorMessage } from '@/lib/gmo-fincode';
+import { useState, useEffect } from 'react';
+import Script from 'next/script';
 import { CreditCardIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { FINCODE_CONFIG } from '@/lib/fincode/config';
+
+interface FincodeCardData {
+  cardNumber: string;
+  cardholderName: string;
+  expiryMonth: string;
+  expiryYear: string;
+  cvv: string;
+}
+
+declare global {
+  interface Window {
+    Fincode: any;
+  }
+}
 
 interface FincodePaymentFormProps {
   amount: number;
@@ -104,15 +119,69 @@ export default function FincodePaymentForm({
     return Object.keys(newErrors).length === 0;
   };
 
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+
+  useEffect(() => {
+    if (isScriptLoaded && window.Fincode) {
+      console.log('Fincode object:', window.Fincode);
+      console.log('Available methods:', Object.keys(window.Fincode));
+      console.log('Public key:', FINCODE_CONFIG.publicKey);
+      
+      // FINCODE初期化を試行
+      try {
+        if (typeof window.Fincode.initialize === 'function') {
+          window.Fincode.initialize(FINCODE_CONFIG.publicKey);
+          console.log('Initialized with initialize()');
+        } else if (typeof window.Fincode.init === 'function') {
+          window.Fincode.init(FINCODE_CONFIG.publicKey);
+          console.log('Initialized with init()');
+        } else if (typeof window.Fincode.setPublicKey === 'function') {
+          window.Fincode.setPublicKey(FINCODE_CONFIG.publicKey);
+          console.log('Initialized with setPublicKey()');
+        } else {
+          console.error('No initialization method found');
+        }
+      } catch (error) {
+        console.error('Fincode initialization error:', error);
+      }
+    } else {
+      console.log('Script loaded:', isScriptLoaded, 'Fincode available:', !!window.Fincode);
+    }
+  }, [isScriptLoaded]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      await onSubmit(cardData);
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    try {
+      // FINCODE形式でカード情報を送信（トークン化は使用しない）
+      await onSubmit({
+        cardNumber: cardData.cardNumber.replace(/\s/g, ''),
+        cardholderName: cardData.cardholderName,
+        expiryMonth: cardData.expiryMonth,
+        expiryYear: cardData.expiryYear,
+        cvv: cardData.cvv,
+        saveCard: saveCard,
+      });
+      
+    } catch (error) {
+      console.error('Payment form error:', error);
+      setErrors({ cardNumber: '決済処理中にエラーが発生しました' });
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <>
+      <Script
+        src="https://js.fincode.jp/v1/fincode.js"
+        strategy="afterInteractive"
+        onLoad={() => setIsScriptLoaded(true)}
+      />
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-blue-50 p-4 rounded-lg mb-6">
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-600">お支払い金額</span>
@@ -267,5 +336,6 @@ export default function FincodePaymentForm({
         </button>
       </div>
     </form>
+    </>
   );
 }

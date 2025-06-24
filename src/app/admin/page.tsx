@@ -266,6 +266,45 @@ export default async function AdminDashboard() {
                   </a>
                 </div>
               </div>
+              <div className="row">
+                <div className="col-md-4 mb-3">
+                  <a href="/admin/square-banners" className="btn btn-outline-success w-100 h-100 d-flex flex-column justify-content-center">
+                    <div className="mb-2">🎨</div>
+                    <strong>Squareバナー管理</strong>
+                    <small className="text-muted">300x300バナーの設定</small>
+                  </a>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <a href="/admin/campaign-banners" className="btn btn-outline-success w-100 h-100 d-flex flex-column justify-content-center">
+                    <div className="mb-2">📌</div>
+                    <strong>キャンペーンバナー管理</strong>
+                    <small className="text-muted">キャンペーン表示の設定</small>
+                  </a>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <a href="/admin/banners" className="btn btn-outline-success w-100 h-100 d-flex flex-column justify-content-center">
+                    <div className="mb-2">🖼️</div>
+                    <strong>メインバナー管理</strong>
+                    <small className="text-muted">トップページバナー設定</small>
+                  </a>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-md-4 mb-3">
+                  <a href="/auth/user-status" className="btn btn-outline-warning w-100 h-100 d-flex flex-column justify-content-center">
+                    <div className="mb-2">🔍</div>
+                    <strong>ユーザーステータス確認</strong>
+                    <small className="text-muted">メール確認状況の詳細</small>
+                  </a>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <a href="/admin/gacha/migrate-sample-data" className="btn btn-outline-danger w-100 h-100 d-flex flex-column justify-content-center">
+                    <div className="mb-2">📥</div>
+                    <strong>TOPガチャをDBに移行</strong>
+                    <small className="text-muted">表示中の5つのガチャをDBに登録</small>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>

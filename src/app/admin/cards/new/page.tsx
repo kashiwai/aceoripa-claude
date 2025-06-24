@@ -26,25 +26,26 @@ export default function NewCardPage() {
     setIsLoading(true)
 
     try {
-      // 画像URLが空の場合はデフォルト画像を設定
-      const finalImageUrl = formData.image_url || '/images/ngcard.jpg'
-      
-      const { data, error } = await supabase
-        .from('pokemon_cards')
-        .insert([{
-          ...formData,
-          image_url: finalImageUrl
-        }])
-        .select()
-        .single()
+      // APIルートを使用してカードを作成
+      const response = await fetch('/api/admin/cards', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-      if (error) throw error
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'カードの追加に失敗しました')
+      }
 
       toast.success('カードを追加しました')
       router.push('/admin/cards')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating card:', error)
-      toast.error('カードの追加に失敗しました')
+      toast.error(error.message || 'カードの追加に失敗しました')
     } finally {
       setIsLoading(false)
     }

@@ -28,21 +28,27 @@ export default function LoginPage() {
   }
 
   const handleSocialLogin = async (provider: 'google' | 'twitter' | 'line') => {
+    console.log('Social login clicked:', provider) // デバッグ用
+    
     try {
       setSocialLoading(provider)
+      // console.log('Loading state set for:', provider) // デバッグ用
       
       // LINEの場合は特別な処理が必要
       if (provider === 'line') {
+        console.log('LINE login redirect') // デバッグ用
         // カスタムLINE認証エンドポイントへリダイレクト
         window.location.href = '/api/auth/line?action=login'
         return
       } else {
+        console.log('Attempting Supabase OAuth with:', provider) // デバッグ用
         const { error } = await supabase.auth.signInWithOAuth({
           provider: provider === 'twitter' ? 'twitter' : 'google',
           options: {
             redirectTo: `${window.location.origin}/auth/callback`,
           }
         })
+        // console.log('OAuth response:', { error }) // デバッグ用
         if (error) throw error
       }
     } catch (error: any) {
@@ -82,9 +88,17 @@ export default function LoginPage() {
             </div>
             
             <div>
-              <label htmlFor="password" className="block text-sm font-bold text-gray-300 mb-2">
-                パスワード
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label htmlFor="password" className="block text-sm font-bold text-gray-300">
+                  パスワード
+                </label>
+                <Link 
+                  href="/auth/forgot-password" 
+                  className="text-xs text-[#FF0033] hover:text-[#FF6B6B] transition"
+                >
+                  パスワードを忘れた？
+                </Link>
+              </div>
               <input
                 type="password"
                 id="password"
@@ -153,65 +167,34 @@ export default function LoginPage() {
 
               {/* X (Twitter) ログイン */}
               <button
-                onClick={() => handleSocialLogin('twitter')}
-                disabled={socialLoading === 'twitter'}
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-xl shadow-sm text-white bg-gray-700 hover:bg-gray-600 transition disabled:opacity-50"
+                disabled={true}
+                className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-xl shadow-sm text-gray-500 bg-gray-800 cursor-not-allowed relative"
               >
-                {socialLoading === 'twitter' ? (
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                    X (Twitter) でログイン
-                  </>
-                )}
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                X (Twitter) でログイン
+                <span className="absolute -bottom-6 left-0 right-0 text-xs text-gray-500">
+                  只今開発中！出来たら押せるようになります
+                </span>
               </button>
 
               {/* LINEログイン */}
               <button
-                onClick={() => handleSocialLogin('line')}
-                disabled={socialLoading === 'line'}
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-xl shadow-sm text-white bg-[#00B900] hover:bg-[#00A000] transition disabled:opacity-50"
+                disabled={true}
+                className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-xl shadow-sm text-gray-500 bg-gray-800 cursor-not-allowed relative mb-8"
               >
-                {socialLoading === 'line' ? (
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5 mr-2" fill="white" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
-                    </svg>
-                    LINEでログイン
-                  </>
-                )}
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+                </svg>
+                LINEでログイン
+                <span className="absolute -bottom-6 left-0 right-0 text-xs text-gray-500">
+                  只今開発中！出来たら押せるようになります
+                </span>
               </button>
             </div>
           </div>
           
-          {/* テストアカウント情報 */}
-          <div className="mt-6 p-4 bg-gray-700/50 rounded-lg border border-gray-600">
-            <p className="text-sm font-bold text-[#FF0033] mb-2">テストアカウント:</p>
-            <div className="text-sm text-gray-300 space-y-1">
-              <div>Email: test@aceoripa.com</div>
-              <div>Password: test123</div>
-              <button 
-                onClick={() => {
-                  setEmail('test@aceoripa.com')
-                  setPassword('test123')
-                }}
-                className="mt-2 text-xs bg-[#FF0033] text-white px-3 py-1 rounded hover:bg-[#FF6B6B] transition"
-              >
-                テストアカウントでログイン
-              </button>
-            </div>
-          </div>
           
           {/* アカウント作成リンク */}
           <div className="mt-6 text-center">

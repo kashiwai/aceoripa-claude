@@ -193,7 +193,7 @@ export class AIVideoGenerationService {
     // 利用可能なサービスを順番に試行
     for (const service of services.filter(s => s.available)) {
       try {
-        console.log(`Trying ${service.name} for video generation...`);
+        // console.log(`Trying ${service.name} for video generation...`);
         return await service.method(request);
       } catch (error) {
         console.error(`${service.name} failed:`, error);

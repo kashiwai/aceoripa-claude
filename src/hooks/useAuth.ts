@@ -33,19 +33,42 @@ export function useAuth() {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      // console.log('Attempting login for:', email) // デバッグ用
+      setLoading(true)
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       
-      if (error) throw error
+      // console.log('Login response:', { data, error }) // デバッグ用
       
-      toast.success('ログインしました')
-      router.push('/')
+      if (error) {
+        console.error('Login error details:', error)
+        
+        // エラーメッセージを詳細化
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('メールアドレスまたはパスワードが正しくありません')
+        } else if (error.message.includes('Email not confirmed')) {
+          toast.error('メールアドレスの確認が完了していません。確認メールをご確認ください。')
+        } else if (error.message.includes('Too many requests')) {
+          toast.error('ログイン試行回数が上限に達しました。しばらく待ってから再試行してください。')
+        } else {
+          toast.error(`ログインエラー: ${error.message}`)
+        }
+        throw error
+      }
+      
+      if (data.user) {
+        // console.log('Login successful for user:', data.user.id)
+        toast.success('ログインしました')
+        router.push('/mypage')
+      }
     } catch (error) {
       console.error('Sign in error:', error)
-      toast.error('ログインに失敗しました')
       throw error
+    } finally {
+      setLoading(false)
     }
   }
 

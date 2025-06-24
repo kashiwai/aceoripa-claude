@@ -6,17 +6,10 @@ async function getGachaProducts() {
   const supabase = await createClient()
   
   try {
-    // ガチャ製品を取得（プール情報も含めて）
+    // ガチャ製品を取得（プール情報は一旦無視）
     const { data: products, error } = await supabase
       .from('gacha_products')
-      .select(`
-        *,
-        gacha_pokemon_pools (
-          id,
-          pokemon_card_id,
-          weight
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false })
     
     if (error) {
@@ -56,10 +49,16 @@ export default async function GachaManagementPage() {
           <h1 className="h2">ガチャ管理</h1>
           <p className="text-muted">ガチャの設定・管理を行います</p>
         </div>
-        <Link href="/admin/gacha/new" className="btn btn-primary">
-          <PlusIcon className="bi bi-plus-lg me-2" style={{width: '20px', height: '20px'}} />
-          新規ガチャ作成
-        </Link>
+        <div className="d-flex gap-2">
+          <Link href="/admin/gacha/auto-profit-calc" className="btn btn-success">
+            <i className="bi bi-calculator me-2"></i>
+            収支計算
+          </Link>
+          <Link href="/admin/gacha/new" className="btn btn-primary">
+            <PlusIcon className="bi bi-plus-lg me-2" style={{width: '20px', height: '20px'}} />
+            新規ガチャ作成
+          </Link>
+        </div>
       </div>
 
       {/* ガチャ一覧 */}
@@ -71,10 +70,16 @@ export default async function GachaManagementPage() {
             </div>
             <h5 className="text-muted">ガチャがまだ登録されていません</h5>
             <p className="text-muted mb-4">新しいガチャを作成してください</p>
-            <Link href="/admin/gacha/new" className="btn btn-primary">
-              <i className="bi bi-plus-lg me-2"></i>
-              最初のガチャを作成
-            </Link>
+            <div className="d-flex gap-2 justify-content-center">
+              <Link href="/admin/gacha/new" className="btn btn-primary">
+                <i className="bi bi-plus-lg me-2"></i>
+                最初のガチャを作成
+              </Link>
+              <Link href="/admin/gacha/seed-sample-data" className="btn btn-warning">
+                <i className="bi bi-database-fill-add me-2"></i>
+                サンプルデータを登録
+              </Link>
+            </div>
           </div>
         </div>
       ) : (
@@ -101,13 +106,40 @@ export default async function GachaManagementPage() {
                   {/* 価格情報 */}
                   <div className="mb-3">
                     <div className="d-flex justify-content-between small">
-                      <span>単発:</span>
-                      <strong>¥{product.single_price}</strong>
+                      <span>価格:</span>
+                      <strong>¥{product.price || product.single_price || 0}</strong>
                     </div>
                     <div className="d-flex justify-content-between small">
-                      <span>10連:</span>
-                      <strong>¥{product.multi_price}</strong>
+                      <span>カード枚数:</span>
+                      <strong>{product.card_count || 1}枚</strong>
                     </div>
+                    <div className="d-flex justify-content-between small">
+                      <span>最大販売:</span>
+                      <strong>{product.total_stock || 1000}枚</strong>
+                    </div>
+                    <div className="d-flex justify-content-between small">
+                      <span>販売済み:</span>
+                      <strong className="text-success">{product.sold_count || 0}枚</strong>
+                    </div>
+                    <div className="d-flex justify-content-between small">
+                      <span>残数:</span>
+                      <strong className="text-primary">{(product.total_stock || 1000) - (product.sold_count || 0)}枚</strong>
+                    </div>
+                  </div>
+                  
+                  {/* 販売進捗バー */}
+                  <div className="mb-3">
+                    <small className="text-muted">販売進捗</small>
+                    <div className="progress mt-1" style={{height: '8px'}}>
+                      <div 
+                        className="progress-bar bg-success" 
+                        role="progressbar" 
+                        style={{width: `${((product.sold_count || 0) / (product.total_stock || 1000)) * 100}%`}}
+                      ></div>
+                    </div>
+                    <small className="text-muted">
+                      {(((product.sold_count || 0) / (product.total_stock || 1000)) * 100).toFixed(1)}% 完了
+                    </small>
                   </div>
                   
                   {/* ステータス */}
@@ -139,7 +171,11 @@ export default async function GachaManagementPage() {
                     </Link>
                     <Link href={`/admin/gacha/${product.id}/pools`} className="btn btn-sm btn-outline-success">
                       <i className="bi bi-percent me-2"></i>
-                      確率設定
+                      賞品設定
+                    </Link>
+                    <Link href={`/admin/gacha/${product.id}/profit-control`} className="btn btn-sm btn-outline-warning">
+                      <i className="bi bi-graph-up me-2"></i>
+                      収支管理
                     </Link>
                   </div>
                 </div>

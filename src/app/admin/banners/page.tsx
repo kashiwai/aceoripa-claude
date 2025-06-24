@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import LoadingSpinner from '@/components/LoadingSpinner'
 
 interface Banner {
   id: string
@@ -144,11 +145,7 @@ export default function AdminBannersPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    )
+    return <LoadingSpinner size="large" />
   }
 
   return (
@@ -160,12 +157,61 @@ export default function AdminBannersPage() {
             <h1 className="h2 mb-1">バナー管理</h1>
             <p className="text-muted">TOPページのバナーカルーセルを管理できます</p>
           </div>
-          <button 
-            onClick={() => setShowCreateModal(true)}
-            className="btn btn-primary"
-          >
-            <i className="bi bi-plus-circle me-2"></i>新しいバナーを作成
-          </button>
+          <div>
+            <a href="/admin/banners/generate" className="btn btn-success me-2">
+              <i className="bi bi-magic me-2"></i>AIで生成
+            </a>
+            <button 
+              onClick={() => setShowCreateModal(true)}
+              className="btn btn-primary"
+            >
+              <i className="bi bi-plus-circle me-2"></i>新しいバナーを作成
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* バナー種類別リンク */}
+      <div className="row mb-4">
+        <div className="col-md-4">
+          <div className="card bg-primary text-white">
+            <div className="card-body">
+              <h5 className="card-title">
+                <i className="bi bi-image-fill me-2"></i>
+                メインバナーカルーセル
+              </h5>
+              <p className="card-text">トップページ上部の大きなバナー<br/><small className="text-muted">サイズ: 1200px × 300-500px</small></p>
+              <span className="badge bg-light text-primary">現在の管理画面</span>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-4">
+          <a href="/admin/square-banners" className="text-decoration-none">
+            <div className="card border-primary">
+              <div className="card-body">
+                <h5 className="card-title text-primary">
+                  <i className="bi bi-grid-3x3-gap-fill me-2"></i>
+                  Squareバナー
+                </h5>
+                <p className="card-text text-muted">300x300の正方形バナー<br/><small>サイズ: 300px × 300px</small></p>
+                <span className="text-primary">管理画面へ →</span>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div className="col-md-4">
+          <a href="/admin/campaign-banners" className="text-decoration-none">
+            <div className="card border-primary">
+              <div className="card-body">
+                <h5 className="card-title text-primary">
+                  <i className="bi bi-megaphone-fill me-2"></i>
+                  キャンペーンバナー
+                </h5>
+                <p className="card-text text-muted">期間限定のお知らせバナー<br/><small>サイズ: 全幅 × 自動調整</small></p>
+                <span className="text-primary">管理画面へ →</span>
+              </div>
+            </div>
+          </a>
         </div>
       </div>
 

@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { toast } from 'react-hot-toast'
 
-export default function LineCallbackPage() {
+function LineCallbackPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const code = searchParams.get('code')
@@ -64,5 +64,13 @@ export default function LineCallbackPage() {
         <p className="text-gray-400 mt-2">少々お待ちください</p>
       </div>
     </div>
+  )
+}
+
+export default function LineCallbackPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <LineCallbackPageContent />
+    </Suspense>
   )
 }

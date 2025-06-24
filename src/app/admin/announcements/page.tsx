@@ -11,10 +11,9 @@ interface Announcement {
   content: string
   type: 'news' | 'maintenance' | 'campaign' | 'important'
   status: 'draft' | 'published' | 'archived'
-  publish_date: string
+  start_date: string
   end_date?: string
   priority: number
-  push_notification: boolean
   show_popup: boolean
   popup_delay_seconds: number
   cta_text?: string
@@ -39,10 +38,9 @@ export default function AnnouncementsPage() {
     content: '',
     type: 'news' as const,
     status: 'draft' as const,
-    publish_date: '',
+    start_date: '',
     end_date: '',
     priority: 1,
-    push_notification: false,
     show_popup: true,
     popup_delay_seconds: 0,
     cta_text: '',
@@ -56,14 +54,14 @@ export default function AnnouncementsPage() {
 
   const fetchAnnouncements = async () => {
     try {
-      const { data, error } = await supabase
-        .from('announcements')
-        .select('*')
-        .order('priority', { ascending: false })
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setAnnouncements(data || [])
+      const response = await fetch('/api/admin/announcements')
+      const result = await response.json()
+      
+      if (result.success) {
+        setAnnouncements(result.data || [])
+      } else {
+        throw new Error(result.error)
+      }
     } catch (error) {
       console.error('Error fetching announcements:', error)
       toast.error('お知らせの取得に失敗しました')
@@ -78,30 +76,35 @@ export default function AnnouncementsPage() {
 
     try {
       if (editingAnnouncement) {
-        const { error } = await supabase
-          .from('announcements')
-          .update({
-            ...formData,
-            is_active: (formData.status as string) === 'published',
-            start_date: formData.publish_date,
-            updated_at: new Date().toISOString()
+        // 更新
+        const response = await fetch('/api/admin/announcements', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: editingAnnouncement.id,
+            ...formData
           })
-          .eq('id', editingAnnouncement.id)
-
-        if (error) throw error
+        })
+        
+        const result = await response.json()
+        if (!result.success) throw new Error(result.error)
+        
         toast.success('お知らせを更新しました')
       } else {
-        const { error } = await supabase
-          .from('announcements')
-          .insert([{
-            ...formData,
-            is_active: (formData.status as string) === 'published',
-            start_date: formData.publish_date,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }])
-
-        if (error) throw error
+        // 作成
+        const response = await fetch('/api/admin/announcements', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        })
+        
+        const result = await response.json()
+        if (!result.success) throw new Error(result.error)
+        
         toast.success('お知らせを作成しました')
       }
 
@@ -111,7 +114,7 @@ export default function AnnouncementsPage() {
       fetchAnnouncements()
     } catch (error) {
       console.error('Error saving announcement:', error)
-      toast.error('保存に失敗しました')
+      toast.error('保存に失敗しました: ' + error.message)
     } finally {
       setLoading(false)
     }
@@ -121,12 +124,13 @@ export default function AnnouncementsPage() {
     if (!confirm('このお知らせを削除しますか？')) return
 
     try {
-      const { error } = await supabase
-        .from('announcements')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
+      const response = await fetch(`/api/admin/announcements?id=${id}`, {
+        method: 'DELETE'
+      })
+      
+      const result = await response.json()
+      if (!result.success) throw new Error(result.error)
+      
       toast.success('お知らせを削除しました')
       fetchAnnouncements()
     } catch (error) {
@@ -141,10 +145,9 @@ export default function AnnouncementsPage() {
       content: '',
       type: 'news',
       status: 'draft',
-      publish_date: '',
+      start_date: '',
       end_date: '',
       priority: 1,
-      push_notification: false,
       show_popup: true,
       popup_delay_seconds: 0,
       cta_text: '',
@@ -160,10 +163,9 @@ export default function AnnouncementsPage() {
       content: announcement.content,
       type: announcement.type as 'news',
       status: announcement.status as 'draft',
-      publish_date: announcement.publish_date.split('T')[0],
+      start_date: announcement.start_date.split('T')[0],
       end_date: announcement.end_date ? announcement.end_date.split('T')[0] : '',
       priority: announcement.priority,
-      push_notification: announcement.push_notification,
       show_popup: announcement.show_popup ?? true,
       popup_delay_seconds: announcement.popup_delay_seconds ?? 0,
       cta_text: announcement.cta_text || '',
@@ -230,7 +232,7 @@ export default function AnnouncementsPage() {
                     <th>ステータス</th>
                     <th>公開日</th>
                     <th>優先度</th>
-                    <th>プッシュ通知</th>
+                    <th>ポップアップ</th>
                     <th>操作</th>
                   </tr>
                 </thead>
@@ -262,13 +264,13 @@ export default function AnnouncementsPage() {
                         </span>
                       </td>
                       <td>
-                        {new Date(announcement.publish_date).toLocaleDateString('ja-JP')}
+                        {new Date(announcement.start_date).toLocaleDateString('ja-JP')}
                       </td>
                       <td>
                         <span className="badge bg-info">{announcement.priority}</span>
                       </td>
                       <td>
-                        {announcement.push_notification ? '✅' : '❌'}
+                        {announcement.show_popup ? '✅' : '❌'}
                       </td>
                       <td>
                         <div className="btn-group btn-group-sm">
@@ -370,8 +372,8 @@ export default function AnnouncementsPage() {
                       <label className="form-label">公開日</label>
                       <input
                         type="date"
-                        value={formData.publish_date}
-                        onChange={(e) => setFormData({ ...formData, publish_date: e.target.value })}
+                        value={formData.start_date}
+                        onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                         className="form-control"
                         required
                       />
@@ -411,18 +413,6 @@ export default function AnnouncementsPage() {
                       />
                     </div>
                     <div className="col-md-4 mb-3">
-                      <div className="form-check mt-4">
-                        <input
-                          type="checkbox"
-                          id="push_notification"
-                          checked={formData.push_notification}
-                          onChange={(e) => setFormData({ ...formData, push_notification: e.target.checked })}
-                          className="form-check-input"
-                        />
-                        <label className="form-check-label" htmlFor="push_notification">
-                          プッシュ通知を送信
-                        </label>
-                      </div>
                       <div className="form-check">
                         <input
                           type="checkbox"
