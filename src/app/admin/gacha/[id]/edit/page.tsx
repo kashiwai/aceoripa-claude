@@ -280,11 +280,11 @@ export default function EditGachaPage() {
             </label>
             <div className="flex gap-2">
               <input
-                type="url"
+                type="text"
                 value={formData.banner_image_url}
                 onChange={(e) => setFormData({ ...formData, banner_image_url: e.target.value })}
                 className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="https://example.com/banner.jpg"
+                placeholder="/images/banner.jpg または https://example.com/banner.jpg"
               />
               <Link
                 href={`/admin/gacha/banner-selector?returnUrl=${encodeURIComponent(`/admin/gacha/${gachaId}/edit`)}`}
@@ -294,7 +294,7 @@ export default function EditGachaPage() {
               </Link>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              URLを直接入力するか、ローカル画像から選択してください
+              相対パス（/images/...）または完全なURL（https://...）を入力できます
             </p>
           </div>
           

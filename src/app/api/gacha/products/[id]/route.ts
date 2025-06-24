@@ -132,17 +132,72 @@ export async function GET(
 ) {
   try {
     const gachaId = params.id
+    const supabase = await createClient()
     
-    // サンプルデータから返す
-    const gachaDetail = GACHA_DETAILS[gachaId as keyof typeof GACHA_DETAILS]
+    // データベースから実際のデータを取得
+    const { data: gacha, error } = await supabase
+      .from('gacha_products')
+      .select('*')
+      .eq('id', gachaId)
+      .single()
     
-    if (!gachaDetail) {
-      return NextResponse.json({ error: 'Gacha not found' }, { status: 404 })
+    if (error || !gacha) {
+      // エラーの場合はフォールバックデータを使用
+      const fallbackDetail = GACHA_DETAILS[gachaId as keyof typeof GACHA_DETAILS]
+      if (!fallbackDetail) {
+        return NextResponse.json({ error: 'Gacha not found' }, { status: 404 })
+      }
+      return NextResponse.json({ 
+        success: true,
+        product: {
+          ...fallbackDetail,
+          imageUrl: fallbackDetail.image
+        }
+      })
     }
     
-    return NextResponse.json({ gacha: gachaDetail })
+    // データベースのフィールド名をフロントエンドで期待する形式に変換
+    const formattedGacha = {
+      id: gacha.id,
+      name: gacha.name,
+      description: gacha.description,
+      price: gacha.single_price || gacha.price,
+      multi_price: gacha.multi_price,
+      imageUrl: gacha.banner_image_url, // banner_image_url を imageUrl にマッピング
+      remaining: gacha.metadata?.total_stock ? 
+        (gacha.metadata.total_stock - (gacha.sold_count || 0)) : 
+        1000,
+      total: gacha.metadata?.total_stock || gacha.total_stock || 1000,
+      status: gacha.is_active ? 'active' : 'inactive',
+      features: gacha.metadata?.features || [],
+      rarity_rates: gacha.metadata?.rarity_rates || {
+        SS: 0.05,
+        S: 0.15,
+        A: 0.30,
+        B: 0.30,
+        C: 0.20
+      }
+    }
+    
+    return NextResponse.json({ 
+      success: true,
+      product: formattedGacha 
+    })
   } catch (error) {
     console.error('Error fetching gacha detail:', error)
+    
+    // エラー時のフォールバック
+    const fallbackDetail = GACHA_DETAILS[params.id as keyof typeof GACHA_DETAILS]
+    if (fallbackDetail) {
+      return NextResponse.json({ 
+        success: true,
+        product: {
+          ...fallbackDetail,
+          imageUrl: fallbackDetail.image
+        }
+      })
+    }
+    
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

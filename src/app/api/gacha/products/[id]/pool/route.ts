@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 
-// ガチャプール（カードリスト）のサンプルデータ
+// ガチャプール（カードリスト）のサンプルデータ（フォールバック用）
 const GACHA_POOLS = {
   '1': [ // ピカチュウ大祭り
     { id: 'PK-M001', name: 'マリオピカチュウ PSA10', rarity: 'SS', image: '/images/pokemon/008_マリオピカチュウ PSA10_PK-0008.jpg' },
@@ -57,22 +59,92 @@ export async function GET(
 ) {
   try {
     const gachaId = params.id
+    const supabase = createRouteHandlerClient({ cookies })
     
-    // サンプルプールデータから返す
-    const poolCards = GACHA_POOLS[gachaId as keyof typeof GACHA_POOLS]
+    // まずSupabaseから実際のカードプールデータを取得
+    const { data: poolData, error: poolError } = await supabase
+      .from('gacha_pokemon_pools')
+      .select(`
+        id,
+        weight,
+        pokemon_card:pokemon_cards (
+          id,
+          card_name,
+          product_code,
+          rarity,
+          image_url,
+          market_price,
+          description
+        )
+      `)
+      .eq('gacha_product_id', gachaId)
     
-    if (!poolCards) {
-      return NextResponse.json({ error: 'Pool not found' }, { status: 404 })
+    if (poolError) {
+      console.error('Error fetching pool from Supabase:', poolError)
+      // エラーの場合はフォールバックデータを使用
+      const fallbackCards = GACHA_POOLS[gachaId as keyof typeof GACHA_POOLS]
+      if (!fallbackCards) {
+        return NextResponse.json({ error: 'Pool not found' }, { status: 404 })
+      }
+      
+      const formattedCards = fallbackCards.map(card => ({
+        id: card.id,
+        name: card.name,
+        rarity: card.rarity,
+        imageUrl: card.image,
+        probability: 1
+      }))
+      
+      return NextResponse.json({ success: true, cards: formattedCards })
     }
     
+    // データが存在しない場合もフォールバックを使用
+    if (!poolData || poolData.length === 0) {
+      const fallbackCards = GACHA_POOLS[gachaId as keyof typeof GACHA_POOLS]
+      if (!fallbackCards) {
+        return NextResponse.json({ error: 'Pool not found' }, { status: 404 })
+      }
+      
+      const formattedCards = fallbackCards.map(card => ({
+        id: card.id,
+        name: card.name,
+        rarity: card.rarity,
+        imageUrl: card.image,
+        probability: 1
+      }))
+      
+      return NextResponse.json({ success: true, cards: formattedCards })
+    }
+    
+    // レアリティごとの合計weightを計算
+    const rarityWeights: { [key: string]: number } = {}
+    poolData.forEach(item => {
+      if (item.pokemon_card) {
+        const rarity = item.pokemon_card.rarity
+        rarityWeights[rarity] = (rarityWeights[rarity] || 0) + item.weight
+      }
+    })
+    
+    // 総weightを計算
+    const totalWeight = Object.values(rarityWeights).reduce((sum, weight) => sum + weight, 0)
+    
     // フロントエンドのCard interfaceに合わせてフィールド名を変換
-    const formattedCards = poolCards.map(card => ({
-      id: card.id,
-      name: card.name,
-      rarity: card.rarity,
-      imageUrl: card.image,
-      probability: 1 // デフォルト確率
-    }))
+    const formattedCards = poolData
+      .filter(item => item.pokemon_card !== null)
+      .map(item => {
+        const card = item.pokemon_card!
+        const rarityWeight = rarityWeights[card.rarity]
+        const probability = totalWeight > 0 ? (rarityWeight / totalWeight) * 100 : 0
+        
+        return {
+          id: card.id,
+          name: card.card_name,
+          rarity: card.rarity,
+          imageUrl: card.image_url,
+          description: card.description,
+          probability: Math.round(probability * 10) / 10 // 小数点1位まで
+        }
+      })
     
     return NextResponse.json({ success: true, cards: formattedCards })
   } catch (error) {

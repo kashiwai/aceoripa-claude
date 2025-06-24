@@ -145,6 +145,13 @@ export default function GachaDetailPage() {
     acc[groupedRarity].push(card)
     return acc
   }, {} as { [key: string]: Card[] })
+  
+  // レアリティごとの確率を計算
+  const rarityProbabilities = Object.entries(cardsByRarity).reduce((acc, [rarity, cards]) => {
+    const totalProbability = cards.reduce((sum, card) => sum + (card.probability || 1), 0)
+    acc[rarity] = totalProbability
+    return acc
+  }, {} as { [key: string]: number })
 
   const handleGacha = (count: number) => {
     // 一時的に認証チェックを無効化
@@ -320,18 +327,30 @@ export default function GachaDetailPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center p-2 bg-gradient-to-r from-yellow-400/20 to-red-500/20 rounded">
-                    <span className="font-bold text-yellow-400">SS賞獲得確率</span>
-                    <span className="text-white font-black text-lg">約87%</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded">
-                    <span className="font-bold text-purple-400">S賞以上確率</span>
-                    <span className="text-white font-black text-lg">99.7%</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded">
-                    <span className="font-bold text-blue-400">A賞以上確率</span>
-                    <span className="text-white font-black text-lg">100%</span>
-                  </div>
+                  {rarityProbabilities['SS'] && (
+                    <div className="flex justify-between items-center p-2 bg-gradient-to-r from-yellow-400/20 to-red-500/20 rounded">
+                      <span className="font-bold text-yellow-400">SS賞獲得確率</span>
+                      <span className="text-white font-black text-lg">
+                        約{((1 - Math.pow(1 - rarityProbabilities['SS'] / 100, 10)) * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                  )}
+                  {(rarityProbabilities['SS'] || rarityProbabilities['S']) && (
+                    <div className="flex justify-between items-center p-2 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded">
+                      <span className="font-bold text-purple-400">S賞以上確率</span>
+                      <span className="text-white font-black text-lg">
+                        約{((1 - Math.pow(1 - ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) / 100, 10)) * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                  )}
+                  {(rarityProbabilities['SS'] || rarityProbabilities['S'] || rarityProbabilities['A']) && (
+                    <div className="flex justify-between items-center p-2 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded">
+                      <span className="font-bold text-blue-400">A賞以上確率</span>
+                      <span className="text-white font-black text-lg">
+                        約{((1 - Math.pow(1 - ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0) + (rarityProbabilities['A'] || 0)) / 100, 10)) * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -343,14 +362,22 @@ export default function GachaDetailPage() {
                 </div>
                 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="text-center p-3 bg-black/30 rounded-lg">
-                    <p className="text-2xl font-black text-yellow-400">4-6枚</p>
-                    <p className="text-xs text-yellow-300">SS賞期待獲得数</p>
-                  </div>
-                  <div className="text-center p-3 bg-black/30 rounded-lg">
-                    <p className="text-2xl font-black text-purple-400">15-20枚</p>
-                    <p className="text-xs text-purple-300">S賞期待獲得数</p>
-                  </div>
+                  {rarityProbabilities['SS'] && (
+                    <div className="text-center p-3 bg-black/30 rounded-lg">
+                      <p className="text-2xl font-black text-yellow-400">
+                        {(rarityProbabilities['SS'] / 100 * 50).toFixed(1)}枚
+                      </p>
+                      <p className="text-xs text-yellow-300">SS賞期待獲得数</p>
+                    </div>
+                  )}
+                  {rarityProbabilities['S'] && (
+                    <div className="text-center p-3 bg-black/30 rounded-lg">
+                      <p className="text-2xl font-black text-purple-400">
+                        {(rarityProbabilities['S'] / 100 * 50).toFixed(1)}枚
+                      </p>
+                      <p className="text-xs text-purple-300">S賞期待獲得数</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -378,9 +405,16 @@ export default function GachaDetailPage() {
                       <h3 className="text-2xl font-black text-white drop-shadow-lg">
                         {RARITY_LABELS[rarity]}
                       </h3>
-                      <span className="text-xl font-bold text-white bg-black/30 px-4 py-2 rounded-full">
-                        {rarityCards.length}種類
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl font-bold text-white bg-black/30 px-4 py-2 rounded-full">
+                          {rarityCards.length}種類
+                        </span>
+                        {rarityProbabilities[rarity] && (
+                          <span className="text-xl font-bold text-white bg-black/30 px-4 py-2 rounded-full">
+                            {rarityProbabilities[rarity].toFixed(1)}%
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
