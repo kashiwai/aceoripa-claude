@@ -275,14 +275,14 @@ export default function EditGachaPage() {
                     バナー画像URL
                   </label>
                   <input
-                    type="url"
+                    type="text"
                     value={formData.banner_image_url}
                     onChange={(e) => setFormData({ ...formData, banner_image_url: e.target.value })}
                     className="form-control"
-                    placeholder="https://example.com/banner.jpg"
+                    placeholder="/images/banner.jpg または https://example.com/banner.jpg"
                   />
                   <div className="form-text">
-                    推奨サイズ: 1024×1024px
+                    推奨サイズ: 1024×1024px | 相対パス（/images/...）または完全なURL（https://...）を入力できます
                   </div>
                 </div>
                 

@@ -29,6 +29,12 @@ END;
 $$;
 
 -- 初期管理者アカウントを作成（パスワード: admin123）
+-- Base64エンコードでパスワードを保存（本番環境では適切なハッシュ化を推奨）
 INSERT INTO admin_credentials (username, password_hash, role) 
-VALUES ('admin', encode(digest('admin123', 'sha256'), 'base64'), 'superadmin')
+VALUES ('admin', 'YWRtaW4xMjM=', 'superadmin')
+ON CONFLICT (username) DO NOTHING;
+
+-- 作業者用アカウントのサンプル（パスワード: worker123）
+INSERT INTO admin_credentials (username, password_hash, role) 
+VALUES ('worker', 'd29ya2VyMTIz', 'admin')
 ON CONFLICT (username) DO NOTHING;

@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { toast } from 'react-hot-toast'
 
 const navigation = [
   { name: 'ダッシュボード', href: '/admin' },
@@ -19,6 +21,27 @@ const navigation = [
 
 export default function AdminSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const [adminUser, setAdminUser] = useState<any>(null)
+
+  useEffect(() => {
+    // Cookieから管理者情報を取得
+    const cookies = document.cookie.split(';')
+    const adminSessionCookie = cookies.find(c => c.trim().startsWith('admin_session='))
+    if (adminSessionCookie) {
+      try {
+        const session = JSON.parse(decodeURIComponent(adminSessionCookie.split('=')[1]))
+        setAdminUser(session)
+      } catch (e) {}
+    }
+  }, [])
+
+  const handleLogout = () => {
+    // Cookieを削除
+    document.cookie = 'admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    toast.success('ログアウトしました')
+    router.push('/admin/login')
+  }
 
   return (
     <div className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style={{width: '280px', height: '100vh'}}>
@@ -42,10 +65,30 @@ export default function AdminSidebar() {
         })}
       </ul>
       <hr />
-      <div>
-        <Link href="/" className="nav-link text-white">
-          ← ユーザー画面へ戻る
-        </Link>
+      <div className="dropdown">
+        <a href="#" className="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+          <strong>{adminUser?.username || 'Admin'}</strong>
+        </a>
+        <ul className="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser">
+          <li><span className="dropdown-item-text text-muted">{adminUser?.role || 'admin'}</span></li>
+          <li><hr className="dropdown-divider" /></li>
+          <li>
+            <Link href="/admin/system" className="dropdown-item">
+              <i className="bi bi-gear me-2"></i>システム設定
+            </Link>
+          </li>
+          <li>
+            <Link href="/" className="dropdown-item">
+              <i className="bi bi-house me-2"></i>ユーザー画面へ
+            </Link>
+          </li>
+          <li><hr className="dropdown-divider" /></li>
+          <li>
+            <button onClick={handleLogout} className="dropdown-item text-danger">
+              <i className="bi bi-box-arrow-right me-2"></i>ログアウト
+            </button>
+          </li>
+        </ul>
       </div>
     </div>
   )

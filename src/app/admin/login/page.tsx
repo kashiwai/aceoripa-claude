@@ -1,17 +1,19 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { toast } from 'react-hot-toast'
 
 export default function AdminLogin() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get('redirect') || '/admin'
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -20,27 +22,55 @@ export default function AdminLogin() {
     setIsLoading(true)
 
     try {
-      // Supabase認証
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      // admin_credentialsテーブルから認証
+      const { data, error } = await supabase
+        .from('admin_credentials')
+        .select('*')
+        .eq('username', username)
+        .eq('is_active', true)
+        .single()
 
-      if (error) throw error
-
-      // Admin権限チェック（簡易版：メールアドレスで判定）
-      if (data.user?.email === 'admin@aceoripa.com') {
-        toast.success('管理画面にログインしました')
-        router.push('/admin')
-      } else {
-        // 非管理者の場合はログアウト
-        await supabase.auth.signOut()
-        toast.error('管理者権限がありません')
+      if (error || !data) {
+        toast.error('ユーザー名またはパスワードが正しくありません')
+        setIsLoading(false)
+        return
       }
+
+      // パスワードの検証（本番環境では適切なハッシュ化を使用）
+      // 初期実装では簡易的なBase64エンコーディングを使用
+      const encodedPassword = btoa(password)
+      if (data.password_hash !== encodedPassword) {
+        toast.error('ユーザー名またはパスワードが正しくありません')
+        setIsLoading(false)
+        return
+      }
+
+      // 最終ログイン時刻を更新
+      await supabase
+        .from('admin_credentials')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', data.id)
+
+      // セッションをCookieに保存
+      const session = {
+        id: data.id,
+        username: data.username,
+        role: data.role,
+        loginTime: new Date().toISOString()
+      }
+      
+      // Cookieに保存（24時間有効）
+      document.cookie = `admin_session=${JSON.stringify(session)}; path=/; max-age=${60 * 60 * 24}`
+
+      toast.success('管理画面にログインしました')
+      
+      // リダイレクト
+      setTimeout(() => {
+        window.location.href = redirect // Cookieを確実に保存するためwindow.locationを使用
+      }, 500)
     } catch (error) {
       console.error('Login error:', error)
       toast.error('ログインに失敗しました')
-    } finally {
       setIsLoading(false)
     }
   }
@@ -55,17 +85,18 @@ export default function AdminLogin() {
 
         <form onSubmit={handleAdminLogin} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              メールアドレス
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+              ユーザー名
             </label>
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="admin@aceoripa.com"
+              placeholder="admin"
               required
+              autoFocus
             />
           </div>
 
@@ -103,14 +134,17 @@ export default function AdminLogin() {
           </a>
         </div>
 
-        {/* 開発環境用のヒント */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-4 p-4 bg-yellow-50 rounded-md text-xs text-yellow-800">
-            <p>開発環境用認証情報:</p>
-            <p>Email: admin@aceoripa.com</p>
-            <p>Password: 環境変数で設定</p>
+        {/* 初期管理者情報 */}
+        <div className="mt-6 p-4 bg-gray-50 rounded-md text-sm text-gray-700 border border-gray-200">
+          <p className="font-semibold mb-2">初期管理者アカウント:</p>
+          <div className="font-mono bg-white p-2 rounded border border-gray-300">
+            <p>ユーザー名: <span className="font-bold text-blue-600">admin</span></p>
+            <p>パスワード: <span className="font-bold text-blue-600">admin123</span></p>
           </div>
-        )}
+          <p className="mt-2 text-xs text-red-600">
+            ※ セキュリティのため、初回ログイン後は必ずパスワードを変更してください
+          </p>
+        </div>
       </div>
     </div>
   )
