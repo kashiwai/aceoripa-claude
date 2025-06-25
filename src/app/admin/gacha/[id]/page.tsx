@@ -14,15 +14,17 @@ interface GachaProduct {
   price?: number
   single_price?: number
   multi_price?: number
+  currency: string
+  card_count: number
+  bonus_cards: number
   is_active: boolean
-  start_date: string | null
-  end_date: string | null
+  start_date?: string | null
+  end_date?: string | null
   banner_image_url: string
-  featured_card_ids: string[]
-  guarantee_sr_on_multi: boolean
+  featured_card_ids?: string[]
+  guarantee_sr_on_multi?: boolean
   total_stock: number
   sold_count: number
-  card_count?: number
 }
 
 export default function EditGachaPage() {
@@ -64,7 +66,15 @@ export default function EditGachaPage() {
         ...data,
         featured_card_ids: data.featured_card_ids || [],
         total_stock: data.total_stock || 1000,
-        sold_count: data.sold_count || 0
+        sold_count: data.sold_count || 0,
+        guarantee_sr_on_multi: data.guarantee_sr_on_multi || false,
+        // 必須フィールドのデフォルト値を設定
+        currency: data.currency || 'JPY',
+        bonus_cards: data.bonus_cards || 0,
+        card_count: data.card_count || 1,
+        // 価格フィールドの互換性を保つ
+        single_price: data.single_price || data.price || 0,
+        multi_price: data.multi_price || (data.single_price || data.price || 0) * 10
       })
     } catch (error) {
       console.error('Error fetching gacha:', error)
@@ -81,22 +91,41 @@ export default function EditGachaPage() {
     setIsSaving(true)
     
     try {
+      // 更新データを準備（存在するフィールドのみ）
+      const updateData: any = {
+        name: formData.name,
+        description: formData.description,
+        price: formData.price || formData.single_price || 0,
+        currency: 'JPY', // 通貨は固定
+        card_count: formData.card_count || 1,
+        bonus_cards: 0, // ボーナスカードは今のところ0固定
+        is_active: formData.is_active,
+        banner_image_url: formData.banner_image_url || '',
+        total_stock: formData.total_stock || 1000,
+        // updated_atは自動的に更新されるため、明示的に設定しない
+      }
+      
+      // single_priceとmulti_priceも更新
+      if (formData.single_price !== undefined) {
+        updateData.single_price = formData.single_price
+      }
+      if (formData.multi_price !== undefined) {
+        updateData.multi_price = formData.multi_price
+      }
+      
+      // start_dateとend_dateフィールドは存在しないため送信しない
+      
+      console.log('Updating gacha with data:', updateData)
+      
       const { error } = await supabase
         .from('gacha_products')
-        .update({
-          name: formData.name,
-          description: formData.description,
-          price: formData.price || formData.single_price || 0,
-          card_count: formData.card_count,
-          is_active: formData.is_active,
-          start_date: formData.start_date || null,
-          end_date: formData.end_date || null,
-          banner_image_url: formData.banner_image_url,
-          total_stock: formData.total_stock
-        })
+        .update(updateData)
         .eq('id', params?.id)
       
-      if (error) throw error
+      if (error) {
+        console.error('Update error details:', error)
+        throw error
+      }
       
       toast.success('ガチャ情報を更新しました')
       router.push('/admin/gacha')
@@ -200,18 +229,52 @@ export default function EditGachaPage() {
                   <div className="col-md-6">
                     <div className="mb-3">
                       <label className="form-label">
-                        価格（円）
+                        単発価格（円）
                       </label>
                       <input
                         type="number"
-                        value={formData.price || formData.single_price || 0}
-                        onChange={(e) => setFormData({ ...formData, price: Number(e.target.value), single_price: Number(e.target.value) })}
+                        value={formData.single_price || formData.price || 0}
+                        onChange={(e) => {
+                          const singlePrice = Number(e.target.value)
+                          setFormData({ 
+                            ...formData, 
+                            single_price: singlePrice,
+                            price: singlePrice, // priceも同期更新
+                            // multi_priceを自動計算（10連の場合、通常は単価×10）
+                            multi_price: formData.multi_price || (singlePrice * 10)
+                          })
+                        }}
                         className="form-control"
                         required
+                        min="0"
                       />
+                      <div className="form-text">
+                        1回分の価格
+                      </div>
                     </div>
                   </div>
                   
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="form-label">
+                        10連価格（円）
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.multi_price || (formData.single_price || formData.price || 0) * 10}
+                        onChange={(e) => setFormData({ ...formData, multi_price: Number(e.target.value) })}
+                        className="form-control"
+                        required
+                        min="0"
+                      />
+                      <div className="form-text">
+                        10回分の価格（通常は単価×10）
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="row">
                   <div className="col-md-6">
                     <div className="mb-3">
                       <label className="form-label">
@@ -229,6 +292,9 @@ export default function EditGachaPage() {
                         1回のガチャで出るカード枚数
                       </div>
                     </div>
+                  </div>
+                  <div className="col-md-6">
+                    {/* 空のカラムでレイアウト調整 */}
                   </div>
                 </div>
                 
@@ -286,35 +352,6 @@ export default function EditGachaPage() {
                   </div>
                 </div>
                 
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">
-                        開始日時
-                      </label>
-                      <input
-                        type="datetime-local"
-                        value={formData.start_date || ''}
-                        onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                        className="form-control"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">
-                        終了日時
-                      </label>
-                      <input
-                        type="datetime-local"
-                        value={formData.end_date || ''}
-                        onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                        className="form-control"
-                      />
-                    </div>
-                  </div>
-                </div>
                 
                 <div className="mb-3">
                   <div className="form-check">
@@ -330,18 +367,6 @@ export default function EditGachaPage() {
                     </label>
                   </div>
                   
-                  <div className="form-check">
-                    <input
-                      type="checkbox"
-                      id="guarantee_sr"
-                      checked={formData.guarantee_sr_on_multi}
-                      onChange={(e) => setFormData({ ...formData, guarantee_sr_on_multi: e.target.checked })}
-                      className="form-check-input"
-                    />
-                    <label className="form-check-label" htmlFor="guarantee_sr">
-                      10連でS賞以上確定
-                    </label>
-                  </div>
                 </div>
                 
                 <div className="d-flex justify-content-between pt-3 border-top">
@@ -465,19 +490,6 @@ export default function EditGachaPage() {
                         style={{width: `${(formData.sold_count / formData.total_stock) * 100}%`}}
                       ></div>
                     </div>
-                  </dd>
-                </div>
-                <div className="col-12 mb-3">
-                  <dt className="small text-muted">期間</dt>
-                  <dd className="mt-1 small">
-                    {formData.start_date && formData.end_date ? (
-                      <>
-                        {new Date(formData.start_date).toLocaleDateString('ja-JP')}<br/>
-                        〜 {new Date(formData.end_date).toLocaleDateString('ja-JP')}
-                      </>
-                    ) : (
-                      '期間限定なし'
-                    )}
                   </dd>
                 </div>
               </dl>

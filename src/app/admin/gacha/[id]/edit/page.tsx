@@ -148,26 +148,42 @@ export default function EditGachaPage() {
         profit_info: profitInfo
       }
       
+      // 更新データを準備（存在しないカラムを除外）
+      const updateData: any = {
+        name: formData.name,
+        description: formData.description,
+        is_active: formData.is_active,
+        price: formData.single_price, // priceフィールドも更新
+      }
+
+      // オプショナルなフィールドを条件付きで追加
+      if (formData.single_price !== undefined) updateData.single_price = formData.single_price
+      if (formData.multi_price !== undefined) updateData.multi_price = formData.multi_price
+      if (formData.banner_image_url !== undefined) updateData.banner_image_url = formData.banner_image_url
+      if (formData.start_date) updateData.start_date = formData.start_date
+      if (formData.end_date) updateData.end_date = formData.end_date
+      if (formData.total_stock !== undefined) updateData.total_stock = formData.total_stock
+      
+      // 配列とJSONフィールドは存在確認が必要
+      try {
+        updateData.featured_card_ids = formData.featured_card_ids 
+          ? formData.featured_card_ids.split(',').map(id => id.trim())
+          : []
+        updateData.guarantee_sr_on_multi = formData.guarantee_sr_on_multi
+        updateData.metadata = metadata
+      } catch (e) {
+        console.warn('Some fields may not exist in database:', e)
+      }
+
       const { error } = await supabase
         .from('gacha_products')
-        .update({
-          name: formData.name,
-          description: formData.description,
-          single_price: formData.single_price,
-          multi_price: formData.multi_price,
-          is_active: formData.is_active,
-          start_date: formData.start_date || null,
-          end_date: formData.end_date || null,
-          banner_image_url: formData.banner_image_url,
-          featured_card_ids: formData.featured_card_ids 
-            ? formData.featured_card_ids.split(',').map(id => id.trim())
-            : [],
-          guarantee_sr_on_multi: formData.guarantee_sr_on_multi,
-          metadata: metadata
-        })
+        .update(updateData)
         .eq('id', gachaId)
       
-      if (error) throw error
+      if (error) {
+        console.error('Update error details:', error)
+        throw error
+      }
       
       toast.success('ガチャを更新しました')
       router.push('/admin/gacha')

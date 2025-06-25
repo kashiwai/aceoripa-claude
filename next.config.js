@@ -30,6 +30,9 @@ const nextConfig = {
   },
   // webpackの設定
   webpack: (config, { isServer }) => {
+    // Supabase realtime-js の警告を抑制
+    config.module.exprContextCritical = false
+    
     // 画像ファイルの処理
     config.module.rules.push({
       test: /\.(jpg|jpeg|png|gif|svg|webp)$/i,

@@ -10,14 +10,23 @@ export async function GET(request: NextRequest) {
     const { data: announcements, error } = await supabase
       .from('announcements')
       .select('*')
-      .eq('status', 'published')
       .eq('is_active', true)
       .or(`start_date.is.null,start_date.lte.${new Date().toISOString()}`)
       .or(`end_date.is.null,end_date.gte.${new Date().toISOString()}`)
       .order('priority', { ascending: false })
       .order('created_at', { ascending: false })
     
-    if (error) throw error
+    if (error) {
+      // テーブルが存在しない場合は空の配列を返す
+      if (error.code === '42P01') {
+        console.log('Announcements table does not exist yet')
+        return NextResponse.json({
+          announcements: [],
+          total: 0
+        })
+      }
+      throw error
+    }
     
     // ユーザーがログインしている場合は既読情報も取得
     const { data: { user } } = await supabase.auth.getUser()

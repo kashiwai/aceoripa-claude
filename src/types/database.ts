@@ -107,6 +107,17 @@ export interface Database {
           bonus_cards: number
           is_active: boolean
           created_at: string
+          // 追加フィールド
+          banner_image_url: string | null
+          single_price: number | null
+          multi_price: number | null
+          total_stock: number
+          sold_count: number
+          start_date: string | null
+          end_date: string | null
+          featured_card_id: string | null
+          metadata: Json | null
+          updated_at: string
         }
         Insert: {
           id?: string
@@ -114,10 +125,21 @@ export interface Database {
           description?: string | null
           price: number
           currency?: string
-          card_count: number
+          card_count?: number
           bonus_cards?: number
           is_active?: boolean
           created_at?: string
+          // 追加フィールド
+          banner_image_url?: string | null
+          single_price?: number | null
+          multi_price?: number | null
+          total_stock?: number
+          sold_count?: number
+          start_date?: string | null
+          end_date?: string | null
+          featured_card_id?: string | null
+          metadata?: Json | null
+          updated_at?: string
         }
         Update: {
           id?: string
@@ -129,6 +151,17 @@ export interface Database {
           bonus_cards?: number
           is_active?: boolean
           created_at?: string
+          // 追加フィールド
+          banner_image_url?: string | null
+          single_price?: number | null
+          multi_price?: number | null
+          total_stock?: number
+          sold_count?: number
+          start_date?: string | null
+          end_date?: string | null
+          featured_card_id?: string | null
+          metadata?: Json | null
+          updated_at?: string
         }
       }
       gacha_pools: {
@@ -262,6 +295,44 @@ export interface Database {
           is_paid?: boolean
           description?: string | null
           created_at?: string
+        }
+      }
+      announcements: {
+        Row: {
+          id: string
+          title: string
+          content: string
+          type: 'info' | 'warning' | 'error' | 'success'
+          is_active: boolean
+          priority: number
+          start_date: string | null
+          end_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          content: string
+          type?: 'info' | 'warning' | 'error' | 'success'
+          is_active?: boolean
+          priority?: number
+          start_date?: string | null
+          end_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          content?: string
+          type?: 'info' | 'warning' | 'error' | 'success'
+          is_active?: boolean
+          priority?: number
+          start_date?: string | null
+          end_date?: string | null
+          created_at?: string
+          updated_at?: string
         }
       }
     }
