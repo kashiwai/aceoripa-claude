@@ -38,8 +38,16 @@ export default function AIOptimizationPage() {
         const response = await fetch(`/api/admin/gacha/${gachaId}`)
         const data = await response.json()
         
-        if (data.success) {
-          setGachaData(data.gacha)
+        if (data.product) {
+          setGachaData({
+            id: data.product.id,
+            title: data.product.name,
+            description: data.product.description,
+            price: data.product.single_price,
+            total_packs: data.product.total_packs || 0,
+            remaining_packs: data.product.remaining_packs || 0,
+            status: data.product.is_active ? 'active' : 'inactive'
+          })
         }
       } catch (error) {
         console.error('Error fetching gacha data:', error)
