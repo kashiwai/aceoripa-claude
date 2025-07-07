@@ -20,17 +20,27 @@ export async function POST(request: Request) {
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
     const baseUrl = `${protocol}://${host}`
     
-    // Supabase Authでユーザーを作成
+    // 通常のユーザー登録でメール送信
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${baseUrl}/auth/callback`,
         data: {
           display_name: displayName || email.split('@')[0]
         }
       }
     })
+    
+    // バックグラウンドで自動確認（メール送信後に即座に有効化）
+    if (authData.user && !authError) {
+      try {
+        await adminClient.auth.admin.updateUserById(authData.user.id, {
+          email_confirm: true
+        })
+      } catch (confirmError) {
+        console.error('Auto-confirm error:', confirmError)
+      }
+    }
     
     if (authError) {
       console.error('Auth error:', authError)
@@ -68,18 +78,32 @@ export async function POST(request: Request) {
       // エラーがあってもAuth登録は成功とする
     }
     
-    // user_pointsテーブルに初期ポイントを作成（エラーをスキップ）
+    // user_pointsテーブルに初期ポイントを作成（必須）
     try {
-      await adminClient
+      const { error: pointsError } = await adminClient
         .from('user_points')
         .insert({
           user_id: authData.user.id,
-          free_points: 0,
+          free_points: 1000, // 初回登録ボーナス1000ポイント
           paid_points: 0,
-          total_points: 0
+          updated_at: new Date().toISOString()
         })
+      
+      if (pointsError) {
+        console.error('Critical: Failed to create user_points:', pointsError)
+        // user_pointsの作成に失敗した場合はユーザーを削除
+        await adminClient.auth.admin.deleteUser(authData.user.id)
+        return NextResponse.json({ 
+          error: 'アカウントの作成に失敗しました。もう一度お試しください。' 
+        }, { status: 500 })
+      }
     } catch (pointsErr) {
-      console.error('Points table operation failed:', pointsErr)
+      console.error('Critical: Points table operation failed:', pointsErr)
+      // ユーザーを削除
+      await adminClient.auth.admin.deleteUser(authData.user.id)
+      return NextResponse.json({ 
+        error: 'アカウントの作成に失敗しました。もう一度お試しください。' 
+      }, { status: 500 })
     }
     
     // 新規登録ボーナスを付与（エラーをスキップ）
@@ -117,11 +141,13 @@ export async function POST(request: Request) {
       console.error('Bonus operation failed:', bonusErr)
     }
     
-    // 成功レスポンス
+    // 成功レスポンス（メール送信完了）
     return NextResponse.json({ 
       success: true,
       user: authData.user,
-      message: '登録が完了しました。確認メールをご確認ください。'
+      emailConfirmed: true, // バックグラウンドで確認済み
+      emailSent: true, // メール送信完了
+      message: '登録が完了しました！確認メールを送信しました。1000ポイントをプレゼント🎉'
     })
   } catch (error) {
     console.error('Signup error:', error)

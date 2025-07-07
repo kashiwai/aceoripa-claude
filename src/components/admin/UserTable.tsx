@@ -8,6 +8,12 @@ interface User {
   id: string
   email: string
   created_at: string
+  display_name?: string | null
+  email_confirmed?: boolean
+  free_points: number
+  paid_points: number
+  total_points: number
+  card_count: number
   user_points?: Array<{
     free_points: number
     paid_points: number
@@ -36,12 +42,28 @@ export default function UserTable({ users, currentPage, totalPages }: UserTableP
   }
   
   const getTotalPoints = (user: User) => {
+    // 新しい形式を優先
+    if (user.total_points !== undefined) return user.total_points
+    // 古い形式との互換性
     if (!user.user_points?.[0]) return 0
     return user.user_points[0].free_points + user.user_points[0].paid_points
   }
   
   const getCardCount = (user: User) => {
+    // 新しい形式を優先
+    if (user.card_count !== undefined) return user.card_count
+    // 古い形式との互換性
     return user._count?.user_cards || 0
+  }
+  
+  const getFreePoints = (user: User) => {
+    if (user.free_points !== undefined) return user.free_points
+    return user.user_points?.[0]?.free_points || 0
+  }
+  
+  const getPaidPoints = (user: User) => {
+    if (user.paid_points !== undefined) return user.paid_points
+    return user.user_points?.[0]?.paid_points || 0
   }
   
   return (
@@ -77,12 +99,10 @@ export default function UserTable({ users, currentPage, totalPages }: UserTableP
                 <td>
                   <div>
                     <div className="fw-bold">{getTotalPoints(user).toLocaleString()}pt</div>
-                    {user.user_points?.[0] && (
-                      <small className="text-muted">
-                        無料: {user.user_points[0].free_points.toLocaleString()} / 
-                        有料: {user.user_points[0].paid_points.toLocaleString()}
-                      </small>
-                    )}
+                    <small className="text-muted">
+                      無料: {getFreePoints(user).toLocaleString()} / 
+                      有料: {getPaidPoints(user).toLocaleString()}
+                    </small>
                   </div>
                 </td>
                 <td>

@@ -14,11 +14,35 @@ import {
 
 const AI_TOOLS = [
   {
+    title: 'バナー管理',
+    description: '生成したすべてのバナーを一覧管理・再利用',
+    href: '/admin/ai-generator/banner-library',
+    icon: PhotoIcon,
+    color: 'bg-gradient-to-r from-purple-600 to-pink-600',
+    features: ['一覧表示', '使用場所管理', '検索・フィルター']
+  },
+  {
+    title: '300×300 スクエアバナー',
+    description: 'ガチャ一覧やSNSシェア用の正方形バナーをAI生成',
+    href: '/admin/ai-generator/square-banner',
+    icon: PhotoIcon,
+    color: 'bg-gradient-to-r from-blue-600 to-purple-600',
+    features: ['DALL-E 3使用', '自動リサイズ', 'テンプレート付き']
+  },
+  {
+    title: 'トップページバナー',
+    description: 'スライダー表示用の横長バナーをAI生成',
+    href: '/admin/ai-generator/top-banner',
+    icon: PhotoIcon,
+    color: 'bg-gradient-to-r from-pink-600 to-red-600',
+    features: ['モバイル/PC対応', '横長フォーマット', '高品質生成']
+  },
+  {
     title: 'ガチャバナー生成',
     description: '1024×1024の高品質ガチャバナーをAIで自動生成',
     href: '/admin/ai-generator/gacha-banner',
     icon: PhotoIcon,
-    color: 'bg-gradient-to-r from-purple-600 to-pink-600',
+    color: 'bg-gradient-to-r from-orange-600 to-yellow-600',
     features: ['DALL-E 3使用', 'DOPAスタイル準拠', '即座に使用可能']
   },
   {
@@ -42,7 +66,7 @@ const AI_TOOLS = [
     description: 'カード表示用の3DモデルをAI生成',
     href: '/admin/ai-generator/3d-model',
     icon: CubeIcon,
-    color: 'bg-gradient-to-r from-orange-600 to-red-600',
+    color: 'bg-gradient-to-r from-indigo-600 to-blue-600',
     features: ['リアルタイム表示', '回転アニメーション', 'WebGL対応']
   },
   {
@@ -50,7 +74,7 @@ const AI_TOOLS = [
     description: '生成コンテンツの効果を分析',
     href: '/admin/ai-generator/analytics',
     icon: ChartBarIcon,
-    color: 'bg-gradient-to-r from-indigo-600 to-purple-600',
+    color: 'bg-gradient-to-r from-teal-600 to-cyan-600',
     features: ['コンバージョン率', 'ユーザー反応', 'A/Bテスト']
   },
   {
@@ -60,6 +84,14 @@ const AI_TOOLS = [
     icon: Cog6ToothIcon,
     color: 'bg-gradient-to-r from-gray-600 to-gray-800',
     features: ['API使用量', 'プロンプト管理', 'コスト管理']
+  },
+  {
+    title: '既存バナー移行',
+    description: 'プロジェクトの既存バナーをシステムに登録',
+    href: '/admin/ai-generator/migrate-banners',
+    icon: ArrowRightIcon,
+    color: 'bg-gradient-to-r from-amber-600 to-orange-600',
+    features: ['一括移行', 'タイプ別選択', '既存画像活用']
   }
 ]
 

@@ -3,38 +3,46 @@
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, UserPlusIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid';
 
 export function AuthHeader() {
   const { user, signOut } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   return (
-    <header className="bg-gray-800 border-b border-gray-700">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+    <header className="bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 shadow-xl sticky top-0 z-50">
+      <div className="w-full px-2 sm:px-3">
+        <div className="flex items-center justify-between h-10 sm:h-16">
           {/* ロゴ */}
-          <Link href="/" className="text-xl font-bold text-white">
-            Aceoripa TCG
+          <Link href="/" className="flex items-center">
+            <span className="text-base sm:text-2xl font-black text-white tracking-tight">ACEORIPA</span>
+            <span className="text-[6px] sm:text-xs font-bold text-white bg-red-700 px-1 sm:px-2 py-0 sm:py-0.5 rounded-full ml-0.5 sm:ml-2">ONLINE</span>
           </Link>
 
-          {/* ナビゲーション */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-300 hover:text-white transition-colors">
-              ホーム
+          {/* デスクトップナビゲーション */}
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link href="/gacha" className="flex items-center space-x-2 bg-yellow-400 hover:bg-yellow-300 text-black px-4 py-2 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg">
+              <SparklesIcon className="w-5 h-5" />
+              <span>ガチャ</span>
             </Link>
-            <Link href="/gacha" className="text-gray-300 hover:text-white transition-colors">
-              ガチャ
-            </Link>
-            <Link href="/battle" className="text-gray-300 hover:text-white transition-colors">
-              バトル
-            </Link>
-            <Link href="/deck" className="text-gray-300 hover:text-white transition-colors">
-              デッキ
-            </Link>
+            {!user && (
+              <>
+                <Link href="/auth/login" className="flex items-center space-x-2 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg">
+                  <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                  <span>ログイン</span>
+                </Link>
+                <Link href="/auth/signup" className="flex items-center space-x-2 bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white px-4 py-2 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg">
+                  <UserPlusIcon className="w-5 h-5" />
+                  <span>新規登録</span>
+                </Link>
+              </>
+            )}
           </nav>
 
-          {/* ユーザーメニュー */}
-          <div className="flex items-center space-x-4">
+          {/* ユーザーメニュー & モバイルメニューボタン */}
+          <div className="flex items-center space-x-2">
             {user ? (
               <div className="relative">
                 <button
@@ -83,24 +91,136 @@ export function AuthHeader() {
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
-                <Link
-                  href="/auth/login"
-                  className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
-                >
-                  ログイン
-                </Link>
+              <div className="hidden md:flex items-center space-x-2">
+                {/* デスクトップではナビゲーションに統合 */}
+              </div>
+            )}
+            
+            {/* モバイル用ボタン */}
+            <div className="flex items-center space-x-1 sm:space-x-2 md:hidden">
+              <Link
+                href="/gacha"
+                className="flex items-center space-x-1 bg-yellow-400 hover:bg-yellow-300 text-black px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-bold text-[10px] sm:text-xs transition-all transform hover:scale-105 shadow-lg"
+              >
+                <SparklesIcon className="w-3 sm:w-4 h-3 sm:h-4" />
+                <span>ガチャ</span>
+              </Link>
+              {!user && (
                 <Link
                   href="/auth/signup"
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold transition-all transform hover:scale-105"
+                  className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-bold text-[10px] sm:text-xs transition-all transform hover:scale-105 shadow-lg"
                 >
                   新規登録
                 </Link>
-              </div>
-            )}
+              )}
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-1 sm:p-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
+              >
+                {showMobileMenu ? (
+                  <XMarkIcon className="w-4 sm:w-5 h-4 sm:h-5 text-white" />
+                ) : (
+                  <Bars3Icon className="w-4 sm:w-5 h-4 sm:h-5 text-white" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      
+      {/* モバイルメニュー */}
+      {showMobileMenu && (
+        <div className="md:hidden fixed inset-0 top-10 sm:top-16 bg-black/95 z-50 overflow-y-auto">
+          <div className="px-4 py-6 space-y-4">
+            {/* ガチャボタン（最も目立つ） */}
+            <Link
+              href="/gacha"
+              onClick={() => setShowMobileMenu(false)}
+              className="flex items-center justify-center space-x-3 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black px-6 py-4 rounded-2xl font-black text-lg transition-all transform hover:scale-105 shadow-2xl"
+            >
+              <SparklesIcon className="w-8 h-8" />
+              <span>ガチャを引く</span>
+              <span className="text-sm bg-red-600 text-white px-2 py-1 rounded-full animate-pulse">HOT</span>
+            </Link>
+            
+            {!user ? (
+              <>
+                {/* ログインボタン */}
+                <Link
+                  href="/auth/login"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="flex items-center justify-center space-x-3 bg-white hover:bg-gray-100 text-gray-800 px-6 py-4 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 shadow-xl"
+                >
+                  <ArrowRightOnRectangleIcon className="w-7 h-7" />
+                  <span>ログイン</span>
+                </Link>
+                
+                {/* 新規登録ボタン */}
+                <Link
+                  href="/auth/signup"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="flex items-center justify-center space-x-3 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 hover:from-green-500 hover:via-blue-600 hover:to-purple-700 text-white px-6 py-4 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 shadow-xl"
+                >
+                  <UserPlusIcon className="w-7 h-7" />
+                  <span>新規登録</span>
+                  <span className="text-xs bg-white/30 px-2 py-1 rounded-full">今なら特典付き</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/mypage"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="block bg-gray-800 hover:bg-gray-700 text-white px-6 py-4 rounded-2xl font-bold text-lg transition-all"
+                >
+                  マイページ
+                </Link>
+                <Link
+                  href="/settings"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="block bg-gray-800 hover:bg-gray-700 text-white px-6 py-4 rounded-2xl font-bold text-lg transition-all"
+                >
+                  設定
+                </Link>
+                <button
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    signOut();
+                  }}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-2xl font-bold text-lg transition-all"
+                >
+                  ログアウト
+                </button>
+              </>
+            )}
+            
+            {/* その他のメニュー項目 */}
+            <div className="pt-4 border-t border-gray-700 space-y-3">
+              <Link
+                href="/"
+                onClick={() => setShowMobileMenu(false)}
+                className="block text-gray-300 hover:text-white px-6 py-3 font-medium transition-colors"
+              >
+                ホーム
+              </Link>
+              <Link
+                href="/battle"
+                onClick={() => setShowMobileMenu(false)}
+                className="block text-gray-300 hover:text-white px-6 py-3 font-medium transition-colors"
+              >
+                バトル
+              </Link>
+              <Link
+                href="/deck"
+                onClick={() => setShowMobileMenu(false)}
+                className="block text-gray-300 hover:text-white px-6 py-3 font-medium transition-colors"
+              >
+                デッキ
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

@@ -22,10 +22,17 @@ export default function CampaignBanner() {
   const [banners, setBanners] = useState<CampaignBanner[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+  const [isDismissed, setIsDismissed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showAllBanners, setShowAllBanners] = useState(true);
 
   useEffect(() => {
+    // ローカルストレージから非表示状態を確認
+    const dismissed = localStorage.getItem('campaignBannerDismissed');
+    if (dismissed === 'true') {
+      setIsDismissed(true);
+      setIsVisible(false);
+    }
     fetchCampaignBanners();
   }, []);
 
@@ -116,7 +123,7 @@ export default function CampaignBanner() {
     }
   };
 
-  if (loading || !showAllBanners || banners.length === 0 || !isVisible) {
+  if (loading || !showAllBanners || banners.length === 0 || !isVisible || isDismissed) {
     return null
   }
 
@@ -133,20 +140,20 @@ export default function CampaignBanner() {
           transition={{ duration: 0.5 }}
           className={`relative bg-gradient-to-r ${currentBanner.bgColor} ${currentBanner.textColor}`}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative py-2 md:py-3">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div className="relative py-4 sm:py-5 md:py-4">
               <div className="flex flex-col md:flex-row items-center justify-between">
                 {/* テキストコンテンツ */}
-                <div className="text-center md:text-left mb-2 md:mb-0 md:mr-8">
-                  <h2 className="text-xl md:text-2xl font-black mb-1">
+                <div className="text-center md:text-left w-full md:w-auto pr-8">
+                  <h2 className="text-base sm:text-xl md:text-2xl font-black mb-1 leading-tight">
                     {currentBanner.title}
                   </h2>
-                  <p className="text-sm md:text-base opacity-90 mb-2">
+                  <p className="text-xs sm:text-sm md:text-base opacity-90 mb-3">
                     {currentBanner.subtitle}
                   </p>
                   <Link
                     href={currentBanner.linkUrl}
-                    className="inline-block bg-white text-gray-900 font-bold px-4 py-2 rounded-full hover:bg-gray-100 transition transform hover:scale-105 shadow-lg text-sm"
+                    className="inline-block bg-white text-gray-900 font-bold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full hover:bg-gray-100 transition transform hover:scale-105 shadow-lg text-sm sm:text-base"
                   >
                     {currentBanner.ctaText} →
                   </Link>
@@ -169,15 +176,20 @@ export default function CampaignBanner() {
 
               {/* 閉じるボタン */}
               <button
-                onClick={() => setIsVisible(false)}
-                className="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 transition"
+                onClick={() => {
+                  setIsVisible(false);
+                  setIsDismissed(true);
+                  // ローカルストレージに保存して永続化
+                  localStorage.setItem('campaignBannerDismissed', 'true');
+                }}
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 transition"
               >
-                <XMarkIcon className="h-5 w-5" />
+                <XMarkIcon className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
 
               {/* インジケーター */}
               {banners.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                <div className="absolute bottom-2 sm:bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-1.5 sm:space-x-2">
                   {banners.map((_, index) => (
                     <button
                       key={index}

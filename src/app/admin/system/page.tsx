@@ -29,6 +29,14 @@ interface SystemInfo {
     totalUsers: number
     totalCards: number
     totalTransactions: number
+    totalGachaProducts: number
+    totalAdmins: number
+  }
+  systemHealth: {
+    dbConnection: boolean
+    apiConnection: boolean
+    storageConnection: boolean
+    errors: string[]
   }
   apis: {
     openai: {
@@ -90,20 +98,106 @@ export default function SystemPage() {
   const [showCreateAdmin, setShowCreateAdmin] = useState(false)
   const [newAdmin, setNewAdmin] = useState({ username: '', password: '', role: 'admin' })
   const [creating, setCreating] = useState(false)
+  const [healthCheckRunning, setHealthCheckRunning] = useState(false)
 
   useEffect(() => {
     fetchSystemInfo()
     fetchAdminCredentials()
   }, [])
 
+  const runHealthCheck = async () => {
+    const errors: string[] = []
+    let dbConnection = false
+    let apiConnection = false
+    let storageConnection = false
+
+    // データベース接続チェック
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('gacha_products')
+        .select('id')
+        .limit(1)
+      
+      if (error) {
+        errors.push(`DB接続エラー: ${error.message}`)
+      } else {
+        dbConnection = true
+      }
+    } catch (error) {
+      errors.push(`DB接続エラー: ${error}`)
+    }
+
+    // API接続チェック（OpenAI）
+    if (process.env.OPENAI_API_KEY) {
+      try {
+        const response = await fetch('https://api.openai.com/v1/models', {
+          headers: {
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+          }
+        })
+        if (response.ok) {
+          apiConnection = true
+        } else {
+          errors.push(`OpenAI API接続エラー: ${response.statusText}`)
+        }
+      } catch (error) {
+        errors.push(`OpenAI API接続エラー: ${error}`)
+      }
+    }
+
+    // ストレージ接続チェック
+    try {
+      const { data, error } = await supabaseAdmin
+        .storage
+        .from('pokemon-cards')
+        .list('', { limit: 1 })
+      
+      if (error) {
+        errors.push(`ストレージ接続エラー: ${error.message}`)
+      } else {
+        storageConnection = true
+      }
+    } catch (error) {
+      errors.push(`ストレージ接続エラー: ${error}`)
+    }
+
+    // 必須テーブルの存在チェック
+    const requiredTables = ['users', 'pokemon_cards', 'gacha_products', 'gacha_pokemon_pools', 'transactions']
+    for (const table of requiredTables) {
+      try {
+        const { error } = await supabaseAdmin
+          .from(table)
+          .select('*', { count: 'exact', head: true })
+        
+        if (error) {
+          errors.push(`テーブル '${table}' が見つかりません`)
+        }
+      } catch (error) {
+        errors.push(`テーブル '${table}' のチェックエラー`)
+      }
+    }
+
+    return {
+      dbConnection,
+      apiConnection,
+      storageConnection,
+      errors
+    }
+  }
+
   const fetchSystemInfo = async () => {
     try {
       // データベース統計を取得
-      const [usersResult, cardsResult, transactionsResult] = await Promise.all([
+      const [usersResult, cardsResult, transactionsResult, gachaResult, adminResult] = await Promise.all([
         supabaseAdmin.from('users').select('*', { count: 'exact', head: true }),
         supabaseAdmin.from('pokemon_cards').select('*', { count: 'exact', head: true }),
-        supabaseAdmin.from('transactions').select('*', { count: 'exact', head: true })
+        supabaseAdmin.from('transactions').select('*', { count: 'exact', head: true }),
+        supabaseAdmin.from('gacha_products').select('*', { count: 'exact', head: true }),
+        supabaseAdmin.from('admin_credentials').select('*', { count: 'exact', head: true })
       ])
+
+      // システムヘルスチェック
+      const healthCheck = await runHealthCheck()
 
       const info: SystemInfo = {
         nextJs: {
@@ -123,8 +217,11 @@ export default function SystemPage() {
         database: {
           totalUsers: usersResult.count || 0,
           totalCards: cardsResult.count || 0,
-          totalTransactions: transactionsResult.count || 0
+          totalTransactions: transactionsResult.count || 0,
+          totalGachaProducts: gachaResult.count || 0,
+          totalAdmins: adminResult.count || 0
         },
+        systemHealth: healthCheck,
         apis: {
           openai: {
             apiKey: process.env.OPENAI_API_KEY || '',
@@ -278,6 +375,24 @@ export default function SystemPage() {
     }
   }
 
+  const runFullHealthCheck = async () => {
+    setHealthCheckRunning(true)
+    try {
+      const healthCheck = await runHealthCheck()
+      setSystemInfo(prev => prev ? {...prev, systemHealth: healthCheck} : null)
+      
+      if (healthCheck.errors.length === 0) {
+        toast.success('システムヘルスチェック完了: 問題なし')
+      } else {
+        toast.error(`エラーが${healthCheck.errors.length}件見つかりました`)
+      }
+    } catch (error) {
+      toast.error('ヘルスチェックの実行に失敗しました')
+    } finally {
+      setHealthCheckRunning(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mt-5">
@@ -288,7 +403,107 @@ export default function SystemPage() {
 
   return (
     <div className="container-fluid mt-5">
-      <h1 className="h2 mb-4">System 設定</h1>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 className="h2">システム設定</h1>
+        <button 
+          className="btn btn-primary"
+          onClick={runFullHealthCheck}
+          disabled={healthCheckRunning}
+        >
+          {healthCheckRunning ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              ヘルスチェック実行中...
+            </>
+          ) : (
+            <>
+              <i className="bi bi-heart-pulse me-2"></i>
+              ヘルスチェック実行
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* システムヘルスステータス */}
+      {systemInfo?.systemHealth && (
+        <div className="row mb-4">
+          <div className="col">
+            <div className={`card border-${systemInfo.systemHealth.errors.length === 0 ? 'success' : 'danger'}`}>
+              <div className="card-header">
+                <h3 className="card-title mb-0">
+                  <i className="bi bi-heart-pulse me-2"></i>
+                  システムヘルスステータス
+                </h3>
+              </div>
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-md-3">
+                    <div className="text-center">
+                      <div className={`mb-2 ${systemInfo.systemHealth.dbConnection ? 'text-success' : 'text-danger'}`}>
+                        <i className={`bi ${systemInfo.systemHealth.dbConnection ? 'bi-check-circle-fill' : 'bi-x-circle-fill'} fs-1`}></i>
+                      </div>
+                      <h6>データベース接続</h6>
+                      <span className={`badge ${systemInfo.systemHealth.dbConnection ? 'bg-success' : 'bg-danger'}`}>
+                        {systemInfo.systemHealth.dbConnection ? 'OK' : 'エラー'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-md-3">
+                    <div className="text-center">
+                      <div className={`mb-2 ${systemInfo.systemHealth.apiConnection ? 'text-success' : 'text-warning'}`}>
+                        <i className={`bi ${systemInfo.systemHealth.apiConnection ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'} fs-1`}></i>
+                      </div>
+                      <h6>API接続</h6>
+                      <span className={`badge ${systemInfo.systemHealth.apiConnection ? 'bg-success' : 'bg-warning'}`}>
+                        {systemInfo.systemHealth.apiConnection ? 'OK' : '未設定'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-md-3">
+                    <div className="text-center">
+                      <div className={`mb-2 ${systemInfo.systemHealth.storageConnection ? 'text-success' : 'text-danger'}`}>
+                        <i className={`bi ${systemInfo.systemHealth.storageConnection ? 'bi-check-circle-fill' : 'bi-x-circle-fill'} fs-1`}></i>
+                      </div>
+                      <h6>ストレージ接続</h6>
+                      <span className={`badge ${systemInfo.systemHealth.storageConnection ? 'bg-success' : 'bg-danger'}`}>
+                        {systemInfo.systemHealth.storageConnection ? 'OK' : 'エラー'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-md-3">
+                    <div className="text-center">
+                      <div className={`mb-2 ${systemInfo.systemHealth.errors.length === 0 ? 'text-success' : 'text-danger'}`}>
+                        <i className={`bi ${systemInfo.systemHealth.errors.length === 0 ? 'bi-shield-check' : 'bi-shield-x'} fs-1`}></i>
+                      </div>
+                      <h6>全体ステータス</h6>
+                      <span className={`badge ${systemInfo.systemHealth.errors.length === 0 ? 'bg-success' : 'bg-danger'}`}>
+                        {systemInfo.systemHealth.errors.length === 0 ? '正常' : `${systemInfo.systemHealth.errors.length}件のエラー`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {systemInfo.systemHealth.errors.length > 0 && (
+                  <div className="mt-4">
+                    <h6 className="text-danger mb-3">
+                      <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                      検出されたエラー
+                    </h6>
+                    <div className="list-group">
+                      {systemInfo.systemHealth.errors.map((error, index) => (
+                        <div key={index} className="list-group-item list-group-item-danger">
+                          <i className="bi bi-x-circle me-2"></i>
+                          {error}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="row">
         {/* システム情報 */}
@@ -334,6 +549,14 @@ export default function SystemPage() {
                       <tr>
                         <td>取引数</td>
                         <td><strong>{systemInfo?.database.totalTransactions}</strong></td>
+                      </tr>
+                      <tr>
+                        <td>ガチャ商品数</td>
+                        <td><strong>{systemInfo?.database.totalGachaProducts}</strong></td>
+                      </tr>
+                      <tr>
+                        <td>管理者数</td>
+                        <td><strong>{systemInfo?.database.totalAdmins}</strong></td>
                       </tr>
                     </tbody>
                   </table>

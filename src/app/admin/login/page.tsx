@@ -134,17 +134,6 @@ export default function AdminLogin() {
           </a>
         </div>
 
-        {/* 初期管理者情報 */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-md text-sm text-gray-700 border border-gray-200">
-          <p className="font-semibold mb-2">初期管理者アカウント:</p>
-          <div className="font-mono bg-white p-2 rounded border border-gray-300">
-            <p>ユーザー名: <span className="font-bold text-blue-600">admin</span></p>
-            <p>パスワード: <span className="font-bold text-blue-600">admin123</span></p>
-          </div>
-          <p className="mt-2 text-xs text-red-600">
-            ※ セキュリティのため、初回ログイン後は必ずパスワードを変更してください
-          </p>
-        </div>
       </div>
     </div>
   )

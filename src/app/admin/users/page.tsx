@@ -17,18 +17,8 @@ async function getUsers(page: number = 1, perPage: number = 20) {
     const data = await response.json()
     
     if (data.success) {
-      // UserTableコンポーネントが期待する形式に変換
-      const formattedUsers = data.users.map((user: any) => ({
-        id: user.id,
-        email: user.email,
-        display_name: user.display_name,
-        created_at: user.created_at,
-        user_points: [{
-          free_points: user.free_points,
-          paid_points: user.paid_points
-        }],
-        user_cards: [{ count: user.card_count || 0 }]
-      }))
+      // 新しいデータ形式をそのまま使用
+      const formattedUsers = data.users
       
       return {
         users: formattedUsers,

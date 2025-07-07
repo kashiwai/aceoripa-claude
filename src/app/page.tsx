@@ -9,9 +9,9 @@ import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import CampaignBanner from '@/components/CampaignBanner'
 import BannerCarousel from '@/components/BannerCarousel'
 import LoadingSpinner from '@/components/LoadingSpinner'
+import { AuthHeader } from '@/components/layout/AuthHeader'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 export default function HomePage() {
@@ -68,7 +68,7 @@ export default function HomePage() {
   ]
 
   const [loading, setLoading] = useState(false)
-  const [gachaProducts, setGachaProducts] = useState<any[]>(gachaProductsFallback)
+  const [gachaProducts, setGachaProducts] = useState<any[]>([])
   const [error, setError] = useState<string | null>(null)
   const [showSquareBanners, setShowSquareBanners] = useState(true)
   const router = useRouter()
@@ -106,6 +106,7 @@ export default function HomePage() {
 
   // APIからガチャ商品データを取得
   useEffect(() => {
+    setLoading(true)
     const fetchGachaProducts = async () => {
       try {
         const response = await fetch('/api/gacha/products')
@@ -201,7 +202,7 @@ export default function HomePage() {
           padding: 0 !important;
         }
         .banner-swiper .swiper-wrapper {
-          padding: 8px 0;
+          padding: 0;
         }
         .banner-swiper .swiper-slide {
           width: 300px !important;
@@ -209,59 +210,31 @@ export default function HomePage() {
         /* スマホ用のスタイル */
         @media (max-width: 640px) {
           .banner-swiper .swiper-slide {
-            width: 150px !important;
+            width: 80px !important;
+          }
+          .banner-swiper {
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          * {
+            margin: 0 !important;
           }
         }
       `}</style>
       {/* ヘッダー */}
-      <header className="bg-white shadow-lg sticky top-0 z-50 border-b-4 border-[#FF0033]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center">
-              <h1 className="text-4xl font-black text-[#FF0033]">ACEORIPA</h1>
-              <span className="ml-3 bg-[#FF0033] text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
-                ONLINE
-              </span>
-            </div>
-            <nav className="flex items-center space-x-2 md:space-x-8">
-              <Link href="/gacha" className="text-gray-700 hover:text-[#FF0033] font-bold text-sm md:text-lg transition">
-                ガチャ
-              </Link>
-              {isLoggedIn ? (
-                <>
-                  <Link href="/mypage" className="text-gray-700 hover:text-[#FF0033] font-bold text-sm md:text-lg transition">
-                    マイページ
-                  </Link>
-                  <Link href="/purchase" className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white font-bold px-3 py-2 md:px-6 md:py-3 rounded-full hover:scale-105 transition transform text-sm md:text-base">
-                    ポイント購入
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/auth/login" className="text-gray-700 hover:text-[#FF0033] font-bold text-sm md:text-lg transition">
-                    ログイン
-                  </Link>
-                  <Link href="/auth/register" className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white font-bold px-3 py-2 md:px-6 md:py-3 rounded-full hover:scale-105 transition transform text-sm md:text-base">
-                    新規登録
-                  </Link>
-                </>
-              )}
-            </nav>
-          </div>
-        </div>
-      </header>
+      <AuthHeader />
 
       {/* メインバナーカルーセル */}
       <BannerCarousel />
 
-      {/* キャンペーンバナー */}
-      <div className="-mb-4">
-        <CampaignBanner />
-      </div>
       {/* メインバナースライダー（300x300） */}
       {showSquareBanners && squareBanners.filter(banner => banner.isActive !== false).length > 0 && (
-        <section className="bg-gray-100 -mb-2">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-0">
+        <section className="bg-gray-100 relative z-0 py-0 sm:py-3 hidden sm:block">
+          <div className="w-full px-0 sm:px-4">
             <Swiper
               modules={[Autoplay, Navigation]}
               spaceBetween={8}
@@ -271,10 +244,10 @@ export default function HomePage() {
               className="banner-swiper"
             >
               {squareBanners.filter(banner => banner.isActive !== false).map((banner) => (
-              <SwiperSlide key={banner.id} className="!w-[150px] sm:!w-[300px]">
+              <SwiperSlide key={banner.id} className="!w-[80px] sm:!w-[300px]">
                 <div 
                   onClick={() => router.push(`/gacha/${banner.gachaId}`)}
-                  className="w-[150px] h-[150px] sm:w-[300px] sm:h-[300px] bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform relative"
+                  className="w-[80px] h-[80px] sm:w-[300px] sm:h-[300px] bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform relative"
                 >
                   {/* 画像バナー */}
                   {banner.image ? (
@@ -289,16 +262,16 @@ export default function HomePage() {
                         priority
                       />
                       {/* テキストオーバーレイ */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-2 sm:p-4">
-                        <h3 className="text-sm sm:text-xl font-black text-white mb-0.5 sm:mb-1 drop-shadow-lg">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-1.5 sm:p-4">
+                        <h3 className="text-[9px] sm:text-xl font-black text-white mb-0.5 sm:mb-1 drop-shadow-lg leading-tight">
                           {banner.title}
                         </h3>
-                        <p className="text-xs sm:text-sm font-bold text-white/90 drop-shadow-md">
+                        <p className="text-[7px] sm:text-sm font-bold text-white/90 drop-shadow-md leading-tight">
                           {banner.subtitle}
                         </p>
                       </div>
                       {/* 装飾的な要素 */}
-                      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-[#FF0033] text-white px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold animate-pulse">
+                      <div className="absolute top-0.5 right-0.5 sm:top-4 sm:right-4 bg-[#FF0033] text-white px-1 sm:px-3 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-sm font-bold animate-pulse">
                         NEW
                       </div>
                     </div>
@@ -306,10 +279,10 @@ export default function HomePage() {
                     /* 画像がない場合のフォールバック */
                     <>
                       <div className={`h-2/3 ${banner.color} relative flex items-center justify-center`}>
-                        <h3 className="text-2xl font-black text-white text-center px-4">{banner.title}</h3>
+                        <h3 className="text-lg sm:text-2xl font-black text-white text-center px-2 sm:px-4">{banner.title}</h3>
                       </div>
                       <div className="h-1/3 p-4 flex items-center justify-center">
-                        <p className="text-base font-bold text-gray-700 text-center">{banner.subtitle}</p>
+                        <p className="text-sm sm:text-base font-bold text-gray-700 text-center">{banner.subtitle}</p>
                       </div>
                     </>
                   )}
@@ -321,14 +294,27 @@ export default function HomePage() {
         </section>
       )}
       {/* メインガチャ商品（1024x1024縦並び） */}
-      <section className="-mt-6">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-black text-center text-[#FF0033] mb-8">
+      <section className="mt-0 sm:-mt-1">
+        <div className="max-w-4xl mx-auto px-0 sm:px-6 lg:px-8">
+          <h2 className="text-sm sm:text-4xl font-black text-center text-[#FF0033] mb-0 sm:mb-8 py-1 sm:py-0">
             オリパラインナップ
           </h2>
-          <div className="space-y-8">
-            {gachaProducts.map((product) => (
-              <div key={product.id} className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="space-y-0 sm:space-y-8">
+            {loading && gachaProducts.length === 0 ? (
+              // Loading skeleton
+              Array(3).fill(0).map((_, index) => (
+                <div key={index} className="bg-white rounded-2xl shadow-xl overflow-hidden animate-pulse">
+                  <div className="aspect-square bg-gray-200"></div>
+                  <div className="p-4 sm:p-6">
+                    <div className="h-8 bg-gray-200 rounded mb-4"></div>
+                    <div className="h-6 bg-gray-200 rounded mb-4 w-3/4"></div>
+                    <div className="h-12 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              gachaProducts.map((product, index) => (
+              <div key={product.id} className="bg-white rounded-lg sm:rounded-2xl shadow-lg sm:shadow-xl overflow-hidden">
                 {/* 1024x1024 ガチャ画像（クリック可能） */}
                 <div 
                   onClick={() => router.push(`/gacha/${product.id}`)}
@@ -341,32 +327,35 @@ export default function HomePage() {
                     height={1024}
                     className="w-full h-full object-cover"
                     unoptimized
+                    priority={index === 0}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 896px"
                   />
                   
                   {/* ステータスバッジ */}
                   {product.status === 'sold_out' && (
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                      <span className="text-6xl font-black text-white rotate-[-15deg]">SOLD OUT</span>
+                      <span className="text-3xl sm:text-6xl font-black text-white rotate-[-15deg]">SOLD OUT</span>
                     </div>
                   )}
                   {product.status === 'ending_soon' && (
-                    <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-full font-bold animate-pulse">
+                    <div className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-red-500 text-white px-2 py-1 sm:px-4 sm:py-2 rounded-full font-bold animate-pulse text-xs sm:text-base">
                       残りわずか！
                     </div>
                   )}
                 </div>
                 
                 {/* 商品情報 */}
-                <div className="p-4">
-                  <h3 className="text-3xl font-black text-gray-800 mb-2">{product.name}</h3>
+                <div className="p-1 sm:p-6">
+                  <h3 className="text-sm sm:text-3xl font-black text-gray-800 mb-0 sm:mb-2 leading-tight">{product.name}</h3>
                     
                     {/* 残り枚数と進行状況バー */}
-                    <div className="mb-2">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-bold text-gray-700">
+                    <div className="mb-0 sm:mb-2">
+                      <div className="flex justify-between items-center mb-0 sm:mb-2">
+                        <span className="text-[8px] sm:text-sm font-bold text-gray-700">
                           残り {product.remaining.toLocaleString()}枚 / {product.total.toLocaleString()}枚中
                         </span>
-                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                        <span className={`text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ${
                           product.status === 'sold_out' ? 'bg-gray-200 text-gray-600' :
                           product.status === 'ending_soon' ? 'bg-red-100 text-red-600 animate-pulse' :
                           'bg-green-100 text-green-600'
@@ -378,7 +367,7 @@ export default function HomePage() {
                       </div>
                       
                       {/* プログレスバー */}
-                      <div className="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="relative w-full h-2 sm:h-6 bg-gray-200 rounded-full overflow-hidden">
                         <div 
                           className={`absolute top-0 left-0 h-full transition-all duration-500 ease-out ${
                             product.status === 'sold_out' ? 'bg-gray-400' :
@@ -403,25 +392,25 @@ export default function HomePage() {
                       
                       {/* 完売近い場合の警告 */}
                       {product.status === 'ending_soon' && (
-                        <p className="text-xs text-red-600 font-bold mt-2 text-center animate-pulse">
+                        <p className="text-[8px] sm:text-xs text-red-600 font-bold mt-0 sm:mt-2 text-center animate-pulse">
                           ⚠️ まもなく完売！お早めに！
                         </p>
                       )}
                     </div>
                     
                   {/* 価格表示 */}
-                  <div className="mb-3">
+                  <div className="mb-1 sm:mb-3">
                     <div className="flex items-baseline justify-center">
-                      <span className="text-lg text-gray-600">1口</span>
-                      <span className="text-4xl font-black text-[#FF0033] mx-2">{product.price.toLocaleString()}</span>
-                      <span className="text-lg text-gray-600">PT</span>
+                      <span className="text-[8px] sm:text-lg text-gray-600">1口</span>
+                      <span className="text-base sm:text-4xl font-black text-[#FF0033] mx-0.5 sm:mx-2">{product.price.toLocaleString()}</span>
+                      <span className="text-[8px] sm:text-lg text-gray-600">PT</span>
                     </div>
                   </div>
                     
                   {/* ガチャボタン */}
                   <Link href={`/gacha/${product.id}`}>
                     <button 
-                      className={`w-full text-center font-black py-6 rounded-xl transition text-2xl ${
+                      className={`w-full text-center font-black py-2 sm:py-6 rounded-lg sm:rounded-xl transition text-xs sm:text-2xl ${
                         product.status === 'sold_out' 
                           ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
                           : 'bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white hover:scale-105 shadow-lg transform'
@@ -433,16 +422,16 @@ export default function HomePage() {
                   </Link>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
         </div>
       </section>
 
       {/* フッター */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-xl font-bold mb-4">ACEORIPA - オンラインオリパ</p>
-          <div className="flex justify-center space-x-6 text-sm">
+      <footer className="bg-gray-900 text-white py-2 sm:py-12 mt-0 sm:mt-8">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 text-center">
+          <p className="text-xs sm:text-xl font-bold mb-1 sm:mb-4">ACEORIPA - オンラインオリパ</p>
+          <div className="flex justify-center space-x-2 sm:space-x-6 text-[8px] sm:text-sm">
             <Link href="/terms" className="hover:text-[#FF0033] transition">利用規約</Link>
             <Link href="/privacy" className="hover:text-[#FF0033] transition">プライバシーポリシー</Link>
             <Link href="/contact" className="hover:text-[#FF0033] transition">お問い合わせ</Link>

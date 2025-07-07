@@ -157,9 +157,27 @@ function formatTimeAgo(date: string) {
   return 'たった今'
 }
 
+async function getAnalyticsData(period: string = 'yesterday') {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/admin/analytics?period=${period}`, {
+      cache: 'no-store'
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch analytics data')
+    }
+    
+    return await response.json()
+  } catch (error) {
+    console.error('Analytics fetch error:', error)
+    return null
+  }
+}
+
 export default async function AdminDashboard() {
   const stats = await getStats()
   const activities = await getRecentActivities()
+  const analytics = await getAnalyticsData('yesterday')
   
   return (
     <div>
@@ -298,6 +316,13 @@ export default async function AdminDashboard() {
                   </a>
                 </div>
                 <div className="col-md-4 mb-3">
+                  <a href="/admin/price-monitoring" className="btn btn-outline-info w-100 h-100 d-flex flex-column justify-content-center">
+                    <div className="mb-2">📊</div>
+                    <strong>価格監視システム</strong>
+                    <small className="text-muted">カード価格の変動監視とアラート</small>
+                  </a>
+                </div>
+                <div className="col-md-4 mb-3">
                   <a href="/admin/gacha/migrate-sample-data" className="btn btn-outline-danger w-100 h-100 d-flex flex-column justify-content-center">
                     <div className="mb-2">📥</div>
                     <strong>TOPガチャをDBに移行</strong>
@@ -305,6 +330,99 @@ export default async function AdminDashboard() {
                   </a>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Google Analytics */}
+      <div className="row mb-4">
+        <div className="col">
+          <div className="card">
+            <div className="card-header">
+              <h5 className="card-title mb-0">アクセス解析（昨日）</h5>
+            </div>
+            <div className="card-body">
+              {analytics ? (
+                <>
+                  <div className="row mb-4">
+                    <div className="col-md-3 mb-3">
+                      <div className="text-center">
+                        <h6 className="text-muted mb-2">ページビュー</h6>
+                        <h3 className="mb-0">{analytics.pageViews.toLocaleString()}</h3>
+                      </div>
+                    </div>
+                    <div className="col-md-3 mb-3">
+                      <div className="text-center">
+                        <h6 className="text-muted mb-2">ユニークユーザー</h6>
+                        <h3 className="mb-0">{analytics.uniqueUsers.toLocaleString()}</h3>
+                      </div>
+                    </div>
+                    <div className="col-md-3 mb-3">
+                      <div className="text-center">
+                        <h6 className="text-muted mb-2">セッション</h6>
+                        <h3 className="mb-0">{analytics.sessions.toLocaleString()}</h3>
+                      </div>
+                    </div>
+                    <div className="col-md-3 mb-3">
+                      <div className="text-center">
+                        <h6 className="text-muted mb-2">直帰率</h6>
+                        <h3 className="mb-0">{(analytics.bounceRate * 100).toFixed(1)}%</h3>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="row">
+                    <div className="col-md-6 mb-3">
+                      <h6 className="text-muted mb-3">トラフィックソース</h6>
+                      <div className="small">
+                        <div className="d-flex justify-content-between mb-2">
+                          <span>オーガニック検索</span>
+                          <strong>{analytics.trafficSources.organic.toLocaleString()}</strong>
+                        </div>
+                        <div className="d-flex justify-content-between mb-2">
+                          <span>ダイレクト</span>
+                          <strong>{analytics.trafficSources.direct.toLocaleString()}</strong>
+                        </div>
+                        <div className="d-flex justify-content-between mb-2">
+                          <span>SNS経由</span>
+                          <strong>{analytics.trafficSources.social.toLocaleString()}</strong>
+                        </div>
+                        <div className="d-flex justify-content-between mb-2">
+                          <span>参照サイト</span>
+                          <strong>{analytics.trafficSources.referral.toLocaleString()}</strong>
+                        </div>
+                        <div className="d-flex justify-content-between">
+                          <span>広告経由</span>
+                          <strong>{analytics.trafficSources.paid.toLocaleString()}</strong>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="col-md-6 mb-3">
+                      <h6 className="text-muted mb-3">人気ページ TOP5</h6>
+                      <div className="small">
+                        {analytics.topPages.map((page, index) => (
+                          <div key={index} className="d-flex justify-content-between mb-2">
+                            <span className="text-truncate" style={{ maxWidth: '70%' }}>{page.page}</span>
+                            <strong>{page.views.toLocaleString()}</strong>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {analytics.message && (
+                    <div className="alert alert-warning mt-3" role="alert">
+                      <small>{analytics.message}</small>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-4 text-muted">
+                  <p>アナリティクスデータを取得できませんでした</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

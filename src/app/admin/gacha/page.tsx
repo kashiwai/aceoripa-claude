@@ -54,6 +54,10 @@ export default async function GachaManagementPage() {
             <i className="bi bi-calculator me-2"></i>
             収支計算
           </Link>
+          <Link href="/admin/gacha/auto-simulation" className="btn btn-warning">
+            <i className="bi bi-stars me-2"></i>
+            AI自動シミュレーション
+          </Link>
           <Link href="/admin/gacha/new" className="btn btn-primary">
             <PlusIcon className="bi bi-plus-lg me-2" style={{width: '20px', height: '20px'}} />
             新規ガチャ作成
@@ -176,6 +180,10 @@ export default async function GachaManagementPage() {
                     <Link href={`/admin/gacha/${product.id}/profit-control`} className="btn btn-sm btn-outline-warning">
                       <i className="bi bi-graph-up me-2"></i>
                       収支管理
+                    </Link>
+                    <Link href={`/admin/gacha/${product.id}/ai-optimization`} className="btn btn-sm btn-outline-danger">
+                      <i className="bi bi-stars me-2"></i>
+                      AI最適化
                     </Link>
                   </div>
                 </div>

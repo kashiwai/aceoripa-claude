@@ -1,0 +1,665 @@
+
+> aceoripa-pokemon-gacha@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.30
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1043ms
+ ○ Compiling /admin ...
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/layout.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/layout.tsx
+ GET /admin 200 in 5407ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/layout.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/layout.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/layout.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ GET / 200 in 1505ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+Announcements fetch error: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.announcements" does not exist'
+}
+ GET /api/announcements 500 in 575ms
+ GET /api/gacha/products 200 in 587ms
+ GET /api/gacha/products 200 in 581ms
+Announcements fetch error: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.announcements" does not exist'
+}
+ GET /api/announcements 500 in 638ms
+ GET /admin 200 in 1334ms
+Announcements fetch error: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.announcements" does not exist'
+}
+ GET /api/announcements 500 in 362ms
+Announcements fetch error: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.announcements" does not exist'
+}
+ GET /api/announcements 500 in 296ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/announcements/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/announcements/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/announcements/route.ts
+ GET /api/placeholder/200/200 200 in 271ms
+ GET /api/placeholder/200/200?text=%E3%83%AA%E3%82%B6%E3%83%BC%E3%83%89%E3%83%B3ex 200 in 25ms
+ GET /api/placeholder/200/200?text=%E3%83%94%E3%82%AB%E3%83%81%E3%83%A5%E3%82%A6 200 in 32ms
+ GET /api/placeholder/200/200?text=%E3%83%95%E3%82%B7%E3%82%AE%E3%83%90%E3%83%8A 200 in 32ms
+ GET /api/placeholder/200/200?text=%E3%82%AB%E3%83%A1%E3%83%83%E3%82%AF%E3%82%B9 200 in 31ms
+ GET /api/placeholder/200/200?text=%E3%83%95%E3%82%B7%E3%82%AE%E3%83%80%E3%83%8D 200 in 31ms
+ GET /api/placeholder/200/200?text=%E3%83%9F%E3%83%A5%E3%82%A6ex 200 in 14ms
+ GET /api/placeholder/200/200?text=%E3%82%A4%E3%83%BC%E3%83%96%E3%82%A4 200 in 17ms
+ GET /api/placeholder/200/200?text=%E3%82%B3%E3%82%A4%E3%82%AD%E3%83%B3%E3%82%B0 200 in 10ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/announcements/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/announcements/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/gacha/products/route.ts
+ GET /api/campaigns 401 in 153ms
+ GET /api/campaigns 401 in 154ms
+Error fetching gacha products: {
+  code: '42703',
+  details: null,
+  hint: null,
+  message: 'column gacha_products.single_price does not exist'
+}
+ GET /api/gacha/products 500 in 311ms
+Error fetching gacha products: {
+  code: '42703',
+  details: null,
+  hint: null,
+  message: 'column gacha_products.single_price does not exist'
+}
+ GET /api/gacha/products 500 in 324ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/gacha/products/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/gacha/products/route.ts
+Database error: {
+  code: '42703',
+  details: null,
+  hint: null,
+  message: 'column gacha_pools_1.drop_rate does not exist'
+}
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+Database error: {
+  code: '42703',
+  details: null,
+  hint: null,
+  message: 'column gacha_pools_1.drop_rate does not exist'
+}
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+Database error: {
+  code: '42703',
+  details: null,
+  hint: null,
+  message: 'column gacha_pools_1.drop_rate does not exist'
+}
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/gacha/products/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/layout.tsx
+ GET /api/campaigns 401 in 180ms
+ GET /api/campaigns 401 in 181ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/layout.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+ GET /api/gacha/products 200 in 146ms
+ GET /api/gacha/products 200 in 149ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+ GET /api/user/points 401 in 422ms
+ GET /api/user/points 401 in 427ms
+ GET /api/gacha/products/1 404 in 431ms
+ GET /api/gacha/products/1 404 in 428ms
+ GET /api/gacha/products/1/pool 404 in 16ms
+ GET /api/gacha/products/1/pool 404 in 15ms
+ GET /api/user/points 401 in 15ms
+ GET /api/user/points 401 in 10ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+ GET /login 404 in 27ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/campaigns/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/user/points/route.ts
+Announcements fetch error: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.announcements" does not exist'
+}
+ GET /api/announcements 500 in 924ms
+Announcements fetch error: {
+  code: '42P01',
+  details: null,
+  hint: null,
+  message: 'relation "public.announcements" does not exist'
+}
+ GET /api/announcements 500 in 1003ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/user/points/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/announcements/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/announcements/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/announcements/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/announcements/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/api/announcements/route.ts
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/layout.tsx
+ GET /_next/static/css/app/layout.css?v=1750650223163 404 in 409ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ GET /_next/static/css/app/layout.css?v=1750650237299 404 in 45ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ ⨯ TypeError: Cannot read properties of undefined (reading 'entryCSSFiles')
+    at rT (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:3772)
+    at rW (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:12966)
+    at r0 (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:16204)
+    at r3 (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:39:23911)
+    at /Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:42:726
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_hooks:91:14)
+    at Object.wrap (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:36:17827)
+    at /Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:42:616
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_hooks:91:14)
+    at Object.wrap (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:36:16929)
+    at r8 (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:42:543)
+    at nh.render (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:42:4699)
+    at doRender (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/server/base-server.js:1427:44)
+    at cacheEntry.responseCache.get.routeKind (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/server/base-server.js:1588:34)
+    at ResponseCache.get (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/server/response-cache/index.js:49:26)
+    at DevServer.renderToResponseWithComponentsImpl (/Users/kotarokashiwai/aceoripa/aceoripa/aceoripa-claude/node_modules/next/dist/server/base-server.js:1496:53) {
+  page: '/'
+}
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ GET / 200 in 89ms
+ GET /_next/static/css/app/layout.css?v=1750650288263 404 in 25ms
+ GET /_next/static/css/app/layout.css?v=1750650288193 404 in 30ms
+ GET /_next/static/css/app/page.css?v=1750650288193 404 in 31ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 36ms
+ GET /_next/static/chunks/main-app.js?v=1750650288193 404 in 40ms
+ GET /_next/static/chunks/app/page.js 404 in 37ms
+ GET /_next/static/chunks/app/layout.js 404 in 34ms
+ ⚠ ./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@supabase/realtime-js/dist/main/RealtimeClient.js
+./node_modules/@supabase/realtime-js/dist/main/index.js
+./node_modules/@supabase/supabase-js/dist/module/index.js
+./node_modules/@supabase/ssr/dist/index.mjs
+./src/lib/supabase/server.ts
+./src/app/admin/page.tsx
+ GET /_next/static/css/app/layout.css?v=1750650316877 404 in 13ms
+[?25h

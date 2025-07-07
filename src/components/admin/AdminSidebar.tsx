@@ -10,6 +10,7 @@ const navigation = [
   { name: 'ユーザー管理', href: '/admin/users' },
   { name: 'ガチャ管理', href: '/admin/gacha' },
   { name: 'カード管理', href: '/admin/cards' },
+  { name: '上位カード価格管理', href: '/admin/top-cards-price' },
   { name: '演出管理', href: '/admin/effects' },
   { name: 'バナー管理', href: '/admin/banners' },
   { name: '決済管理', href: '/admin/payments' },

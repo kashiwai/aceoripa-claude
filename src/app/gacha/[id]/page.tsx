@@ -53,17 +53,10 @@ export default function GachaDetailPage() {
   const gachaId = params.id as string
   const countParam = searchParams.get('count')
   
-  // フォールバックデータを初期値として設定
-  const fallbackGacha: GachaProduct = {
-    id: gachaId,
-    name: 'ピカチュウ大祭り',
-    description: 'ピカチュウの特別なカードが大量出現！\nSSR確率アップ中！',
-    imageUrl: '/images/banners/real-gacha/S__44392515_0.jpg',
-    price: 150,
-    remaining: 850,
-    total: 1000,
-    status: 'active'
-  }
+  // 初期状態はnullにして、データ読み込み後に表示
+  const [gacha, setGacha] = useState<GachaProduct | null>(null)
+  const [cards, setCards] = useState<Card[]>([])
+  const [loading, setLoading] = useState(true)
 
   const fallbackCards: Card[] = [
     // SS賞
@@ -87,9 +80,6 @@ export default function GachaDetailPage() {
     { id: '14', name: 'THE BEST OF XY 1BOX', rarity: 'C', imageUrl: '/images/pokemon/034_THE BEST OF XY 1BOX_PK-0034.jpg', probability: 15 },
   ]
 
-  const [gacha, setGacha] = useState<GachaProduct | null>(fallbackGacha)
-  const [cards, setCards] = useState<Card[]>(fallbackCards)
-  const [loading, setLoading] = useState(false)
   const [customCount, setCustomCount] = useState('')
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [selectedCount, setSelectedCount] = useState(1)
@@ -100,6 +90,7 @@ export default function GachaDetailPage() {
   // APIからガチャ情報とカード情報を取得
   useEffect(() => {
     const fetchGachaData = async () => {
+      setLoading(true)
       try {
         // ガチャ商品情報を取得
         const productResponse = await fetch(`/api/gacha/products/${gachaId}`)
@@ -107,6 +98,18 @@ export default function GachaDetailPage() {
           const productData = await productResponse.json()
           if (productData.success && productData.product) {
             setGacha(productData.product)
+          } else {
+            // APIからデータが取得できない場合、フォールバックデータを使用
+            setGacha({
+              id: gachaId,
+              name: 'ピカチュウ大祭り',
+              description: 'ピカチュウの特別なカードが大量出現！\nSSR確率アップ中！',
+              imageUrl: '/images/banners/real-gacha/S__44392515_0.jpg',
+              price: 150,
+              remaining: 850,
+              total: 1000,
+              status: 'active'
+            })
           }
         }
         
@@ -116,25 +119,32 @@ export default function GachaDetailPage() {
           const poolData = await poolResponse.json()
           if (poolData.success && poolData.cards) {
             setCards(poolData.cards)
+          } else {
+            setCards(fallbackCards)
           }
+        } else {
+          setCards(fallbackCards)
         }
       } catch (error) {
         console.error('Error fetching gacha data:', error)
-        // 既に初期値でfallbackデータが設定されているので何もしない
+        // エラー時はフォールバックデータを使用
+        setGacha({
+          id: gachaId,
+          name: 'ピカチュウ大祭り',
+          description: 'ピカチュウの特別なカードが大量出現！\nSSR確率アップ中！',
+          imageUrl: '/images/banners/real-gacha/S__44392515_0.jpg',
+          price: 150,
+          remaining: 850,
+          total: 1000,
+          status: 'active'
+        })
+        setCards(fallbackCards)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
-    
-    // 強制的にローディングを解除（1秒後）
-    const timeoutId = setTimeout(() => {
-      setLoading(false)
-    }, 1000)
 
-    fetchGachaData().then(() => {
-      clearTimeout(timeoutId)
-    })
-
-    return () => clearTimeout(timeoutId)
+    fetchGachaData()
   }, [gachaId])
 
   // カードをレアリティ別にグループ化（B, C, Dを"その他"にまとめる）
@@ -193,7 +203,7 @@ export default function GachaDetailPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
               </Link>
-              <h1 className="ml-4 text-3xl font-black text-[#FF0033]">
+              <h1 className="ml-2 sm:ml-4 text-xl sm:text-3xl font-black text-[#FF0033] truncate max-w-[200px] sm:max-w-none">
                 {gacha?.name || 'ガチャ詳細'}
               </h1>
             </div>
@@ -214,13 +224,20 @@ export default function GachaDetailPage() {
           <div className="lg:sticky lg:top-28 lg:h-fit">
             {/* ガチャ画像 */}
             <div className="relative aspect-square bg-gray-900 rounded-2xl overflow-hidden shadow-2xl mb-6">
-              <Image
-                src={gacha?.imageUrl || '/api/placeholder/800/800'}
-                alt={gacha?.name || 'ガチャ'}
-                fill
-                className="object-cover"
-                unoptimized
-              />
+              {gacha?.imageUrl ? (
+                <Image
+                  src={gacha.imageUrl}
+                  alt={gacha.name}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                  priority
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-24 h-24 border-4 border-gray-600 border-t-[#FF0033] rounded-full animate-spin"></div>
+                </div>
+              )}
               {/* プログレスバー */}
               {gacha && (
                 <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4">
@@ -243,8 +260,8 @@ export default function GachaDetailPage() {
 
             {/* 価格表示 */}
             <div className="text-center mb-6">
-              <p className="text-gray-400 text-lg">1回</p>
-              <p className="text-5xl font-black text-[#FF0033]">¥{gacha?.price || '???'}</p>
+              <p className="text-gray-400 text-base sm:text-lg">1回</p>
+              <p className="text-3xl sm:text-5xl font-black text-[#FF0033]">¥{gacha?.price || '???'}</p>
             </div>
 
             {/* 購入ボタン（DOPAスタイル） */}
@@ -252,21 +269,21 @@ export default function GachaDetailPage() {
               <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => handleGacha(1)}
-                  className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white font-black py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-xl relative group"
+                  className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white font-black py-3 sm:py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-lg sm:text-xl relative group"
                 >
                   <span className="block">1回</span>
                   <span className="text-xs opacity-80">¥{gacha?.price || 800}</span>
                 </button>
                 <button
                   onClick={() => handleGacha(5)}
-                  className="bg-gradient-to-r from-[#00C853] to-[#00E676] text-white font-black py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-xl relative group"
+                  className="bg-gradient-to-r from-[#00C853] to-[#00E676] text-white font-black py-3 sm:py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-lg sm:text-xl relative group"
                 >
                   <span className="block">5回</span>
                   <span className="text-xs opacity-80">¥{(gacha?.price || 800) * 5}</span>
                 </button>
                 <button
                   onClick={() => handleGacha(10)}
-                  className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-white font-black py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-xl relative overflow-hidden group"
+                  className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-white font-black py-3 sm:py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-lg sm:text-xl relative overflow-hidden group"
                 >
                   <span className="relative z-10">
                     <span className="block">10連</span>
@@ -286,7 +303,7 @@ export default function GachaDetailPage() {
                   placeholder="回数を入力"
                   value={customCount}
                   onChange={(e) => setCustomCount(e.target.value)}
-                  className="flex-1 px-4 py-4 bg-gray-800 border-2 border-gray-700 rounded-xl text-white text-center text-xl font-bold focus:border-[#FF0033] focus:outline-none"
+                  className="flex-1 px-3 sm:px-4 py-3 sm:py-4 bg-gray-800 border-2 border-gray-700 rounded-xl text-white text-center text-lg sm:text-xl font-bold focus:border-[#FF0033] focus:outline-none"
                 />
                 <button
                   onClick={() => {
@@ -295,7 +312,7 @@ export default function GachaDetailPage() {
                       handleGacha(count)
                     }
                   }}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-black py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-xl"
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-black py-3 sm:py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-lg sm:text-xl"
                 >
                   指定数ガチャ
                 </button>
@@ -327,7 +344,8 @@ export default function GachaDetailPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  {rarityProbabilities['SS'] && (
+                  {/* SS賞獲得確率 */}
+                  {rarityProbabilities['SS'] > 0 && (
                     <div className="flex justify-between items-center p-2 bg-gradient-to-r from-yellow-400/20 to-red-500/20 rounded">
                       <span className="font-bold text-yellow-400">SS賞獲得確率</span>
                       <span className="text-white font-black text-lg">
@@ -335,7 +353,9 @@ export default function GachaDetailPage() {
                       </span>
                     </div>
                   )}
-                  {(rarityProbabilities['SS'] || rarityProbabilities['S']) && (
+                  
+                  {/* S賞以上確率 */}
+                  {((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) > 0 && (
                     <div className="flex justify-between items-center p-2 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded">
                       <span className="font-bold text-purple-400">S賞以上確率</span>
                       <span className="text-white font-black text-lg">
@@ -343,7 +363,9 @@ export default function GachaDetailPage() {
                       </span>
                     </div>
                   )}
-                  {(rarityProbabilities['SS'] || rarityProbabilities['S'] || rarityProbabilities['A']) && (
+                  
+                  {/* A賞以上確率 */}
+                  {((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0) + (rarityProbabilities['A'] || 0)) > 0 && (
                     <div className="flex justify-between items-center p-2 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded">
                       <span className="font-bold text-blue-400">A賞以上確率</span>
                       <span className="text-white font-black text-lg">
@@ -362,7 +384,7 @@ export default function GachaDetailPage() {
                 </div>
                 
                 <div className="grid grid-cols-2 gap-3">
-                  {rarityProbabilities['SS'] && (
+                  {rarityProbabilities['SS'] > 0 && (
                     <div className="text-center p-3 bg-black/30 rounded-lg">
                       <p className="text-2xl font-black text-yellow-400">
                         {(rarityProbabilities['SS'] / 100 * 50).toFixed(1)}枚
@@ -370,7 +392,7 @@ export default function GachaDetailPage() {
                       <p className="text-xs text-yellow-300">SS賞期待獲得数</p>
                     </div>
                   )}
-                  {rarityProbabilities['S'] && (
+                  {rarityProbabilities['S'] > 0 && (
                     <div className="text-center p-3 bg-black/30 rounded-lg">
                       <p className="text-2xl font-black text-purple-400">
                         {(rarityProbabilities['S'] / 100 * 50).toFixed(1)}枚
@@ -386,7 +408,7 @@ export default function GachaDetailPage() {
 
           {/* 右側：カード一覧（スクロール可能） */}
           <div className="space-y-8">
-            <h2 className="text-3xl font-black text-white text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-black text-white text-center mb-6 sm:mb-8">
               ゲットできるカード一覧
             </h2>
             
@@ -394,8 +416,11 @@ export default function GachaDetailPage() {
               const rarityCards = cardsByRarity[rarity]
               if (!rarityCards || rarityCards.length === 0) return null
               
-              // 確率計算
+              // 確率計算（0の場合は表示しない）
               const totalProbability = rarityCards.reduce((sum, card) => sum + (card.probability || 0), 0)
+              
+              // 確率が0の場合はこのレアリティを表示しない
+              if (totalProbability <= 0) return null
 
               return (
                 <div key={rarity} className="space-y-4">

@@ -21,7 +21,8 @@ const RARITY_LABELS = {
   'S': 'S賞', 
   'A': 'A賞',
   'B': 'B賞',
-  'C': 'C賞'
+  'C': 'C賞',
+  'D': 'D賞'
 }
 
 const RARITY_COLORS = {
@@ -29,7 +30,8 @@ const RARITY_COLORS = {
   'S': 'bg-gradient-to-r from-purple-400 to-pink-400',
   'A': 'bg-gradient-to-r from-blue-400 to-cyan-400',
   'B': 'bg-gradient-to-r from-green-400 to-emerald-400',
-  'C': 'bg-gradient-to-r from-gray-400 to-gray-500'
+  'C': 'bg-gradient-to-r from-gray-400 to-gray-500',
+  'D': 'bg-gradient-to-r from-gray-300 to-gray-400'
 }
 
 // サービスロールキーで直接接続
@@ -43,16 +45,43 @@ export default function CardsPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
   const [rarityFilter, setRarityFilter] = useState('')
+  const [totalCount, setTotalCount] = useState(0)
+  const [rarityCounts, setRarityCounts] = useState<Record<string, number>>({})
 
   const fetchCards = async () => {
     try {
       console.log('Fetching cards directly from Supabase...')
       
-      // 直接Supabaseから取得
+      // まず全体のカード数を取得（フィルター条件なし）
+      const { count: total, error: countError } = await supabaseAdmin
+        .from('pokemon_cards')
+        .select('*', { count: 'exact', head: true })
+      
+      if (countError) throw countError
+      setTotalCount(total || 0)
+      
+      // レアリティ別の集計（フィルター条件なし）
+      const rarities = ['SS', 'S', 'A', 'B', 'C', 'D']
+      const counts: Record<string, number> = {}
+      
+      for (const rarity of rarities) {
+        const { count, error } = await supabaseAdmin
+          .from('pokemon_cards')
+          .select('*', { count: 'exact', head: true })
+          .eq('rarity', rarity)
+        
+        if (!error) {
+          counts[rarity] = count || 0
+        }
+      }
+      setRarityCounts(counts)
+      
+      // カード一覧を取得（フィルター条件あり）
       let query = supabaseAdmin
         .from('pokemon_cards')
         .select('*')
         .order('created_at', { ascending: false })
+        .limit(10000) // 最大10000件まで取得
 
       // 検索条件追加
       if (filter) {
@@ -64,14 +93,11 @@ export default function CardsPage() {
 
       const { data, error } = await query
       
-      // console.log('Supabase response:', { data, error })
-      
       if (error) {
         throw new Error(error.message)
       }
       
       setCards(data || [])
-      // console.log('Cards loaded:', data?.length || 0)
     } catch (error) {
       console.error('Error fetching cards:', error)
       toast.error('カード一覧の取得に失敗しました')
@@ -125,6 +151,12 @@ export default function CardsPage() {
         <h1 className="h2">カード管理</h1>
         <div>
           <Link
+            href="/admin/price-monitoring"
+            className="btn btn-warning me-2"
+          >
+            📊 価格監視
+          </Link>
+          <Link
             href="/admin/cards/import"
             className="btn btn-success me-2"
           >
@@ -168,28 +200,45 @@ export default function CardsPage() {
 
       {/* 統計情報 */}
       <div className="row mb-4">
-        <div className="col-lg-2 col-md-4 mb-3">
-          <div className="card text-center">
+        <div className="col-lg-3 col-md-6 mb-3">
+          <div className="card text-center bg-primary text-white">
             <div className="card-body">
-              <small className="text-muted">総カード数</small>
-              <h4 className="mb-0">{cards.length}</h4>
+              <h5 className="card-title mb-3">総合計カード数</h5>
+              <h2 className="mb-0 display-4">{totalCount.toLocaleString()}</h2>
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* レアリティ別カード数 */}
+      <div className="row mb-4">
         {Object.keys(RARITY_LABELS).map(rarity => {
-          const count = cards.filter(card => card.rarity === rarity).length
+          const count = rarityCounts[rarity] || 0
           return (
             <div key={rarity} className="col-lg-2 col-md-4 mb-3">
               <div className="card text-center">
                 <div className="card-body">
-                  <small className="text-muted">{RARITY_LABELS[rarity as keyof typeof RARITY_LABELS]}</small>
-                  <h4 className="mb-0">{count}</h4>
+                  <h6 className={`mb-2 ${
+                    rarity === 'SS' ? 'text-warning' :
+                    rarity === 'S' ? 'text-info' :
+                    rarity === 'A' ? 'text-primary' :
+                    rarity === 'B' ? 'text-success' :
+                    rarity === 'C' ? 'text-secondary' : 'text-dark'
+                  }`}>{RARITY_LABELS[rarity as keyof typeof RARITY_LABELS]}</h6>
+                  <h3 className="mb-0">{count.toLocaleString()}</h3>
                 </div>
               </div>
             </div>
           )
         })}
       </div>
+      
+      {/* 現在の表示数 */}
+      {(filter || rarityFilter) && (
+        <div className="alert alert-info mb-4">
+          フィルター適用中: {cards.length.toLocaleString()} 件を表示中
+        </div>
+      )}
 
       {/* カード一覧 */}
       <div className="row">
@@ -216,7 +265,8 @@ export default function CardsPage() {
                   card.rarity === 'SS' ? 'bg-warning' :
                   card.rarity === 'S' ? 'bg-info' :
                   card.rarity === 'A' ? 'bg-primary' :
-                  card.rarity === 'B' ? 'bg-success' : 'bg-secondary'
+                  card.rarity === 'B' ? 'bg-success' : 
+                  card.rarity === 'C' ? 'bg-secondary' : 'bg-dark'
                 }`}>
                   {RARITY_LABELS[card.rarity as keyof typeof RARITY_LABELS]}
                 </span>
@@ -232,6 +282,12 @@ export default function CardsPage() {
                 
                 {/* アクション */}
                 <div className="d-grid gap-2">
+                  <Link
+                    href={`/admin/cards/${card.id}/price-history`}
+                    className="btn btn-outline-info btn-sm"
+                  >
+                    📊 価格履歴
+                  </Link>
                   <div className="btn-group">
                     <Link
                       href={`/admin/cards/${card.id}/edit`}

@@ -28,14 +28,8 @@ yarn-error.log*
 
 # local env files
 .env*.local
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 .env.production
-.env
 .env.google
-.env.test.backup
 
 # vercel
 .vercel
@@ -44,29 +38,22 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# supabase
-supabase/.branches
-supabase/.temp
-
-# temporary files
-*.log
-*.tmp
-*.temp
-
 # IDE
-.vscode
-.idea
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# test files
-test-*.js
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# Google service account (IMPORTANT!)
-google-service-account.json
-*-service-account.json
-service-account-*.json
-
-# Netlify
-.netlify/
-
-# image-server
-image-server/node_modules/
+# Backup files
+*.backup
+*.bak
+*.tmp

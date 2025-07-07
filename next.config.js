@@ -29,7 +29,18 @@ const nextConfig = {
     ]
   },
   // webpackの設定
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
+    // キャッシュクリア設定
+    if (dev) {
+      config.cache = false;
+    }
+    
+    // lucide-reactエラー回避設定
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      'lucide-react': false,
+    };
+    
     // Supabase realtime-js の警告を抑制
     config.module.exprContextCritical = false
     

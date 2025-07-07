@@ -87,13 +87,34 @@ export async function GET(
         return NextResponse.json({ error: 'Pool not found' }, { status: 404 })
       }
       
-      const formattedCards = fallbackCards.map(card => ({
-        id: card.id,
-        name: card.name,
-        rarity: card.rarity,
-        imageUrl: card.image,
-        probability: 1
-      }))
+      // フォールバックデータの確率を適切に設定
+      const rarityCardCounts: {[key: string]: number} = {}
+      fallbackCards.forEach(card => {
+        rarityCardCounts[card.rarity] = (rarityCardCounts[card.rarity] || 0) + 1
+      })
+      
+      // レアリティごとの基本確率設定
+      const rarityBaseProbabilities: {[key: string]: number} = {
+        'SS': 2,   // SS賞全体で2%
+        'S': 8,    // S賞全体で8%
+        'A': 15,   // A賞全体で15%
+        'B': 25,   // B賞全体で25%
+        'C': 50    // C賞全体で50%
+      }
+      
+      const formattedCards = fallbackCards.map(card => {
+        const baseProb = rarityBaseProbabilities[card.rarity] || 1
+        const cardCount = rarityCardCounts[card.rarity]
+        const individualProb = cardCount > 0 ? baseProb / cardCount : 1
+        
+        return {
+          id: card.id,
+          name: card.name,
+          rarity: card.rarity,
+          imageUrl: card.image,
+          probability: Math.round(individualProb * 10) / 10
+        }
+      })
       
       return NextResponse.json({ success: true, cards: formattedCards })
     }
@@ -105,13 +126,34 @@ export async function GET(
         return NextResponse.json({ error: 'Pool not found' }, { status: 404 })
       }
       
-      const formattedCards = fallbackCards.map(card => ({
-        id: card.id,
-        name: card.name,
-        rarity: card.rarity,
-        imageUrl: card.image,
-        probability: 1
-      }))
+      // フォールバックデータの確率を適切に設定
+      const rarityCardCounts: {[key: string]: number} = {}
+      fallbackCards.forEach(card => {
+        rarityCardCounts[card.rarity] = (rarityCardCounts[card.rarity] || 0) + 1
+      })
+      
+      // レアリティごとの基本確率設定
+      const rarityBaseProbabilities: {[key: string]: number} = {
+        'SS': 2,   // SS賞全体で2%
+        'S': 8,    // S賞全体で8%
+        'A': 15,   // A賞全体で15%
+        'B': 25,   // B賞全体で25%
+        'C': 50    // C賞全体で50%
+      }
+      
+      const formattedCards = fallbackCards.map(card => {
+        const baseProb = rarityBaseProbabilities[card.rarity] || 1
+        const cardCount = rarityCardCounts[card.rarity]
+        const individualProb = cardCount > 0 ? baseProb / cardCount : 1
+        
+        return {
+          id: card.id,
+          name: card.name,
+          rarity: card.rarity,
+          imageUrl: card.image,
+          probability: Math.round(individualProb * 10) / 10
+        }
+      })
       
       return NextResponse.json({ success: true, cards: formattedCards })
     }
@@ -125,16 +167,16 @@ export async function GET(
       }
     })
     
-    // 総weightを計算
-    const totalWeight = Object.values(rarityWeights).reduce((sum, weight) => sum + weight, 0)
+    // 総weightを計算（個別カードのweightの合計）
+    const totalWeight = poolData.reduce((sum, item) => sum + item.weight, 0)
     
     // フロントエンドのCard interfaceに合わせてフィールド名を変換
     const formattedCards = poolData
       .filter(item => item.pokemon_card !== null)
       .map(item => {
         const card = item.pokemon_card!
-        const rarityWeight = rarityWeights[card.rarity]
-        const probability = totalWeight > 0 ? (rarityWeight / totalWeight) * 100 : 0
+        // 個別カードの確率を正しく計算（個別weightの割合）
+        const probability = totalWeight > 0 ? (item.weight / totalWeight) * 100 : 0
         
         return {
           id: card.id,

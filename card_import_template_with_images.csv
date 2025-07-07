@@ -1,0 +1,11 @@
+カード名,商品コード,レアリティ,還元pt,カード画像URL,ローカル画像パス
+リザードンex SAR PSA10,PKM-001,SS,128000,https://example.com/charizard-ex-sar.jpg,
+ナンジャモ SAR PSA10,PKM-002,SS,98000,https://example.com/nanjamo-sar.jpg,
+ピカチュウex SAR PSA10,PKM-003,S,45000,https://example.com/pikachu-ex-sar.jpg,
+ミュウex SAR PSA10,PKM-004,S,38000,https://example.com/mew-ex-sar.jpg,
+フシギバナex SR PSA10,PKM-005,A,22000,,fushigibana-ex-sr.jpg
+カメックスex SR PSA10,PKM-006,A,18000,,kamex-ex-sr.jpg
+フリーザーex SR,PKM-007,B,8000,,freezer-ex.jpg
+サンダーex SR,PKM-008,B,8000,,thunder-ex.jpg
+ファイヤーex SR,PKM-009,B,8000,,fire-ex.jpg
+ピカチュウ プロモ,PKM-010,C,3000,,pikachu-promo.jpg
