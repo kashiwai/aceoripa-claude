@@ -1,53 +1,86 @@
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { useEffect, useState } from 'react'
 import UserTable from '@/components/admin/UserTable'
 import { Suspense } from 'react'
 
-async function getUsers(page: number = 1, perPage: number = 20) {
-  try {
-    // APIエンドポイントから取得
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/admin/users?page=${page}&perPage=${perPage}`,
-      { cache: 'no-store' }
-    )
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch users')
-    }
-    
-    const data = await response.json()
-    
-    if (data.success) {
-      // 新しいデータ形式をそのまま使用
-      const formattedUsers = data.users
-      
-      return {
-        users: formattedUsers,
-        totalCount: data.totalCount,
-        totalPages: data.totalPages
-      }
-    } else {
-      throw new Error(data.error || 'Failed to fetch users')
-    }
-  } catch (error) {
-    console.error('Error fetching users:', error)
-    return {
-      users: [],
-      totalCount: 0,
-      totalPages: 0,
-      error: error instanceof Error ? error.message : 'データの取得に失敗しました'
-    }
-  }
+interface User {
+  id: string
+  email: string
+  display_name: string | null
+  created_at: string
+  email_confirmed: boolean
+  free_points: number
+  paid_points: number
+  total_points: number
+  card_count: number
+  last_sign_in: string | null
+  user_source: string
 }
 
-export default async function UsersPage({
-  searchParams
-}: {
-  searchParams: Promise<{ page?: string }>
-}) {
-  const resolvedSearchParams = await searchParams
-  const currentPage = Number(resolvedSearchParams.page) || 1
-  const { users, totalCount, totalPages } = await getUsers(currentPage)
-  
+interface UsersData {
+  users: User[]
+  totalCount: number
+  totalPages: number
+  error?: string
+}
+
+export default function UsersPage() {
+  const [usersData, setUsersData] = useState<UsersData>({
+    users: [],
+    totalCount: 0,
+    totalPages: 0
+  })
+  const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(`/api/admin/users?page=${currentPage}&perPage=20`)
+        const data = await response.json()
+        
+        if (data.success) {
+          setUsersData({
+            users: data.users,
+            totalCount: data.totalCount,
+            totalPages: data.totalPages
+          })
+        } else {
+          setUsersData({
+            users: [],
+            totalCount: 0,
+            totalPages: 0,
+            error: data.error
+          })
+        }
+      } catch (error) {
+        setUsersData({
+          users: [],
+          totalCount: 0,
+          totalPages: 0,
+          error: 'データの取得に失敗しました'
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUsers()
+  }, [currentPage])
+
+  if (loading) {
+    return (
+      <div className="card-body text-center p-5">
+        <div className="spinner-border text-primary me-2" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        ユーザーデータを読み込んでいます...
+      </div>
+    )
+  }
+
   return (
     <div>
       {/* ヘッダーセクション */}
@@ -62,7 +95,7 @@ export default async function UsersPage({
               <div className="card bg-primary text-white">
                 <div className="card-body text-center">
                   <small>総ユーザー数</small>
-                  <h3 className="mb-0">{totalCount.toLocaleString()}</h3>
+                  <h3 className="mb-0">{usersData.totalCount.toLocaleString()}</h3>
                 </div>
               </div>
             </div>
@@ -72,20 +105,11 @@ export default async function UsersPage({
       
       {/* ユーザーテーブル */}
       <div className="card">
-        <Suspense fallback={
-          <div className="card-body text-center p-5">
-            <div className="spinner-border text-primary me-2" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            ユーザーデータを読み込んでいます...
-          </div>
-        }>
-          <UserTable 
-            users={users} 
-            currentPage={currentPage}
-            totalPages={totalPages}
-          />
-        </Suspense>
+        <UserTable 
+          users={usersData.users} 
+          currentPage={currentPage}
+          totalPages={usersData.totalPages}
+        />
       </div>
     </div>
   )
