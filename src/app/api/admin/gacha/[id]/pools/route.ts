@@ -9,6 +9,30 @@ export async function GET(
   try {
     const supabase = await createClient()
     
+    // 管理者権限チェック（Cookieベース）
+    const adminSessionCookie = request.cookies.get('admin_session')
+    if (!adminSessionCookie) {
+      return NextResponse.json({
+        success: false,
+        error: '管理者認証が必要です'
+      }, { status: 401 })
+    }
+    
+    try {
+      const adminSession = JSON.parse(adminSessionCookie.value)
+      if (!adminSession.id || !adminSession.username) {
+        return NextResponse.json({
+          success: false,
+          error: '無効なセッションです'
+        }, { status: 401 })
+      }
+    } catch (error) {
+      return NextResponse.json({
+        success: false,
+        error: '無効なセッションです'
+      }, { status: 401 })
+    }
+    
     const { data: pools, error } = await supabase
       .from('gacha_pokemon_pools')
       .select(`

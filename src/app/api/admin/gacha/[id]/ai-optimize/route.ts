@@ -14,12 +14,27 @@ export async function POST(
     const supabase = await createClient()
     const { gachaData } = await request.json()
     
-    // 管理者権限チェック
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    // 管理者権限チェック（Cookieベース）
+    const adminSessionCookie = request.cookies.get('admin_session')
+    if (!adminSessionCookie) {
       return NextResponse.json({
         success: false,
-        message: '認証が必要です'
+        message: '管理者認証が必要です'
+      }, { status: 401 })
+    }
+    
+    try {
+      const adminSession = JSON.parse(adminSessionCookie.value)
+      if (!adminSession.id || !adminSession.username) {
+        return NextResponse.json({
+          success: false,
+          message: '無効なセッションです'
+        }, { status: 401 })
+      }
+    } catch (error) {
+      return NextResponse.json({
+        success: false,
+        message: '無効なセッションです'
       }, { status: 401 })
     }
 

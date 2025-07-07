@@ -44,14 +44,14 @@ export default function GachaPoolsPage() {
 
   const fetchGachaData = async () => {
     try {
-      const { data, error } = await supabase
-        .from('gacha_products')
-        .select('*')
-        .eq('id', gachaId)
-        .single()
+      const response = await fetch(`/api/admin/gacha/${gachaId}`)
+      const data = await response.json()
       
-      if (error) throw error
-      setGacha(data)
+      if (data.success && data.product) {
+        setGacha(data.product)
+      } else {
+        throw new Error(data.error || 'ガチャ情報の取得に失敗しました')
+      }
     } catch (error: any) {
       console.error('Error fetching gacha:', error)
       toast.error('ガチャ情報の取得に失敗しました')
@@ -60,36 +60,24 @@ export default function GachaPoolsPage() {
 
   const fetchPrizes = async () => {
     try {
-      // まずpokemon_cardsテーブルから既存のカードを取得
-      const { data: cards, error: cardsError } = await supabase
-        .from('pokemon_cards')
-        .select('*')
-        .order('rarity', { ascending: true })
+      const response = await fetch(`/api/admin/gacha/${gachaId}/pools`)
+      const data = await response.json()
       
-      if (!cardsError && cards) {
-        // ガチャプールとの関連を取得
-        const { data: pools, error: poolsError } = await supabase
-          .from('gacha_pokemon_pools')
-          .select('*')
-          .eq('gacha_product_id', gachaId)
-        
-        if (!poolsError && pools) {
-          // カードとプール情報を結合
-          const prizesData = pools.map(pool => {
-            const card = cards.find(c => c.id === pool.pokemon_card_id)
-            return {
-              id: pool.id,
-              card_id: pool.pokemon_card_id,
-              rarity: card?.rarity || 'C',
-              card_name: card?.card_name || '',
-              description: card?.product_code || '',
-              market_price: card?.market_price || 0,
-              image_url: card?.image_url || '',
-              weight: pool.weight
-            }
-          })
-          setPrizes(prizesData)
-        }
+      if (data.pools) {
+        // APIレスポンスを整形
+        const prizesData = data.pools.map((pool: any) => ({
+          id: pool.id,
+          card_id: pool.pokemon_card_id,
+          rarity: pool.pokemon_cards?.rarity || 'C',
+          card_name: pool.pokemon_cards?.card_name || '',
+          description: pool.pokemon_cards?.product_code || '',
+          market_price: pool.pokemon_cards?.market_price || 0,
+          image_url: pool.pokemon_cards?.image_url || '',
+          weight: pool.weight
+        }))
+        setPrizes(prizesData)
+      } else {
+        console.error('プール情報の取得に失敗:', data.error)
       }
     } catch (error: any) {
       console.error('Error fetching prizes:', error)
