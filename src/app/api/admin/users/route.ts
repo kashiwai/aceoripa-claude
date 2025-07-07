@@ -10,12 +10,27 @@ export async function GET(request: NextRequest) {
     const perPage = Number(searchParams.get('perPage')) || 20
     const offset = (page - 1) * perPage
     
-    // 管理者権限チェック
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    // 管理者権限チェック（Cookieベース）
+    const adminSessionCookie = request.cookies.get('admin_session')
+    if (!adminSessionCookie) {
       return NextResponse.json({
         success: false,
-        error: '認証が必要です'
+        error: '管理者認証が必要です'
+      }, { status: 401 })
+    }
+    
+    try {
+      const adminSession = JSON.parse(adminSessionCookie.value)
+      if (!adminSession.id || !adminSession.username) {
+        return NextResponse.json({
+          success: false,
+          error: '無効なセッションです'
+        }, { status: 401 })
+      }
+    } catch (error) {
+      return NextResponse.json({
+        success: false,
+        error: '無効なセッションです'
       }, { status: 401 })
     }
 
@@ -145,12 +160,27 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
     const adminClient = createAdminClient()
     
-    // 管理者権限チェック
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    // 管理者権限チェック（Cookieベース）
+    const adminSessionCookie = request.cookies.get('admin_session')
+    if (!adminSessionCookie) {
       return NextResponse.json({
         success: false,
-        error: '認証が必要です'
+        error: '管理者認証が必要です'
+      }, { status: 401 })
+    }
+    
+    try {
+      const adminSession = JSON.parse(adminSessionCookie.value)
+      if (!adminSession.id || !adminSession.username) {
+        return NextResponse.json({
+          success: false,
+          error: '無効なセッションです'
+        }, { status: 401 })
+      }
+    } catch (error) {
+      return NextResponse.json({
+        success: false,
+        error: '無効なセッションです'
       }, { status: 401 })
     }
 
