@@ -35,10 +35,9 @@ const nextConfig = {
       config.cache = false;
     }
     
-    // lucide-reactエラー回避設定
+    // Resolve fallback configuration
     config.resolve.fallback = {
       ...config.resolve.fallback,
-      'lucide-react': false,
     };
     
     // Supabase realtime-js の警告を抑制
