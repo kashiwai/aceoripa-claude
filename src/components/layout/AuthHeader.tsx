@@ -14,7 +14,7 @@ export function AuthHeader() {
   return (
     <header className="bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 shadow-xl sticky top-0 z-50">
       <div className="w-full px-2 sm:px-3">
-        <div className="flex items-center justify-between h-10 sm:h-16">
+        <div className="flex items-center justify-between h-12 sm:h-16 px-1 sm:px-0">
           {/* ロゴ */}
           <Link href="/" className="flex items-center">
             <span className="text-base sm:text-2xl font-black text-white tracking-tight">ACEORIPA</span>
@@ -23,17 +23,17 @@ export function AuthHeader() {
 
           {/* デスクトップナビゲーション */}
           <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/gacha" className="flex items-center space-x-2 bg-yellow-400 hover:bg-yellow-300 text-black px-4 py-2 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg">
+            <Link href="/gacha" className="flex items-center space-x-2 bg-yellow-400 hover:bg-yellow-300 text-black px-4 py-2 rounded-full font-bold enhanced-button pulse-button shadow-lg">
               <SparklesIcon className="w-5 h-5" />
               <span>ガチャ</span>
             </Link>
             {!user && (
               <>
-                <Link href="/auth/login" className="flex items-center space-x-2 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg">
+                <Link href="/auth/login" className="flex items-center space-x-2 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-full font-bold enhanced-button shadow-lg">
                   <ArrowRightOnRectangleIcon className="w-5 h-5" />
                   <span>ログイン</span>
                 </Link>
-                <Link href="/auth/signup" className="flex items-center space-x-2 bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white px-4 py-2 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg">
+                <Link href="/auth/signup" className="flex items-center space-x-2 bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white px-4 py-2 rounded-full font-bold enhanced-button gradient-button shadow-lg">
                   <UserPlusIcon className="w-5 h-5" />
                   <span>新規登録</span>
                 </Link>
@@ -100,18 +100,26 @@ export function AuthHeader() {
             <div className="flex items-center space-x-1 sm:space-x-2 md:hidden">
               <Link
                 href="/gacha"
-                className="flex items-center space-x-1 bg-yellow-400 hover:bg-yellow-300 text-black px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-bold text-[10px] sm:text-xs transition-all transform hover:scale-105 shadow-lg"
+                className="flex items-center space-x-1 bg-yellow-400 hover:bg-yellow-300 text-black px-3 sm:px-3 py-1.5 sm:py-1.5 rounded-full font-bold text-xs sm:text-xs transition-all transform hover:scale-105 shadow-lg min-h-[36px]"
               >
                 <SparklesIcon className="w-3 sm:w-4 h-3 sm:h-4" />
                 <span>ガチャ</span>
               </Link>
               {!user && (
-                <Link
-                  href="/auth/signup"
-                  className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-bold text-[10px] sm:text-xs transition-all transform hover:scale-105 shadow-lg"
-                >
-                  新規登録
-                </Link>
+                <>
+                  <Link
+                    href="/auth/signup"
+                    className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white px-3 sm:px-3 py-1.5 sm:py-1.5 rounded-full font-bold text-xs sm:text-xs transition-all transform hover:scale-105 shadow-lg min-h-[36px] flex items-center"
+                  >
+                    新規登録
+                  </Link>
+                  <Link
+                    href="/auth/login"
+                    className="bg-white hover:bg-gray-100 text-black px-3 sm:px-3 py-1.5 sm:py-1.5 rounded-full font-bold text-xs sm:text-xs transition-all transform hover:scale-105 shadow-lg min-h-[36px] flex items-center"
+                  >
+                    ログイン
+                  </Link>
+                </>
               )}
               <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
@@ -194,30 +202,6 @@ export function AuthHeader() {
               </>
             )}
             
-            {/* その他のメニュー項目 */}
-            <div className="pt-4 border-t border-gray-700 space-y-3">
-              <Link
-                href="/"
-                onClick={() => setShowMobileMenu(false)}
-                className="block text-gray-300 hover:text-white px-6 py-3 font-medium transition-colors"
-              >
-                ホーム
-              </Link>
-              <Link
-                href="/battle"
-                onClick={() => setShowMobileMenu(false)}
-                className="block text-gray-300 hover:text-white px-6 py-3 font-medium transition-colors"
-              >
-                バトル
-              </Link>
-              <Link
-                href="/deck"
-                onClick={() => setShowMobileMenu(false)}
-                className="block text-gray-300 hover:text-white px-6 py-3 font-medium transition-colors"
-              >
-                デッキ
-              </Link>
-            </div>
           </div>
         </div>
       )}

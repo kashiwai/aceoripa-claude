@@ -55,6 +55,7 @@ export default function GachaPlayPage() {
   const [effectQueue, setEffectQueue] = useState<Card[]>([])
   const [gachaInfo, setGachaInfo] = useState<GachaProduct | null>(null)
   const [authChecking, setAuthChecking] = useState(true)
+  const [cardPool, setCardPool] = useState<Card[]>([])
 
   // 認証とポイント管理
   const { user, loading: authLoading } = useAuth()
@@ -92,18 +93,34 @@ export default function GachaPlayPage() {
         }
       } catch (error) {
         console.error('Error fetching gacha info:', error)
-        // フォールバック
-        setGachaInfo({
-          id: gachaId,
-          name: 'ポケモンガチャ',
-          price: 150,
-          imageUrl: '/images/banners/real-gacha/S__44392515_0.jpg'
-        })
+        setGachaInfo(null)
       }
     }
     
     if (!authChecking) {
       fetchGachaInfo()
+    }
+  }, [gachaId, authChecking])
+
+  // カードプール情報の取得
+  useEffect(() => {
+    const fetchCardPool = async () => {
+      try {
+        const response = await fetch(`/api/gacha/products/${gachaId}/pool`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.cards) {
+            setCardPool(data.cards)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching card pool:', error)
+        setCardPool([])
+      }
+    }
+    
+    if (!authChecking) {
+      fetchCardPool()
     }
   }, [gachaId, authChecking])
 
@@ -142,25 +159,24 @@ export default function GachaPlayPage() {
     setTimeout(() => {
       setCurrentPhase('revealing')
       
-      // ガチャ結果を事前計算
+      // ガチャ結果を事前計算（DBカードプールを使用）
       const gachaResults: Card[] = []
+      const activeCardPool = cardPool.length > 0 ? cardPool : sampleCards
+      
+      // 総重み計算
+      const totalWeight = activeCardPool.reduce((sum, card) => sum + (card.probability || 1), 0)
       
       for (let i = 0; i < count; i++) {
-        const random = Math.random()
-        let selectedCard: Card
+        const random = Math.random() * totalWeight
+        let currentWeight = 0
+        let selectedCard: Card = activeCardPool[0] // フォールバック
         
-        if (random < 0.01) { // 1% SS
-          const ssCards = sampleCards.filter(c => c.rarity === 'SS')
-          selectedCard = ssCards[Math.floor(Math.random() * ssCards.length)]
-        } else if (random < 0.05) { // 4% S
-          const sCards = sampleCards.filter(c => c.rarity === 'S')
-          selectedCard = sCards[Math.floor(Math.random() * sCards.length)]
-        } else if (random < 0.20) { // 15% A
-          const aCards = sampleCards.filter(c => c.rarity === 'A')
-          selectedCard = aCards[Math.floor(Math.random() * aCards.length)]
-        } else { // その他（B, C賞など）
-          const otherCards = sampleCards.filter(c => ['B', 'C'].includes(c.rarity))
-          selectedCard = otherCards[Math.floor(Math.random() * otherCards.length)]
+        for (const card of activeCardPool) {
+          currentWeight += (card.probability || 1)
+          if (random <= currentWeight) {
+            selectedCard = card
+            break
+          }
         }
         
         gachaResults.push({

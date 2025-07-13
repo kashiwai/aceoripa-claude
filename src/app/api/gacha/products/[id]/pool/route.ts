@@ -81,81 +81,12 @@ export async function GET(
     
     if (poolError) {
       console.error('Error fetching pool from Supabase:', poolError)
-      // エラーの場合はフォールバックデータを使用
-      const fallbackCards = GACHA_POOLS[gachaId as keyof typeof GACHA_POOLS]
-      if (!fallbackCards) {
-        return NextResponse.json({ error: 'Pool not found' }, { status: 404 })
-      }
-      
-      // フォールバックデータの確率を適切に設定
-      const rarityCardCounts: {[key: string]: number} = {}
-      fallbackCards.forEach(card => {
-        rarityCardCounts[card.rarity] = (rarityCardCounts[card.rarity] || 0) + 1
-      })
-      
-      // レアリティごとの基本確率設定
-      const rarityBaseProbabilities: {[key: string]: number} = {
-        'SS': 2,   // SS賞全体で2%
-        'S': 8,    // S賞全体で8%
-        'A': 15,   // A賞全体で15%
-        'B': 25,   // B賞全体で25%
-        'C': 50    // C賞全体で50%
-      }
-      
-      const formattedCards = fallbackCards.map(card => {
-        const baseProb = rarityBaseProbabilities[card.rarity] || 1
-        const cardCount = rarityCardCounts[card.rarity]
-        const individualProb = cardCount > 0 ? baseProb / cardCount : 1
-        
-        return {
-          id: card.id,
-          name: card.name,
-          rarity: card.rarity,
-          imageUrl: card.image,
-          probability: Math.round(individualProb * 10) / 10
-        }
-      })
-      
-      return NextResponse.json({ success: true, cards: formattedCards })
+      return NextResponse.json({ error: 'Database error', details: poolError.message }, { status: 500 })
     }
     
-    // データが存在しない場合もフォールバックを使用
+    // データが存在しない場合は空配列を返す
     if (!poolData || poolData.length === 0) {
-      const fallbackCards = GACHA_POOLS[gachaId as keyof typeof GACHA_POOLS]
-      if (!fallbackCards) {
-        return NextResponse.json({ error: 'Pool not found' }, { status: 404 })
-      }
-      
-      // フォールバックデータの確率を適切に設定
-      const rarityCardCounts: {[key: string]: number} = {}
-      fallbackCards.forEach(card => {
-        rarityCardCounts[card.rarity] = (rarityCardCounts[card.rarity] || 0) + 1
-      })
-      
-      // レアリティごとの基本確率設定
-      const rarityBaseProbabilities: {[key: string]: number} = {
-        'SS': 2,   // SS賞全体で2%
-        'S': 8,    // S賞全体で8%
-        'A': 15,   // A賞全体で15%
-        'B': 25,   // B賞全体で25%
-        'C': 50    // C賞全体で50%
-      }
-      
-      const formattedCards = fallbackCards.map(card => {
-        const baseProb = rarityBaseProbabilities[card.rarity] || 1
-        const cardCount = rarityCardCounts[card.rarity]
-        const individualProb = cardCount > 0 ? baseProb / cardCount : 1
-        
-        return {
-          id: card.id,
-          name: card.name,
-          rarity: card.rarity,
-          imageUrl: card.image,
-          probability: Math.round(individualProb * 10) / 10
-        }
-      })
-      
-      return NextResponse.json({ success: true, cards: formattedCards })
+      return NextResponse.json({ success: true, cards: [] })
     }
     
     // レアリティごとの合計weightを計算

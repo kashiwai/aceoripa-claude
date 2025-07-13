@@ -329,6 +329,66 @@ body {
   }
 }
 
+/* スマホ専用のバナー修正 */
+@media (max-width: 640px) {
+  .banner-swiper {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: transparent !important;
+  }
+  
+  .banner-swiper .swiper-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .banner-swiper .swiper-slide {
+    width: 85px !important;
+    height: 85px !important;
+    flex-shrink: 0 !important;
+    margin-right: 8px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* スマホでのホバーエフェクト無効化 */
+  .card-hover-enhanced:hover {
+    transform: none !important;
+  }
+  
+  .enhanced-button:hover {
+    transform: none !important;
+  }
+  
+  /* タッチ操作の改善 */
+  .enhanced-button:active {
+    transform: scale(0.95) !important;
+    transition: transform 0.1s ease !important;
+  }
+  
+  /* レイアウト崩れ防止 */
+  * {
+    box-sizing: border-box !important;
+  }
+  
+  body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* スマホ用のフォントサイズ調整 */
+  .neon-glow {
+    text-shadow: none !important;
+  }
+}
+
 /* 縦長画面用の特別な演出 */
 @media (orientation: portrait) {
   .portrait-optimized {
@@ -358,5 +418,232 @@ body {
   width: 400px !important;
   height: 400px !important;
   flex-shrink: 0 !important;
+}
+
+/* 強化されたボタンホバーエフェクト */
+.enhanced-button {
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.enhanced-button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.15),
+    0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.enhanced-button:active {
+  transform: translateY(0) scale(0.98);
+  transition: all 0.1s ease;
+}
+
+/* リップルエフェクト */
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple-effect:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* グラデーションボタンの強化 */
+.gradient-button {
+  background: linear-gradient(135deg, #FF0033 0%, #FF6B6B 50%, #FF0033 100%);
+  background-size: 200% 200%;
+  transition: all 0.3s ease;
+}
+
+.gradient-button:hover {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 10px 30px rgba(255, 0, 51, 0.4),
+    0 0 20px rgba(255, 0, 51, 0.2);
+}
+
+/* カードホバーエフェクトの強化 */
+.card-hover-enhanced {
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  transform-style: preserve-3d;
+}
+
+.card-hover-enhanced:hover {
+  transform: translateY(-8px) rotateX(5deg) rotateY(2deg);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 10px 20px rgba(255, 0, 51, 0.1);
+}
+
+/* ネオンエフェクト */
+.neon-glow {
+  text-shadow: 
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 15px currentColor,
+    0 0 20px currentColor;
+  transition: all 0.3s ease;
+}
+
+.neon-glow:hover {
+  text-shadow: 
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 30px currentColor,
+    0 0 40px currentColor;
+}
+
+/* プルスエフェクト */
+.pulse-button {
+  animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 0, 51, 0.4);
+  }
+  50% { 
+    transform: scale(1.02);
+    box-shadow: 0 0 0 10px rgba(255, 0, 51, 0);
+  }
+}
+
+/* マグネティックエフェクト（微細な磁力効果） */
+.magnetic-effect {
+  transition: transform 0.2s ease-out;
+}
+
+.magnetic-effect:hover {
+  transform: scale(1.05);
+}
+
+/* レスポンシブボタンサイズ調整 */
+@media (max-width: 640px) {
+  .enhanced-button:hover {
+    transform: translateY(-1px) scale(1.02);
+  }
+  
+  .card-hover-enhanced:hover {
+    transform: translateY(-4px) rotateX(2deg);
+  }
+}
+
+/* ページ遷移アニメーション */
+.page-transition {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* より滑らかなスクロール */
+html {
+  scroll-behavior: smooth;
+}
+
+/* スケルトンローディングの改善 */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* イージングトランジション */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* バウンスイン効果 */
+.bounce-in {
+  animation: bounceIn 0.8s ease-out;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* スライドイン効果 */
+.slide-in-left {
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.6s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
   

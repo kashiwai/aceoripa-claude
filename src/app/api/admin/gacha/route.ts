@@ -115,3 +115,62 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+// PUT: ガチャ商品更新
+export async function PUT(request: NextRequest) {
+  try {
+    const supabase = await createClient()
+    
+    // 管理者権限チェック（Cookieベース）
+    const adminSessionCookie = request.cookies.get('admin_session')
+    if (!adminSessionCookie) {
+      return NextResponse.json({
+        success: false,
+        error: '管理者認証が必要です'
+      }, { status: 401 })
+    }
+    
+    const body = await request.json()
+    const { id, ...updateData } = body
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Gacha ID is required' },
+        { status: 400 }
+      )
+    }
+    
+    const { data: product, error } = await supabase
+      .from('gacha_products')
+      .update({
+        name: updateData.name,
+        description: updateData.description,
+        single_price: updateData.single_price,
+        multi_price: updateData.multi_price,
+        total_packs: updateData.total_packs,
+        remaining_packs: updateData.remaining_packs,
+        banner_image_url: updateData.banner_image_url,
+        is_active: updateData.is_active,
+        start_date: updateData.start_date,
+        end_date: updateData.end_date,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    
+    return NextResponse.json({
+      success: true,
+      product,
+      message: 'Gacha product updated successfully'
+    })
+  } catch (error: any) {
+    console.error('Admin gacha PUT error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

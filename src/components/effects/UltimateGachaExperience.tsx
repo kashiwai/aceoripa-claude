@@ -349,12 +349,11 @@ export const UltimateGachaExperience = ({
       {experienceConfig.specialEffects && (currentPhase === 'climax' || currentPhase === 'revelation') && (
         <motion.div
           className="absolute inset-0 pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, rotate: 0 }}
+          animate={{ opacity: 1, rotate: 360 }}
           style={{
             background: `conic-gradient(from 0deg, transparent, ${experienceConfig.colors[0]}40, transparent, ${experienceConfig.colors[1]}40, transparent)`
           }}
-          animate={{ rotate: 360 }}
           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
         />
       )}

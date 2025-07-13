@@ -75,11 +75,10 @@ export default function GachaPage() {
           throw new Error('ガチャ商品の取得に失敗しました')
         }
         const data = await response.json()
-        setGachaProducts(data.products || gachaProductsFallback)
+        setGachaProducts(data.products || [])
       } catch (err) {
         console.error('Error fetching gacha products:', err)
-        // フォールバックデータを使用
-        setGachaProducts(gachaProductsFallback)
+        setGachaProducts([])
       }
     }
 

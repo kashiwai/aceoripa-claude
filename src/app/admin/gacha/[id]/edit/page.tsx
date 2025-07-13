@@ -29,6 +29,7 @@ export default function EditGachaPage() {
     // 追加フィールド
     total_stock: 1000,
     is_free_points_only: false,
+    is_daily_free_gacha: false,
     required_user_rank: '',
     cost_per_card: 50,
     ss_guarantee_threshold: 0.7,
@@ -77,6 +78,7 @@ export default function EditGachaPage() {
             // メタデータから復元
             total_stock: metadata.total_stock || 1000,
             is_free_points_only: metadata.is_free_points_only || false,
+            is_daily_free_gacha: metadata.is_daily_free_gacha || false,
             required_user_rank: metadata.required_user_rank || '',
             cost_per_card: metadata.cost_per_card || 50,
             ss_guarantee_threshold: metadata.ss_guarantee_threshold || 0.7,
@@ -135,6 +137,7 @@ export default function EditGachaPage() {
       const metadata = {
         total_stock: formData.total_stock,
         is_free_points_only: formData.is_free_points_only,
+        is_daily_free_gacha: formData.is_daily_free_gacha,
         required_user_rank: formData.required_user_rank,
         cost_per_card: formData.cost_per_card,
         ss_guarantee_threshold: formData.ss_guarantee_threshold,
@@ -175,14 +178,22 @@ export default function EditGachaPage() {
         console.warn('Some fields may not exist in database:', e)
       }
 
-      const { error } = await supabase
-        .from('gacha_products')
-        .update(updateData)
-        .eq('id', gachaId)
+      // APIを使用して更新
+      const response = await fetch('/api/admin/gacha', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: gachaId,
+          ...updateData
+        })
+      })
       
-      if (error) {
-        console.error('Update error details:', error)
-        throw error
+      const result = await response.json()
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Update failed')
       }
       
       toast.success('ガチャを更新しました')
@@ -376,15 +387,41 @@ export default function EditGachaPage() {
               </label>
             </div>
             
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.is_free_points_only}
-                onChange={(e) => setFormData({ ...formData, is_free_points_only: e.target.checked })}
-                className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-              <span className="ml-2 text-sm text-gray-700">無料ポイント専用</span>
-            </label>
+            <div className="space-y-2">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.is_free_points_only}
+                  onChange={(e) => setFormData({ ...formData, is_free_points_only: e.target.checked })}
+                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-gray-700">無料ポイント専用</span>
+              </label>
+              
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.is_daily_free_gacha}
+                  onChange={(e) => {
+                    const isChecked = e.target.checked
+                    setFormData({ 
+                      ...formData, 
+                      is_daily_free_gacha: isChecked,
+                      // 無料ガチャの場合は価格を0に設定
+                      single_price: isChecked ? 0 : formData.single_price,
+                      multi_price: isChecked ? 0 : formData.multi_price
+                    })
+                  }}
+                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-gray-700">1日1回無料ガチャ</span>
+              </label>
+              {formData.is_daily_free_gacha && (
+                <p className="text-xs text-blue-600 ml-6">
+                  無料ガチャが有効な場合、価格は自動的に0に設定されます
+                </p>
+              )}
+            </div>
           </div>
           
           <div>

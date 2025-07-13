@@ -50,17 +50,25 @@ export default async function GachaManagementPage() {
           <p className="text-muted">ガチャの設定・管理を行います</p>
         </div>
         <div className="d-flex gap-2">
-          <Link href="/admin/gacha/auto-profit-calc" className="btn btn-success">
+          <Link href="/admin/gacha/create-with-calculator" className="btn btn-success">
             <i className="bi bi-calculator me-2"></i>
-            収支計算
+            利益計算付き作成
           </Link>
-          <Link href="/admin/gacha/auto-simulation" className="btn btn-warning">
+          <Link href="/admin/gacha/optimize-existing" className="btn btn-warning">
+            <i className="bi bi-graph-up-arrow me-2"></i>
+            既存ガチャ最適化
+          </Link>
+          <Link href="/admin/gacha/dopa-calculator" className="btn btn-info">
+            <i className="bi bi-percent me-2"></i>
+            DOPA式計算ツール
+          </Link>
+          <Link href="/admin/gacha/auto-simulation" className="btn btn-secondary">
             <i className="bi bi-stars me-2"></i>
             AI自動シミュレーション
           </Link>
           <Link href="/admin/gacha/new" className="btn btn-primary">
             <PlusIcon className="bi bi-plus-lg me-2" style={{width: '20px', height: '20px'}} />
-            新規ガチャ作成
+            通常作成
           </Link>
         </div>
       </div>

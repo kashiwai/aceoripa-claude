@@ -12,17 +12,38 @@ export default function SeedSampleGachaPage() {
 
   const sampleGachas = [
     {
-      name: '超激レア！伝説のポケモンガチャ',
-      description: 'ミュウツー、レックウザなど伝説のポケモンが手に入るかも！？',
-      single_price: 500,
-      multi_price: 4500,
+      name: 'ピカチュウ大祭り',
+      description: 'ピカチュウの特別なカードが大量出現！\nSSR確率アップ中！',
+      price: 150,
+      single_price: 150,
+      multi_price: 1350,
+      card_count: 1,
+      bonus_cards: 0,
       is_active: true,
-      banner_image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/150.png',
-      featured_card_id: null,
-      start_date: new Date().toISOString(),
-      end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      banner_image_url: '/images/banners/real-gacha/S__44392515_0.jpg',
       metadata: {
-        theme: 'legendary',
+        theme: 'pikachu',
+        rarityControl: {
+          SS: { enabled: true, currentRate: 1, adjustedRate: 1 },
+          S: { enabled: true, currentRate: 4, adjustedRate: 4 },
+          A: { enabled: true, currentRate: 15, adjustedRate: 15 },
+          B: { enabled: true, currentRate: 30, adjustedRate: 30 },
+          C: { enabled: true, currentRate: 50, adjustedRate: 50 }
+        }
+      }
+    },
+    {
+      name: 'ナンジャモ大量発生オリパ',
+      description: 'ナンジャモの激レアカードが手に入るチャンス！',
+      price: 200,
+      single_price: 200,
+      multi_price: 1800,
+      card_count: 1,
+      bonus_cards: 0,
+      is_active: true,
+      banner_image_url: '/images/banners/real-gacha/S__44392516_0.jpg',
+      metadata: {
+        theme: 'nanjamo',
         rarityControl: {
           SS: { enabled: true, currentRate: 0.5, adjustedRate: 0.5 },
           S: { enabled: true, currentRate: 2, adjustedRate: 2 },
@@ -33,89 +54,67 @@ export default function SeedSampleGachaPage() {
       }
     },
     {
-      name: '初心者応援！スターターガチャ',
-      description: '初心者の方におすすめ！人気ポケモンが手に入りやすい！',
-      single_price: 150,
-      multi_price: 1350,
-      is_active: true,
-      banner_image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png',
-      featured_card_id: null,
-      start_date: new Date().toISOString(),
-      end_date: null,
-      metadata: {
-        theme: 'starter',
-        rarityControl: {
-          SS: { enabled: false, currentRate: 0.5, adjustedRate: 0 },
-          S: { enabled: false, currentRate: 2, adjustedRate: 0 },
-          A: { enabled: true, currentRate: 10, adjustedRate: 15 },
-          B: { enabled: true, currentRate: 37.5, adjustedRate: 40 },
-          C: { enabled: true, currentRate: 50, adjustedRate: 45 }
-        }
-      }
-    },
-    {
-      name: '水タイプ限定ガチャ',
-      description: '水タイプのポケモンだけが登場！カメックス、ギャラドスを狙え！',
+      name: 'リザードン祭盤 炎のプレミアオリパ',
+      description: '炎タイプの最強カードが集結！リザードンを狙え！',
+      price: 300,
       single_price: 300,
       multi_price: 2700,
+      card_count: 1,
+      bonus_cards: 0,
       is_active: true,
-      banner_image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/9.png',
-      featured_card_id: null,
-      start_date: new Date().toISOString(),
-      end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      banner_image_url: '/images/banners/real-gacha/S__44392517_0.jpg',
       metadata: {
-        theme: 'water',
-        type_filter: 'water',
+        theme: 'charizard',
+        type_filter: 'fire',
         rarityControl: {
-          SS: { enabled: false, currentRate: 0.5, adjustedRate: 0 },
-          S: { enabled: true, currentRate: 2, adjustedRate: 2.5 },
-          A: { enabled: true, currentRate: 10, adjustedRate: 12.5 },
-          B: { enabled: true, currentRate: 37.5, adjustedRate: 40 },
-          C: { enabled: true, currentRate: 50, adjustedRate: 45 }
+          SS: { enabled: true, currentRate: 2, adjustedRate: 2 },
+          S: { enabled: true, currentRate: 8, adjustedRate: 8 },
+          A: { enabled: true, currentRate: 20, adjustedRate: 20 },
+          B: { enabled: true, currentRate: 30, adjustedRate: 30 },
+          C: { enabled: true, currentRate: 40, adjustedRate: 40 }
         }
       }
     },
     {
-      name: 'ドラゴンフェスティバル',
-      description: '強力なドラゴンタイプが大集合！レアドラゴンの出現率UP！',
-      single_price: 1000,
-      multi_price: 9000,
+      name: 'ブラッキー超感謝祭',
+      description: 'ブラッキーの特別なカードが登場！ファン必見！',
+      price: 250,
+      single_price: 250,
+      multi_price: 2250,
+      card_count: 1,
+      bonus_cards: 0,
       is_active: true,
-      banner_image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/149.png',
-      featured_card_id: null,
-      start_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      banner_image_url: '/images/banners/real-gacha/S__44392518_0.jpg',
       metadata: {
-        theme: 'dragon',
-        type_filter: 'dragon',
+        theme: 'umbreon',
         rarityControl: {
-          SS: { enabled: true, currentRate: 0.5, adjustedRate: 1 },
-          S: { enabled: true, currentRate: 2, adjustedRate: 5 },
-          A: { enabled: true, currentRate: 10, adjustedRate: 20 },
-          B: { enabled: true, currentRate: 37.5, adjustedRate: 35 },
-          C: { enabled: true, currentRate: 50, adjustedRate: 39 }
+          SS: { enabled: true, currentRate: 1.5, adjustedRate: 1.5 },
+          S: { enabled: true, currentRate: 6, adjustedRate: 6 },
+          A: { enabled: true, currentRate: 17.5, adjustedRate: 17.5 },
+          B: { enabled: true, currentRate: 35, adjustedRate: 35 },
+          C: { enabled: true, currentRate: 40, adjustedRate: 40 }
         }
       }
     },
     {
-      name: '限定！色違いポケモンガチャ',
-      description: '激レア！色違いポケモンが手に入るかもしれない特別ガチャ！',
-      single_price: 5000,
-      multi_price: 45000,
-      is_active: false,
-      banner_image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/6.png',
-      featured_card_id: null,
-      start_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      name: 'リーリエ×マリオピカチュウ 超豪華オリパ',
+      description: '最高級レアカードが勢揃い！プレミアム体験をあなたに！',
+      price: 400,
+      single_price: 400,
+      multi_price: 3600,
+      card_count: 1,
+      bonus_cards: 0,
+      is_active: true,
+      banner_image_url: '/images/banners/real-gacha/S__44392519_0.jpg',
       metadata: {
-        theme: 'shiny',
+        theme: 'premium',
         special: true,
         rarityControl: {
-          SS: { enabled: true, currentRate: 0.5, adjustedRate: 3 },
-          S: { enabled: true, currentRate: 2, adjustedRate: 10 },
-          A: { enabled: true, currentRate: 10, adjustedRate: 25 },
-          B: { enabled: true, currentRate: 37.5, adjustedRate: 32 },
-          C: { enabled: true, currentRate: 50, adjustedRate: 30 }
+          SS: { enabled: true, currentRate: 3, adjustedRate: 3 },
+          S: { enabled: true, currentRate: 12, adjustedRate: 12 },
+          A: { enabled: true, currentRate: 25, adjustedRate: 25 },
+          B: { enabled: true, currentRate: 30, adjustedRate: 30 },
+          C: { enabled: true, currentRate: 30, adjustedRate: 30 }
         }
       }
     }
@@ -152,6 +151,8 @@ export default function SeedSampleGachaPage() {
       
       if (error) {
         console.error('Error inserting sample gachas:', error)
+        console.error('Error details:', JSON.stringify(error, null, 2))
+        console.error('Sample data being inserted:', JSON.stringify(sampleGachas, null, 2))
         toast.error('サンプルデータの挿入に失敗しました: ' + error.message)
         return
       }

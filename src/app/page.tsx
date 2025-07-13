@@ -196,7 +196,7 @@ export default function HomePage() {
   ])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white page-transition">
       <style jsx global>{`
         .banner-swiper {
           padding: 0 !important;
@@ -210,18 +210,25 @@ export default function HomePage() {
         /* スマホ用のスタイル */
         @media (max-width: 640px) {
           .banner-swiper .swiper-slide {
-            width: 80px !important;
+            width: 85px !important;
+            height: 85px !important;
           }
           .banner-swiper {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+          }
+          .banner-swiper .swiper-wrapper {
             margin: 0 !important;
             padding: 0 !important;
           }
           body {
             margin: 0 !important;
             padding: 0 !important;
+            overflow-x: hidden !important;
           }
           * {
-            margin: 0 !important;
+            box-sizing: border-box !important;
           }
         }
       `}</style>
@@ -231,10 +238,70 @@ export default function HomePage() {
       {/* メインバナーカルーセル */}
       <BannerCarousel />
 
+      {/* カテゴリーセクション */}
+      <section className="bg-white py-4 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-4 sm:mb-8">
+            <h2 className="text-xl sm:text-3xl font-black text-gray-900 mb-2 sm:mb-4 neon-glow">
+              カテゴリーから選ぶ
+            </h2>
+          </div>
+          
+          {/* タブスタイルのカテゴリー選択 */}
+          <div className="max-w-lg sm:max-w-2xl mx-auto">
+            <div className="flex border-b border-gray-200">
+              <button
+                onClick={() => router.push('/gacha')}
+                className="flex-1 py-3 sm:py-4 px-3 sm:px-6 text-center font-bold text-sm sm:text-lg border-b-2 border-transparent hover:border-[#FF0033] hover:text-[#FF0033] transition-all duration-200 relative group"
+              >
+                <div className="flex items-center justify-center space-x-1 sm:space-x-2">
+                  {/* ガチャマシンアイコン */}
+                  <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 1.74.63 3.34 1.67 4.59L12 22l5.33-8.41C18.37 12.34 19 10.74 19 9c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    <circle cx="12" cy="9" r="1.5" fill="white"/>
+                    <rect x="10" y="14" width="4" height="2" rx="1" fill="currentColor"/>
+                  </svg>
+                  <span>ガチャ一覧</span>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 sm:h-1 bg-gradient-to-r from-yellow-400 to-red-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></div>
+              </button>
+              
+              <div className="w-px bg-gray-200"></div>
+              
+              <button
+                onClick={() => router.push('/point-exchange')}
+                className="flex-1 py-3 sm:py-4 px-3 sm:px-6 text-center font-bold text-sm sm:text-lg border-b-2 border-transparent hover:border-purple-500 hover:text-purple-600 transition-all duration-200 relative group"
+              >
+                <div className="flex items-center justify-center space-x-1 sm:space-x-2">
+                  {/* ポイント交換アイコン */}
+                  <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                    <path d="M12.5 7H11v5l4.75 2.85.75-1.23-4-2.37V7z"/>
+                    <circle cx="8" cy="8" r="1.5" fill="currentColor"/>
+                    <circle cx="16" cy="8" r="1.5" fill="currentColor"/>
+                    <circle cx="8" cy="16" r="1.5" fill="currentColor"/>
+                    <circle cx="16" cy="16" r="1.5" fill="currentColor"/>
+                  </svg>
+                  <span>ポイント交換</span>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 sm:h-1 bg-gradient-to-r from-purple-500 to-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></div>
+              </button>
+            </div>
+            
+            {/* タブの説明 */}
+            <div className="mt-3 sm:mt-6 text-center">
+              <p className="text-gray-600 text-xs sm:text-base">
+                お好みのコンテンツを上のタブからお選びください
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* メインバナースライダー（300x300） */}
       {showSquareBanners && squareBanners.filter(banner => banner.isActive !== false).length > 0 && (
-        <section className="bg-gray-100 relative z-0 py-0 sm:py-3 hidden sm:block">
-          <div className="w-full px-0 sm:px-4">
+        <section className="bg-transparent sm:bg-gray-100 relative z-0 py-2 sm:py-3">
+          <div className="w-full px-2 sm:px-4 overflow-hidden">
             <Swiper
               modules={[Autoplay, Navigation]}
               spaceBetween={8}
@@ -244,10 +311,10 @@ export default function HomePage() {
               className="banner-swiper"
             >
               {squareBanners.filter(banner => banner.isActive !== false).map((banner) => (
-              <SwiperSlide key={banner.id} className="!w-[80px] sm:!w-[300px]">
+              <SwiperSlide key={banner.id} className="!w-[85px] sm:!w-[300px]">
                 <div 
                   onClick={() => router.push(`/gacha/${banner.gachaId}`)}
-                  className="w-[80px] h-[80px] sm:w-[300px] sm:h-[300px] bg-white rounded-lg overflow-hidden shadow-lg cursor-pointer hover:scale-105 transition-transform relative"
+                  className="w-[85px] h-[85px] sm:w-[300px] sm:h-[300px] bg-transparent sm:bg-white rounded-lg overflow-hidden shadow-none sm:shadow-lg cursor-pointer hover:scale-105 transition-transform relative border-0"
                 >
                   {/* 画像バナー */}
                   {banner.image ? (
@@ -262,11 +329,11 @@ export default function HomePage() {
                         priority
                       />
                       {/* テキストオーバーレイ */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-1.5 sm:p-4">
-                        <h3 className="text-[9px] sm:text-xl font-black text-white mb-0.5 sm:mb-1 drop-shadow-lg leading-tight">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col justify-end p-1 sm:p-4">
+                        <h3 className="text-[8px] sm:text-xl font-black text-white mb-0 sm:mb-1 drop-shadow-lg leading-tight">
                           {banner.title}
                         </h3>
-                        <p className="text-[7px] sm:text-sm font-bold text-white/90 drop-shadow-md leading-tight">
+                        <p className="text-[6px] sm:text-sm font-bold text-white/90 drop-shadow-md leading-tight">
                           {banner.subtitle}
                         </p>
                       </div>
@@ -296,25 +363,25 @@ export default function HomePage() {
       {/* メインガチャ商品（1024x1024縦並び） */}
       <section className="mt-0 sm:-mt-1">
         <div className="max-w-4xl mx-auto px-0 sm:px-6 lg:px-8">
-          <h2 className="text-sm sm:text-4xl font-black text-center text-[#FF0033] mb-0 sm:mb-8 py-1 sm:py-0">
+          <h2 className="text-lg sm:text-4xl font-black text-center text-[#FF0033] mb-2 sm:mb-8 py-2 sm:py-0 neon-glow">
             オリパラインナップ
           </h2>
           <div className="space-y-0 sm:space-y-8">
             {loading && gachaProducts.length === 0 ? (
               // Loading skeleton
               Array(3).fill(0).map((_, index) => (
-                <div key={index} className="bg-white rounded-2xl shadow-xl overflow-hidden animate-pulse">
-                  <div className="aspect-square bg-gray-200"></div>
-                  <div className="p-4 sm:p-6">
-                    <div className="h-8 bg-gray-200 rounded mb-4"></div>
-                    <div className="h-6 bg-gray-200 rounded mb-4 w-3/4"></div>
-                    <div className="h-12 bg-gray-200 rounded"></div>
+                <div key={index} className="bg-white rounded-lg sm:rounded-2xl shadow-lg sm:shadow-xl overflow-hidden">
+                  <div className="aspect-square skeleton"></div>
+                  <div className="p-3 sm:p-6 space-y-3 sm:space-y-4">
+                    <div className="h-6 sm:h-8 skeleton rounded"></div>
+                    <div className="h-4 sm:h-6 skeleton rounded w-3/4"></div>
+                    <div className="h-10 sm:h-12 skeleton rounded"></div>
                   </div>
                 </div>
               ))
             ) : (
               gachaProducts.map((product, index) => (
-              <div key={product.id} className="bg-white rounded-lg sm:rounded-2xl shadow-lg sm:shadow-xl overflow-hidden">
+              <div key={product.id} className="bg-white rounded-lg sm:rounded-2xl shadow-lg sm:shadow-xl overflow-hidden card-hover-enhanced">
                 {/* 1024x1024 ガチャ画像（クリック可能） */}
                 <div 
                   onClick={() => router.push(`/gacha/${product.id}`)}
@@ -346,13 +413,13 @@ export default function HomePage() {
                 </div>
                 
                 {/* 商品情報 */}
-                <div className="p-1 sm:p-6">
-                  <h3 className="text-sm sm:text-3xl font-black text-gray-800 mb-0 sm:mb-2 leading-tight">{product.name}</h3>
+                <div className="p-3 sm:p-6 space-y-2 sm:space-y-4">
+                  <h3 className="text-base sm:text-3xl font-black text-gray-800 leading-tight">{product.name}</h3>
                     
                     {/* 残り枚数と進行状況バー */}
                     <div className="mb-0 sm:mb-2">
                       <div className="flex justify-between items-center mb-0 sm:mb-2">
-                        <span className="text-[8px] sm:text-sm font-bold text-gray-700">
+                        <span className="text-xs sm:text-sm font-bold text-gray-700">
                           残り {product.remaining.toLocaleString()}枚 / {product.total.toLocaleString()}枚中
                         </span>
                         <span className={`text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ${
@@ -410,10 +477,10 @@ export default function HomePage() {
                   {/* ガチャボタン */}
                   <Link href={`/gacha/${product.id}`}>
                     <button 
-                      className={`w-full text-center font-black py-2 sm:py-6 rounded-lg sm:rounded-xl transition text-xs sm:text-2xl ${
+                      className={`w-full text-center font-black py-3 sm:py-6 rounded-lg sm:rounded-xl text-sm sm:text-2xl transition-all duration-300 ${
                         product.status === 'sold_out' 
                           ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
-                          : 'bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white hover:scale-105 shadow-lg transform'
+                          : 'enhanced-button gradient-button ripple-effect text-white shadow-lg transform'
                       }`}
                       disabled={product.status === 'sold_out'}
                     >

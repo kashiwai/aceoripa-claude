@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import FreeGachaButton from '@/components/gacha/FreeGachaButton'
 // import PointConfirmDialog from '@/components/ui/PointConfirmDialog'
 // import { useAuth } from '@/hooks/useAuth'
 
@@ -99,17 +100,8 @@ export default function GachaDetailPage() {
           if (productData.success && productData.product) {
             setGacha(productData.product)
           } else {
-            // APIからデータが取得できない場合、フォールバックデータを使用
-            setGacha({
-              id: gachaId,
-              name: 'ピカチュウ大祭り',
-              description: 'ピカチュウの特別なカードが大量出現！\nSSR確率アップ中！',
-              imageUrl: '/images/banners/real-gacha/S__44392515_0.jpg',
-              price: 150,
-              remaining: 850,
-              total: 1000,
-              status: 'active'
-            })
+            console.error('Failed to fetch gacha product:', productData.error)
+            setGacha(null)
           }
         }
         
@@ -120,25 +112,17 @@ export default function GachaDetailPage() {
           if (poolData.success && poolData.cards) {
             setCards(poolData.cards)
           } else {
-            setCards(fallbackCards)
+            console.error('Failed to fetch card pool:', poolData.error)
+            setCards([])
           }
         } else {
-          setCards(fallbackCards)
+          console.error('Pool fetch failed with status:', poolResponse.status)
+          setCards([])
         }
       } catch (error) {
         console.error('Error fetching gacha data:', error)
-        // エラー時はフォールバックデータを使用
-        setGacha({
-          id: gachaId,
-          name: 'ピカチュウ大祭り',
-          description: 'ピカチュウの特別なカードが大量出現！\nSSR確率アップ中！',
-          imageUrl: '/images/banners/real-gacha/S__44392515_0.jpg',
-          price: 150,
-          remaining: 850,
-          total: 1000,
-          status: 'active'
-        })
-        setCards(fallbackCards)
+        setGacha(null)
+        setCards([])
       } finally {
         setLoading(false)
       }
@@ -192,25 +176,47 @@ export default function GachaDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1a1a1a]">
+    <>
+      <style jsx>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        
+        @keyframes progressPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+        
+        .animate-progress-pulse {
+          animation: progressPulse 1.5s ease-in-out infinite;
+        }
+      `}</style>
+      <div className="min-h-screen bg-[#1a1a1a]">
       {/* ヘッダー（DOPAスタイル） */}
       <header className="bg-white shadow-lg sticky top-0 z-50 border-b-4 border-[#FF0033]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-28 sm:h-24">
             <div className="flex items-center">
               <Link href="/" className="text-[#FF0033] hover:text-[#FF6B6B] transition">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-9 h-9 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
               </Link>
-              <h1 className="ml-2 sm:ml-4 text-xl sm:text-3xl font-black text-[#FF0033] truncate max-w-[200px] sm:max-w-none">
+            </div>
+            <div className="flex-1 text-center px-4">
+              <h1 className="text-2xl sm:text-4xl font-black text-[#FF0033] truncate">
                 {gacha?.name || 'ガチャ詳細'}
               </h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">残り</span>
-              <span className="text-2xl font-black text-[#FF0033]">
-                {gacha?.remaining?.toLocaleString() || '???'}枚
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <span className="text-sm sm:text-base text-gray-600">残り</span>
+              <span className="text-xl sm:text-2xl font-black text-[#FF0033]">
+                {gacha?.remaining_packs?.toLocaleString() || '???'}枚
               </span>
             </div>
           </div>
@@ -218,79 +224,95 @@ export default function GachaDetailPage() {
       </header>
 
       {/* メインコンテンツエリア */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-6 md:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* 左側：ガチャ画像と購入ボタン（固定） */}
           <div className="lg:sticky lg:top-28 lg:h-fit">
             {/* ガチャ画像 */}
-            <div className="relative aspect-square bg-gray-900 rounded-2xl overflow-hidden shadow-2xl mb-6">
-              {gacha?.imageUrl ? (
-                <Image
-                  src={gacha.imageUrl}
-                  alt={gacha.name}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                  priority
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-24 h-24 border-4 border-gray-600 border-t-[#FF0033] rounded-full animate-spin"></div>
-                </div>
-              )}
-              {/* プログレスバー */}
+            <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl mb-4 sm:mb-6">
+              <div className="relative aspect-square">
+                {gacha?.imageUrl ? (
+                  <Image
+                    src={gacha.imageUrl}
+                    alt={gacha.name}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                    priority
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-24 h-24 border-4 border-gray-600 border-t-[#FF0033] rounded-full animate-spin"></div>
+                  </div>
+                )}
+              </div>
+              {/* プログレスバーを画像の下に配置 */}
               {gacha && (
-                <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4">
-                  <div className="relative w-full h-8 bg-gray-800 rounded-full overflow-hidden">
+                <div className="bg-black/90 p-3 sm:p-4">
+                  <div className="relative w-full h-10 sm:h-12 bg-gray-800 rounded-full overflow-hidden shadow-inner">
                     <div 
-                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] transition-all duration-500"
-                      style={{ width: `${((gacha.remaining || 0) / (gacha.total || 1)) * 100}%` }}
+                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FF0033] via-[#FF4444] to-[#FF6B6B] transition-all duration-1000 ease-out"
+                      style={{ 
+                        width: `${Math.max(0, Math.min(100, ((gacha.remaining_packs || 0) / Math.max(1, gacha.total_packs || 1)) * 100))}%`,
+                        animation: 'pulse 2s infinite'
+                      }}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                      {/* 光る効果 */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
                     </div>
+                    
+                    {/* パーセンテージ表示 */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-white font-bold">
-                        {Math.round(((gacha.remaining || 0) / (gacha.total || 1)) * 100)}%
+                      <span className="text-white font-black text-base sm:text-lg drop-shadow-lg">
+                        {Math.round(Math.max(0, Math.min(100, ((gacha.remaining_packs || 0) / Math.max(1, gacha.total_packs || 1)) * 100)))}%
                       </span>
                     </div>
+                  </div>
+                  
+                  <div className="mt-2 text-center">
+                    <span className="text-white text-sm sm:text-base font-bold">
+                      残り <span className="text-[#FF0033] text-base sm:text-lg">{(gacha.remaining_packs || 0).toLocaleString()}</span> / {(gacha.total_packs || 0).toLocaleString()} パック
+                    </span>
                   </div>
                 </div>
               )}
             </div>
 
             {/* 価格表示 */}
-            <div className="text-center mb-6">
-              <p className="text-gray-400 text-base sm:text-lg">1回</p>
-              <p className="text-3xl sm:text-5xl font-black text-[#FF0033]">¥{gacha?.price || '???'}</p>
+            <div className="text-center mb-6 sm:mb-8">
+              <p className="text-gray-400 text-lg sm:text-xl">1回</p>
+              <p className="text-4xl sm:text-5xl font-black text-[#FF0033]">¥{gacha?.price || '???'}</p>
             </div>
 
+            {/* 無料ガチャボタン */}
+            <FreeGachaButton gachaId={gachaId} className="w-full mb-4" />
+
             {/* 購入ボタン（DOPAスタイル） */}
-            <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-4 sm:space-y-3">
+              <div className="grid grid-cols-3 gap-3 sm:gap-4">
                 <button
                   onClick={() => handleGacha(1)}
-                  className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white font-black py-3 sm:py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-lg sm:text-xl relative group"
+                  className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] text-white font-black py-4 sm:py-5 rounded-xl hover:scale-105 transform transition shadow-lg text-lg sm:text-xl relative group"
                 >
                   <span className="block">1回</span>
-                  <span className="text-xs opacity-80">¥{gacha?.price || 800}</span>
+                  <span className="text-xs sm:text-sm opacity-80">¥{gacha?.price || 800}</span>
                 </button>
                 <button
                   onClick={() => handleGacha(5)}
-                  className="bg-gradient-to-r from-[#00C853] to-[#00E676] text-white font-black py-3 sm:py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-lg sm:text-xl relative group"
+                  className="bg-gradient-to-r from-[#00C853] to-[#00E676] text-white font-black py-4 sm:py-5 rounded-xl hover:scale-105 transform transition shadow-lg text-lg sm:text-xl relative group"
                 >
                   <span className="block">5回</span>
-                  <span className="text-xs opacity-80">¥{(gacha?.price || 800) * 5}</span>
+                  <span className="text-xs sm:text-sm opacity-80">¥{(gacha?.price || 800) * 5}</span>
                 </button>
                 <button
                   onClick={() => handleGacha(10)}
-                  className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-white font-black py-3 sm:py-4 rounded-xl hover:scale-105 transform transition shadow-lg text-lg sm:text-xl relative overflow-hidden group"
+                  className="bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-white font-black py-4 sm:py-5 rounded-xl hover:scale-105 transform transition shadow-lg text-lg sm:text-xl relative overflow-hidden group"
                 >
                   <span className="relative z-10">
                     <span className="block">10連</span>
-                    <span className="text-xs opacity-80">¥{(gacha?.price || 800) * 10}</span>
+                    <span className="text-xs sm:text-sm opacity-80">¥{(gacha?.price || 800) * 10}</span>
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
-                  <div className="absolute top-0 right-0 bg-red-500 text-xs px-2 py-1 rounded-bl-lg font-bold">SR確定</div>
                 </button>
               </div>
               
@@ -327,79 +349,95 @@ export default function GachaDetailPage() {
               </p>
             </div>
             
-            {/* 期待値計算 */}
-            <div className="mt-4 bg-gradient-to-br from-purple-900 to-pink-900 rounded-xl p-6 border border-purple-500/30">
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center">
-                <svg className="w-6 h-6 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* 期待値計算 - よりリアルな表示 */}
+            <div className="mt-4 bg-gradient-to-br from-purple-900 to-pink-900 rounded-xl p-4 sm:p-6 border border-purple-500/30">
+              <h3 className="text-lg sm:text-xl font-bold text-white mb-4 flex items-center">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                🔥 激アツ期待値計算 🔥
+                確率・期待値情報
               </h3>
               
-              {/* 10回引きの期待値 */}
-              <div className="bg-black/40 rounded-lg p-4 mb-4">
-                <div className="text-center mb-3">
-                  <h4 className="text-lg font-black text-yellow-400 mb-1">🎯 10回ガチャの期待値</h4>
-                  <p className="text-sm text-gray-300">数学的に計算された確率</p>
-                </div>
-                
+              {/* レアリティ別出現確率 */}
+              <div className="bg-black/40 rounded-lg p-3 sm:p-4 mb-4">
+                <h4 className="text-base sm:text-lg font-bold text-yellow-400 mb-3">📊 レアリティ別出現確率</h4>
                 <div className="space-y-2">
-                  {/* SS賞獲得確率 */}
-                  {rarityProbabilities['SS'] > 0 && (
-                    <div className="flex justify-between items-center p-2 bg-gradient-to-r from-yellow-400/20 to-red-500/20 rounded">
-                      <span className="font-bold text-yellow-400">SS賞獲得確率</span>
-                      <span className="text-white font-black text-lg">
-                        約{((1 - Math.pow(1 - rarityProbabilities['SS'] / 100, 10)) * 100).toFixed(1)}%
-                      </span>
-                    </div>
-                  )}
-                  
-                  {/* S賞以上確率 */}
-                  {((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) > 0 && (
-                    <div className="flex justify-between items-center p-2 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded">
-                      <span className="font-bold text-purple-400">S賞以上確率</span>
-                      <span className="text-white font-black text-lg">
-                        約{((1 - Math.pow(1 - ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) / 100, 10)) * 100).toFixed(1)}%
-                      </span>
-                    </div>
-                  )}
-                  
-                  {/* A賞以上確率 */}
-                  {((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0) + (rarityProbabilities['A'] || 0)) > 0 && (
-                    <div className="flex justify-between items-center p-2 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded">
-                      <span className="font-bold text-blue-400">A賞以上確率</span>
-                      <span className="text-white font-black text-lg">
-                        約{((1 - Math.pow(1 - ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0) + (rarityProbabilities['A'] || 0)) / 100, 10)) * 100).toFixed(1)}%
-                      </span>
-                    </div>
-                  )}
+                  {Object.entries(rarityProbabilities).map(([rarity, probability]) => {
+                    if (probability <= 0) return null
+                    const label = RARITY_LABELS[rarity]
+                    const color = rarity === 'SS' ? 'yellow' : rarity === 'S' ? 'purple' : rarity === 'A' ? 'blue' : 'green'
+                    
+                    return (
+                      <div key={rarity} className="flex items-center justify-between">
+                        <span className={`text-${color}-400 font-semibold text-sm sm:text-base`}>{label}</span>
+                        <div className="flex items-center">
+                          <div className="w-20 sm:w-24 bg-gray-700 rounded-full h-2 mr-3">
+                            <div 
+                              className={`h-2 bg-${color}-500 rounded-full`}
+                              style={{ width: `${Math.min(100, probability)}%` }}
+                            />
+                          </div>
+                          <span className="text-white font-bold text-sm sm:text-base min-w-[50px] text-right">
+                            {probability.toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
 
-              {/* 50回引きの期待値 */}
-              <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-lg p-4 border border-red-400/30">
-                <div className="text-center mb-3">
-                  <h4 className="text-lg font-black text-red-400 mb-1">💎 50回で激レア確定級！</h4>
-                  <p className="text-sm text-gray-300">統計学的に99%以上の確率</p>
+              {/* チャレンジ回数別の期待値 */}
+              <div className="bg-black/40 rounded-lg p-3 sm:p-4">
+                <h4 className="text-base sm:text-lg font-bold text-orange-400 mb-3">🎯 チャレンジ確率目安</h4>
+                
+                {/* SS・S賞の獲得確率 */}
+                <div className="space-y-3">
+                  {rarityProbabilities['SS'] > 0 && (
+                    <div className="bg-yellow-500/10 p-3 rounded-lg">
+                      <p className="text-yellow-400 font-bold text-sm sm:text-base mb-2">SS賞を引く確率</p>
+                      <div className="grid grid-cols-3 gap-2 text-xs sm:text-sm">
+                        <div className="text-center">
+                          <p className="text-white font-bold">{((1 - Math.pow(1 - rarityProbabilities['SS'] / 100, 10)) * 100).toFixed(1)}%</p>
+                          <p className="text-gray-400">10回で</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-white font-bold">{((1 - Math.pow(1 - rarityProbabilities['SS'] / 100, 50)) * 100).toFixed(1)}%</p>
+                          <p className="text-gray-400">50回で</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-white font-bold">{((1 - Math.pow(1 - rarityProbabilities['SS'] / 100, 100)) * 100).toFixed(1)}%</p>
+                          <p className="text-gray-400">100回で</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) > 0 && (
+                    <div className="bg-purple-500/10 p-3 rounded-lg">
+                      <p className="text-purple-400 font-bold text-sm sm:text-base mb-2">S賞以上を引く確率</p>
+                      <div className="grid grid-cols-3 gap-2 text-xs sm:text-sm">
+                        <div className="text-center">
+                          <p className="text-white font-bold">{((1 - Math.pow(1 - ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) / 100, 10)) * 100).toFixed(1)}%</p>
+                          <p className="text-gray-400">10回で</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-white font-bold">{((1 - Math.pow(1 - ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) / 100, 30)) * 100).toFixed(1)}%</p>
+                          <p className="text-gray-400">30回で</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-white font-bold">{((1 - Math.pow(1 - ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) / 100, 50)) * 100).toFixed(1)}%</p>
+                          <p className="text-gray-400">50回で</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3">
-                  {rarityProbabilities['SS'] > 0 && (
-                    <div className="text-center p-3 bg-black/30 rounded-lg">
-                      <p className="text-2xl font-black text-yellow-400">
-                        {(rarityProbabilities['SS'] / 100 * 50).toFixed(1)}枚
-                      </p>
-                      <p className="text-xs text-yellow-300">SS賞期待獲得数</p>
-                    </div>
-                  )}
-                  {rarityProbabilities['S'] > 0 && (
-                    <div className="text-center p-3 bg-black/30 rounded-lg">
-                      <p className="text-2xl font-black text-purple-400">
-                        {(rarityProbabilities['S'] / 100 * 50).toFixed(1)}枚
-                      </p>
-                      <p className="text-xs text-purple-300">S賞期待獲得数</p>
-                    </div>
-                  )}
+                {/* 注意事項 */}
+                <div className="mt-3 p-2 bg-gray-800 rounded text-xs sm:text-sm text-gray-300">
+                  <p>※ 確率は理論値です。実際の結果とは異なる場合があります。</p>
+                  <p>※ 各レアリティのカードは在庫がなくなり次第終了となります。</p>
                 </div>
               </div>
 
@@ -506,6 +544,7 @@ export default function GachaDetailPage() {
         price={gacha?.price || 800}
         totalCost={(gacha?.price || 800) * selectedCount}
       /> */}
-    </div>
+      </div>
+    </>
   )
 }
