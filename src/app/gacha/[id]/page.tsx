@@ -26,6 +26,8 @@ interface GachaProduct {
   remaining?: number
   total?: number
   status?: string
+  remaining_packs?: number
+  total_packs?: number
 }
 
 const RARITY_ORDER = ['SS', 'S', 'A', 'OTHER']
@@ -200,24 +202,21 @@ export default function GachaDetailPage() {
       {/* ヘッダー（DOPAスタイル） */}
       <header className="bg-white shadow-lg sticky top-0 z-50 border-b-4 border-[#FF0033]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-28 sm:h-24">
+          <div className="flex items-center h-16 sm:h-20">
             <div className="flex items-center">
-              <Link href="/" className="text-[#FF0033] hover:text-[#FF6B6B] transition">
-                <svg className="w-9 h-9 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <Link href="/" className="text-[#FF0033] hover:text-[#FF6B6B] transition p-2">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
               </Link>
             </div>
-            <div className="flex-1 text-center px-4">
-              <h1 className="text-2xl sm:text-4xl font-black text-[#FF0033] truncate">
-                {gacha?.name || 'ガチャ詳細'}
+            <div className="flex-1 flex items-center justify-center px-4">
+              <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-[#FF0033] text-center leading-tight">
+                {gacha?.name || 'ナンジャモ大量発生オリパ'}
               </h1>
             </div>
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <span className="text-sm sm:text-base text-gray-600">残り</span>
-              <span className="text-xl sm:text-2xl font-black text-[#FF0033]">
-                {gacha?.remaining_packs?.toLocaleString() || '???'}枚
-              </span>
+            <div className="w-12 sm:w-16">
+              {/* 右側のスペースバランス用 */}
             </div>
           </div>
         </div>
@@ -227,7 +226,7 @@ export default function GachaDetailPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-6 md:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* 左側：ガチャ画像と購入ボタン（固定） */}
-          <div className="lg:sticky lg:top-28 lg:h-fit">
+          <div className="lg:sticky lg:top-24 lg:h-fit">
             {/* ガチャ画像 */}
             <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl mb-4 sm:mb-6">
               <div className="relative aspect-square">
@@ -358,86 +357,116 @@ export default function GachaDetailPage() {
                 確率・期待値情報
               </h3>
               
-              {/* レアリティ別出現確率 */}
+              {/* レアリティ別封入枚数 */}
               <div className="bg-black/40 rounded-lg p-3 sm:p-4 mb-4">
-                <h4 className="text-base sm:text-lg font-bold text-yellow-400 mb-3">📊 レアリティ別出現確率</h4>
-                <div className="space-y-2">
+                <h4 className="text-base sm:text-lg font-bold text-yellow-400 mb-3">📊 レアリティ別封入枚数</h4>
+                <div className="space-y-3">
                   {Object.entries(rarityProbabilities).map(([rarity, probability]) => {
                     if (probability <= 0) return null
                     const label = RARITY_LABELS[rarity]
                     const color = rarity === 'SS' ? 'yellow' : rarity === 'S' ? 'purple' : rarity === 'A' ? 'blue' : 'green'
+                    const totalCards = gacha?.total_packs || 4000
+                    const estimatedCount = Math.round((probability / 100) * totalCards)
                     
                     return (
-                      <div key={rarity} className="flex items-center justify-between">
-                        <span className={`text-${color}-400 font-semibold text-sm sm:text-base`}>{label}</span>
-                        <div className="flex items-center">
-                          <div className="w-20 sm:w-24 bg-gray-700 rounded-full h-2 mr-3">
-                            <div 
-                              className={`h-2 bg-${color}-500 rounded-full`}
-                              style={{ width: `${Math.min(100, probability)}%` }}
-                            />
-                          </div>
-                          <span className="text-white font-bold text-sm sm:text-base min-w-[50px] text-right">
-                            {probability.toFixed(1)}%
+                      <div key={rarity} className="bg-black/20 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-${color}-400 font-bold text-base sm:text-lg`}>{label}</span>
+                          <span className="text-white font-bold text-lg sm:text-xl">
+                            約{estimatedCount.toLocaleString()}枚
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-400 text-xs sm:text-sm">総数{totalCards.toLocaleString()}枚中</span>
+                          <span className="text-gray-300 text-sm">
+                            ({probability.toFixed(1)}%)
                           </span>
                         </div>
                       </div>
                     )
                   })}
                 </div>
+                <div className="mt-3 p-2 bg-yellow-500/10 rounded text-xs sm:text-sm text-yellow-300">
+                  ※ 封入枚数は理論値です。実際の枚数は前後する場合があります。
+                </div>
               </div>
 
-              {/* チャレンジ回数別の期待値 */}
+              {/* 当選期待値 */}
               <div className="bg-black/40 rounded-lg p-3 sm:p-4">
-                <h4 className="text-base sm:text-lg font-bold text-orange-400 mb-3">🎯 チャレンジ確率目安</h4>
+                <h4 className="text-base sm:text-lg font-bold text-orange-400 mb-3">🎯 当選期待値</h4>
                 
-                {/* SS・S賞の獲得確率 */}
-                <div className="space-y-3">
-                  {rarityProbabilities['SS'] > 0 && (
-                    <div className="bg-yellow-500/10 p-3 rounded-lg">
-                      <p className="text-yellow-400 font-bold text-sm sm:text-base mb-2">SS賞を引く確率</p>
-                      <div className="grid grid-cols-3 gap-2 text-xs sm:text-sm">
-                        <div className="text-center">
-                          <p className="text-white font-bold">{((1 - Math.pow(1 - rarityProbabilities['SS'] / 100, 10)) * 100).toFixed(1)}%</p>
-                          <p className="text-gray-400">10回で</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-white font-bold">{((1 - Math.pow(1 - rarityProbabilities['SS'] / 100, 50)) * 100).toFixed(1)}%</p>
-                          <p className="text-gray-400">50回で</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-white font-bold">{((1 - Math.pow(1 - rarityProbabilities['SS'] / 100, 100)) * 100).toFixed(1)}%</p>
-                          <p className="text-gray-400">100回で</p>
-                        </div>
+                {/* SS賞の期待値 */}
+                {rarityProbabilities['SS'] > 0 && (
+                  <div className="bg-yellow-500/10 p-3 rounded-lg mb-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-yellow-400 font-bold text-sm sm:text-base">SS賞獲得の目安</span>
+                      <span className="text-xl sm:text-2xl font-black text-yellow-300">
+                        約{Math.round(100 / rarityProbabilities['SS'])}回
+                      </span>
+                    </div>
+                    <div className="text-xs sm:text-sm text-gray-300">
+                      <p>平均的に{Math.round(100 / rarityProbabilities['SS'])}回に1枚の割合で出現</p>
+                      <p className="text-yellow-200 mt-1">
+                        ※ {Math.round(100 / rarityProbabilities['SS'])}回で必ず当たるわけではありません
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* S賞以上の期待値 */}
+                {((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) > 0 && (
+                  <div className="bg-purple-500/10 p-3 rounded-lg mb-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-purple-400 font-bold text-sm sm:text-base">S賞以上獲得の目安</span>
+                      <span className="text-xl sm:text-2xl font-black text-purple-300">
+                        約{Math.round(100 / ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)))}回
+                      </span>
+                    </div>
+                    <div className="text-xs sm:text-sm text-gray-300">
+                      <p>平均的に{Math.round(100 / ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)))}回に1枚の割合で出現</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* 挑戦回数別の期待枚数 */}
+                <div className="bg-blue-500/10 p-3 rounded-lg">
+                  <p className="text-blue-400 font-bold text-sm sm:text-base mb-2">挑戦回数別の期待枚数</p>
+                  <div className="space-y-2 text-xs sm:text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-300">10回挑戦時</span>
+                      <div className="text-right">
+                        {rarityProbabilities['SS'] > 0 && (
+                          <span className="text-yellow-300 mr-3">SS: 約{(rarityProbabilities['SS'] * 0.1).toFixed(1)}枚</span>
+                        )}
+                        <span className="text-purple-300">S以上: 約{(((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) * 0.1).toFixed(1)}枚</span>
                       </div>
                     </div>
-                  )}
-                  
-                  {((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) > 0 && (
-                    <div className="bg-purple-500/10 p-3 rounded-lg">
-                      <p className="text-purple-400 font-bold text-sm sm:text-base mb-2">S賞以上を引く確率</p>
-                      <div className="grid grid-cols-3 gap-2 text-xs sm:text-sm">
-                        <div className="text-center">
-                          <p className="text-white font-bold">{((1 - Math.pow(1 - ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) / 100, 10)) * 100).toFixed(1)}%</p>
-                          <p className="text-gray-400">10回で</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-white font-bold">{((1 - Math.pow(1 - ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) / 100, 30)) * 100).toFixed(1)}%</p>
-                          <p className="text-gray-400">30回で</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-white font-bold">{((1 - Math.pow(1 - ((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) / 100, 50)) * 100).toFixed(1)}%</p>
-                          <p className="text-gray-400">50回で</p>
-                        </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-300">50回挑戦時</span>
+                      <div className="text-right">
+                        {rarityProbabilities['SS'] > 0 && (
+                          <span className="text-yellow-300 mr-3">SS: 約{(rarityProbabilities['SS'] * 0.5).toFixed(1)}枚</span>
+                        )}
+                        <span className="text-purple-300">S以上: 約{(((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) * 0.5).toFixed(1)}枚</span>
                       </div>
                     </div>
-                  )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-300">100回挑戦時</span>
+                      <div className="text-right">
+                        {rarityProbabilities['SS'] > 0 && (
+                          <span className="text-yellow-300 mr-3">SS: 約{(rarityProbabilities['SS'] * 1).toFixed(0)}枚</span>
+                        )}
+                        <span className="text-purple-300">S以上: 約{(((rarityProbabilities['SS'] || 0) + (rarityProbabilities['S'] || 0)) * 1).toFixed(0)}枚</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
                 {/* 注意事項 */}
                 <div className="mt-3 p-2 bg-gray-800 rounded text-xs sm:text-sm text-gray-300">
-                  <p>※ 確率は理論値です。実際の結果とは異なる場合があります。</p>
-                  <p>※ 各レアリティのカードは在庫がなくなり次第終了となります。</p>
+                  <p>※ これらの数値は統計的な期待値です</p>
+                  <p>※ 実際の結果は運により大きく変動します</p>
+                  <p>※ ガチャは娯楽としてお楽しみください</p>
                 </div>
               </div>
 
@@ -472,9 +501,9 @@ export default function GachaDetailPage() {
                         <span className="text-xl font-bold text-white bg-black/30 px-4 py-2 rounded-full">
                           {rarityCards.length}種類
                         </span>
-                        {rarityProbabilities[rarity] && (
+                        {rarityProbabilities[rarity] && gacha?.total_packs && (
                           <span className="text-xl font-bold text-white bg-black/30 px-4 py-2 rounded-full">
-                            {rarityProbabilities[rarity].toFixed(1)}%
+                            約{Math.round((rarityProbabilities[rarity] / 100) * gacha.total_packs).toLocaleString()}枚
                           </span>
                         )}
                       </div>
