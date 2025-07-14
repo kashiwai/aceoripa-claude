@@ -177,7 +177,7 @@ export default async function GachaManagementPage() {
                   
                   {/* アクション */}
                   <div className="d-grid gap-2">
-                    <Link href={`/admin/gacha/${product.id}`} className="btn btn-sm btn-outline-primary">
+                    <Link href={`/admin/gacha/${product.id}/edit`} className="btn btn-sm btn-outline-primary">
                       <i className="bi bi-pencil me-2"></i>
                       編集
                     </Link>
