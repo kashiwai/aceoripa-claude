@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { toast } from 'react-hot-toast'
 import Link from 'next/link'
+import Image from 'next/image'
 import GachaAnimationPreview from '@/components/admin/GachaAnimationPreview'
 
 export default function EditGachaPage() {
@@ -47,6 +48,9 @@ export default function EditGachaPage() {
     profitRate: 0,
     ssGuaranteeActive: false
   })
+  
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   
   // ガチャデータの取得
   useEffect(() => {
@@ -128,6 +132,55 @@ export default function EditGachaPage() {
     })
   }, [formData.single_price, formData.total_stock, formData.cost_per_card, formData.ss_guarantee_threshold])
   
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    // ファイルサイズチェック（5MB以下）
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('画像サイズは5MB以下にしてください')
+      return
+    }
+    
+    // ファイルタイプチェック
+    if (!file.type.startsWith('image/')) {
+      toast.error('画像ファイルを選択してください')
+      return
+    }
+    
+    setUploadingImage(true)
+    
+    try {
+      // ファイル名を生成（タイムスタンプ付き）
+      const timestamp = Date.now()
+      const fileName = `gacha_${gachaId}_${timestamp}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
+      
+      // Supabase Storageにアップロード
+      const { data, error } = await supabase.storage
+        .from('gacha-images')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
+      
+      if (error) throw error
+      
+      // 公開URLを取得
+      const { data: { publicUrl } } = supabase.storage
+        .from('gacha-images')
+        .getPublicUrl(fileName)
+      
+      // フォームに反映
+      setFormData(prev => ({ ...prev, banner_image_url: publicUrl }))
+      toast.success('画像をアップロードしました')
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      toast.error('画像のアップロードに失敗しました')
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -305,24 +358,83 @@ export default function EditGachaPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               バナー画像URL
             </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={formData.banner_image_url}
-                onChange={(e) => setFormData({ ...formData, banner_image_url: e.target.value })}
-                className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="/images/banner.jpg または https://example.com/banner.jpg"
-              />
-              <Link
-                href={`/admin/gacha/banner-selector?returnUrl=${encodeURIComponent(`/admin/gacha/${gachaId}/edit`)}`}
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 whitespace-nowrap"
-              >
-                ローカル画像から選択
-              </Link>
+            <div className="space-y-3">
+              {/* 画像プレビュー */}
+              {formData.banner_image_url && (
+                <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+                  <Image
+                    src={formData.banner_image_url}
+                    alt="バナープレビュー"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+              )}
+              
+              {/* URL入力とボタン */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={formData.banner_image_url}
+                  onChange={(e) => setFormData({ ...formData, banner_image_url: e.target.value })}
+                  className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="/images/banner.jpg または https://example.com/banner.jpg"
+                />
+                <Link
+                  href={`/admin/gacha/banner-selector?returnUrl=${encodeURIComponent(`/admin/gacha/${gachaId}/edit`)}`}
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 whitespace-nowrap"
+                >
+                  ローカル画像から選択
+                </Link>
+              </div>
+              
+              {/* 画像アップロード */}
+              <div className="flex items-center gap-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingImage}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {uploadingImage ? (
+                    <>
+                      <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                      アップロード中...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      画像をアップロード
+                    </>
+                  )}
+                </button>
+                <span className="text-sm text-gray-500">
+                  または
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, banner_image_url: '' })}
+                  className="text-red-600 hover:text-red-800 text-sm font-medium"
+                >
+                  画像をクリア
+                </button>
+              </div>
+              
+              <p className="text-xs text-gray-500">
+                対応形式: JPG, PNG, GIF, WebP（最大5MB）<br/>
+                推奨サイズ: 1024x1024px（正方形）
+              </p>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              相対パス（/images/...）または完全なURL（https://...）を入力できます
-            </p>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
