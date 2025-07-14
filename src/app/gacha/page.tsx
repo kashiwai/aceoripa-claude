@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { AuthHeader } from '@/components/layout/AuthHeader'
 
 interface GachaProduct {
   id: string
@@ -87,45 +88,24 @@ export default function GachaPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* ヘッダー */}
-      <header className="bg-white shadow-lg sticky top-0 z-50 border-b-4 border-[#FF0033]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center">
-              <Link href="/" className="text-[#FF0033] hover:text-[#FF6B6B] transition">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-              </Link>
-              <h1 className="ml-4 text-3xl font-black text-[#FF0033]">ガチャ一覧</h1>
-            </div>
-            <nav className="flex items-center space-x-8">
-              <Link href="/mypage" className="text-gray-700 hover:text-[#FF0033] font-bold text-lg transition">
-                マイページ
-              </Link>
-              <Link href="/purchase" className="bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white font-bold px-6 py-3 rounded-full hover:scale-105 transition transform">
-                ポイント購入
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      {/* AuthHeaderを使用してトップページと統一 */}
+      <AuthHeader />
 
       {/* メインコンテンツ */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="text-center mb-12">
-          <h2 className="text-5xl font-black text-[#FF0033] mb-4">
+      <div className="max-w-6xl mx-auto px-4 py-4 sm:py-8">
+        <div className="text-center mb-6 sm:mb-12">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-[#FF0033] mb-2 sm:mb-4">
             オリパラインナップ
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-sm sm:text-lg md:text-xl text-gray-600">
             お気に入りのガチャを選んでカードを手に入れよう！
           </p>
         </div>
 
         {/* ガチャ商品グリッド */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {gachaProducts.map((product) => (
-            <div key={product.id} className="bg-white rounded-2xl shadow-xl overflow-hidden hover:scale-105 transition-transform">
+            <div key={product.id} className="bg-white rounded-lg sm:rounded-2xl shadow-lg sm:shadow-xl overflow-hidden hover:scale-105 transition-transform card-hover-enhanced">
               {/* ガチャ画像 */}
               <div className="aspect-square relative bg-gray-100">
                 <Image
@@ -150,8 +130,8 @@ export default function GachaPage() {
               </div>
               
               {/* 商品情報 */}
-              <div className="p-6">
-                <h3 className="text-2xl font-black text-gray-800 mb-4">{product.name}</h3>
+              <div className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-gray-800 mb-3 sm:mb-4">{product.name}</h3>
                   
                 {/* 残り枚数と進行状況バー */}
                 <div className="mb-4">
@@ -188,21 +168,21 @@ export default function GachaPage() {
                 </div>
                   
                 {/* 価格表示 */}
-                <div className="mb-6">
+                <div className="mb-4 sm:mb-6">
                   <div className="flex items-baseline justify-center mb-2">
-                    <span className="text-lg text-gray-600">1口</span>
-                    <span className="text-3xl font-black text-[#FF0033] mx-2">{product.price.toLocaleString()}</span>
-                    <span className="text-lg text-gray-600">PT</span>
+                    <span className="text-sm sm:text-base lg:text-lg text-gray-600">1口</span>
+                    <span className="text-2xl sm:text-3xl font-black text-[#FF0033] mx-2">{product.price.toLocaleString()}</span>
+                    <span className="text-sm sm:text-base lg:text-lg text-gray-600">PT</span>
                   </div>
                 </div>
                   
                 {/* ガチャボタン */}
                 <Link href={`/gacha/${product.id}`}>
                   <button 
-                    className={`w-full text-center font-black py-4 rounded-xl transition text-xl ${
+                    className={`w-full text-center font-black py-3 sm:py-4 rounded-lg sm:rounded-xl transition-all text-base sm:text-lg lg:text-xl ${
                       product.status === 'sold_out' 
                         ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
-                        : 'bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white hover:scale-105 shadow-lg transform'
+                        : 'enhanced-button gradient-button ripple-effect text-white shadow-lg transform'
                     }`}
                     disabled={product.status === 'sold_out'}
                   >
@@ -216,12 +196,13 @@ export default function GachaPage() {
       </div>
 
       {/* フッター */}
-      <footer className="bg-gray-800 text-white py-12 mt-16">
+      <footer className="bg-gray-900 text-white py-8 sm:py-12 mt-8 sm:mt-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-xl font-bold mb-4">ACEORIPA - オンラインオリパ</p>
-          <div className="flex justify-center space-x-6 text-sm">
-            <Link href="/legal/terms" className="hover:text-[#FF0033] transition">利用規約</Link>
-            <Link href="/legal/privacy" className="hover:text-[#FF0033] transition">プライバシーポリシー</Link>
+          <p className="text-base sm:text-xl font-bold mb-2 sm:mb-4">ACEORIPA - オンラインオリパ</p>
+          <div className="flex justify-center space-x-4 sm:space-x-6 text-xs sm:text-sm">
+            <Link href="/terms" className="hover:text-[#FF0033] transition">利用規約</Link>
+            <Link href="/privacy" className="hover:text-[#FF0033] transition">プライバシーポリシー</Link>
+            <Link href="/contact" className="hover:text-[#FF0033] transition">お問い合わせ</Link>
           </div>
         </div>
       </footer>

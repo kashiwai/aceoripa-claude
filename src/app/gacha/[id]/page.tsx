@@ -61,27 +61,8 @@ export default function GachaDetailPage() {
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(true)
 
-  const fallbackCards: Card[] = [
-    // SS賞
-    { id: '1', name: 'マリオピカチュウ PSA10', rarity: 'SS', imageUrl: '/images/pokemon/008_マリオピカチュウ PSA10_PK-0008.jpg', probability: 1 },
-    { id: '2', name: 'ポンチョを着たピカチュウ(黒リザ) PSA10', rarity: 'SS', imageUrl: '/images/pokemon/010_ポンチョを着たピカチュウ(黒リザ) PSA10_PK-0010.jpg', probability: 1 },
-    // S賞
-    { id: '3', name: 'アセロラ(エクバ) PSA10', rarity: 'S', imageUrl: '/images/pokemon/003_アセロラ(エクバ) PSA10_PK-0003.jpg', probability: 4 },
-    { id: '4', name: 'ブルーの探索 PSA10', rarity: 'S', imageUrl: '/images/pokemon/185_ブルーの探索 PSA10_PK-0187.jpg', probability: 4 },
-    { id: '5', name: 'ブラッキーex PSA10', rarity: 'S', imageUrl: '/images/pokemon/197_ブラッキーex PSA10_PK-0199.jpg', probability: 4 },
-    // A賞
-    { id: '6', name: 'ポンチョを着たピカチュウ(リザ) PSA10', rarity: 'A', imageUrl: '/images/pokemon/016_ポンチョを着たピカチュウ(リザ) PSA10_PK-0016.jpg', probability: 5 },
-    { id: '7', name: 'アローラの仲間たち PSA10', rarity: 'A', imageUrl: '/images/pokemon/032_アローラの仲間たち PSA10_PK-0032.jpg', probability: 5 },
-    { id: '8', name: 'おじょうさま PSA10', rarity: 'A', imageUrl: '/images/pokemon/204_おじょうさま PSA10_PK-0206.jpg', probability: 5 },
-    // B賞
-    { id: '9', name: 'アセロラ（エクバ）', rarity: 'B', imageUrl: '/images/pokemon/009_アセロラ（エクバ）_PK-0009.jpg', probability: 10 },
-    { id: '10', name: 'アセロラ', rarity: 'B', imageUrl: '/images/pokemon/028_アセロラ_PK-0028.jpg', probability: 10 },
-    { id: '11', name: 'アローラの仲間たち', rarity: 'B', imageUrl: '/images/pokemon/061_アローラの仲間たち_PK-0061.jpg', probability: 10 },
-    // C賞
-    { id: '12', name: 'ポンチョを着たピカチュウ(ロコン)', rarity: 'C', imageUrl: '/images/pokemon/151_ポンチョを着たピカチュウ(ロコン)_PK-0153.jpg', probability: 15 },
-    { id: '13', name: 'ブルーの探索', rarity: 'C', imageUrl: '/images/pokemon/248_ブルーの探索_PK-0251.jpg', probability: 15 },
-    { id: '14', name: 'THE BEST OF XY 1BOX', rarity: 'C', imageUrl: '/images/pokemon/034_THE BEST OF XY 1BOX_PK-0034.jpg', probability: 15 },
-  ]
+  // フォールバックカードデータ（APIエラー時のみ使用）
+  const fallbackCards: Card[] = []
 
   const [customCount, setCustomCount] = useState('')
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -142,12 +123,28 @@ export default function GachaDetailPage() {
     return acc
   }, {} as { [key: string]: Card[] })
   
-  // レアリティごとの確率を計算
-  const rarityProbabilities = Object.entries(cardsByRarity).reduce((acc, [rarity, cards]) => {
-    const totalProbability = cards.reduce((sum, card) => sum + (card.probability || 1), 0)
-    acc[rarity] = totalProbability
-    return acc
-  }, {} as { [key: string]: number })
+  // レアリティごとの確率を計算（合計が100%になるように正規化）
+  const rarityProbabilities = (() => {
+    // 各レアリティの生の確率を計算
+    const rawProbabilities = Object.entries(cardsByRarity).reduce((acc, [rarity, cards]) => {
+      const totalProbability = cards.reduce((sum, card) => sum + (card.probability || 0), 0)
+      acc[rarity] = totalProbability
+      return acc
+    }, {} as { [key: string]: number })
+    
+    // 全体の合計を計算
+    const totalSum = Object.values(rawProbabilities).reduce((sum, prob) => sum + prob, 0)
+    
+    // 正規化（合計が100%になるように調整）
+    if (totalSum > 0) {
+      return Object.entries(rawProbabilities).reduce((acc, [rarity, prob]) => {
+        acc[rarity] = (prob / totalSum) * 100
+        return acc
+      }, {} as { [key: string]: number })
+    }
+    
+    return rawProbabilities
+  })()
 
   const handleGacha = (count: number) => {
     // 一時的に認証チェックを無効化
@@ -357,37 +354,33 @@ export default function GachaDetailPage() {
                 確率・期待値情報
               </h3>
               
-              {/* レアリティ別封入枚数 */}
+              {/* レアリティ別出現比率（SS,S,A賞のみ） */}
               <div className="bg-black/40 rounded-lg p-3 sm:p-4 mb-4">
-                <h4 className="text-base sm:text-lg font-bold text-yellow-400 mb-3">📊 レアリティ別封入枚数</h4>
+                <h4 className="text-base sm:text-lg font-bold text-yellow-400 mb-3">📊 主要レアリティ出現比率</h4>
                 <div className="space-y-3">
-                  {Object.entries(rarityProbabilities).map(([rarity, probability]) => {
-                    if (probability <= 0) return null
+                  {['SS', 'S', 'A'].map((rarity) => {
+                    const probability = rarityProbabilities[rarity]
+                    if (!probability || probability <= 0) return null
                     const label = RARITY_LABELS[rarity]
-                    const color = rarity === 'SS' ? 'yellow' : rarity === 'S' ? 'purple' : rarity === 'A' ? 'blue' : 'green'
-                    const totalCards = gacha?.total_packs || 4000
-                    const estimatedCount = Math.round((probability / 100) * totalCards)
+                    const color = rarity === 'SS' ? 'yellow' : rarity === 'S' ? 'purple' : 'blue'
                     
                     return (
-                      <div key={rarity} className="bg-black/20 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className={`text-${color}-400 font-bold text-base sm:text-lg`}>{label}</span>
-                          <span className="text-white font-bold text-lg sm:text-xl">
-                            約{estimatedCount.toLocaleString()}枚
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-gray-400 text-xs sm:text-sm">総数{totalCards.toLocaleString()}枚中</span>
-                          <span className="text-gray-300 text-sm">
-                            ({probability.toFixed(1)}%)
+                      <div key={rarity} className="flex items-center justify-between">
+                        <span className={`text-${color}-400 font-bold text-base sm:text-lg`}>{label}</span>
+                        <div className="flex items-center">
+                          <div className="w-32 sm:w-40 bg-gray-700 rounded-full h-3 mr-3">
+                            <div 
+                              className={`h-3 bg-${color}-500 rounded-full transition-all duration-500`}
+                              style={{ width: `${Math.min(100, probability)}%` }}
+                            />
+                          </div>
+                          <span className="text-white font-bold text-lg sm:text-xl min-w-[60px] text-right">
+                            {probability.toFixed(1)}%
                           </span>
                         </div>
                       </div>
                     )
                   })}
-                </div>
-                <div className="mt-3 p-2 bg-yellow-500/10 rounded text-xs sm:text-sm text-yellow-300">
-                  ※ 封入枚数は理論値です。実際の枚数は前後する場合があります。
                 </div>
               </div>
 
@@ -501,9 +494,9 @@ export default function GachaDetailPage() {
                         <span className="text-xl font-bold text-white bg-black/30 px-4 py-2 rounded-full">
                           {rarityCards.length}種類
                         </span>
-                        {rarityProbabilities[rarity] && gacha?.total_packs && (
+                        {['SS', 'S', 'A'].includes(rarity) && rarityProbabilities[rarity] && (
                           <span className="text-xl font-bold text-white bg-black/30 px-4 py-2 rounded-full">
-                            約{Math.round((rarityProbabilities[rarity] / 100) * gacha.total_packs).toLocaleString()}枚
+                            {rarityProbabilities[rarity].toFixed(1)}%
                           </span>
                         )}
                       </div>
