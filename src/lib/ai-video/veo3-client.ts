@@ -11,6 +11,9 @@ export class Veo3Client {
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey || process.env.GOOGLE_VEO3_API_KEY || ''
+  }
+
+  private checkApiKey() {
     if (!this.apiKey) {
       throw new Error('Google Veo 3 API key is required')
     }
@@ -20,6 +23,8 @@ export class Veo3Client {
    * 動画生成リクエスト
    */
   async generateVideo(request: VideoGenerationRequest): Promise<VideoGenerationResponse> {
+    this.checkApiKey()
+
     try {
       console.log('[Veo3] Generating video with prompt:', request.prompt.substring(0, 100))
 

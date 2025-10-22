@@ -9,6 +9,9 @@ export class Sora2Client {
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey || process.env.OPENAI_SORA2_API_KEY || ''
+  }
+
+  private checkApiKey() {
     if (!this.apiKey) {
       throw new Error('OpenAI Sora 2 API key is required')
     }
@@ -18,6 +21,8 @@ export class Sora2Client {
    * 動画生成リクエスト
    */
   async generateVideo(request: VideoGenerationRequest): Promise<VideoGenerationResponse> {
+    this.checkApiKey()
+
     try {
       console.log('[Sora2] Generating video with prompt:', request.prompt.substring(0, 100))
 
