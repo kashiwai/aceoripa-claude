@@ -1,94 +1,223 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
+import { videoGenerationService } from '@/lib/ai-video/video-generation-service'
+import { VideoProvider, Rarity } from '@/lib/ai-video/types'
 
+/**
+ * AI動画生成API（VEO3/SORA2統合版）
+ * POST /api/ai/generate-video
+ */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { effectType, scene, settings, prompt } = body
+    const supabase = createRouteHandlerClient({ cookies })
 
-    // console.log('Video generation request:', {
-    //   effectType,
-    //   scene,
-    //   settings,
-    //   prompt
-    // })
-
-    // 現在はモック実装（デモ用）
-    // 実際の動画生成AIサービスとの連携は今後実装予定
-    
-    // シミュレーションのため少し待機
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
-    // モックデータ生成
-    const timestamp = Date.now()
-    const effectTypeMap = {
-      normal_reveal: 'ノーマル開封',
-      rare_reveal: 'レア開封', 
-      super_rare_reveal: 'スーパーレア開封',
-      ultra_rare_reveal: 'ウルトラレア開封',
-      gacha_animation: 'ガチャ回転演出'
+    // 認証チェック（管理者のみ）
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // サンプル動画URL（実際のプロジェクトでは本物の動画ファイル）
-    const sampleVideoUrl = getSampleVideoUrl(effectType)
-    const sampleThumbnail = getSampleThumbnailUrl(effectType)
-    
-    return NextResponse.json({
-      videoUrl: sampleVideoUrl,
-      thumbnail: sampleThumbnail,
-      duration: getDurationByEffect(effectType),
-      format: 'mp4',
-      resolution: settings.resolution || '1080p',
-      fps: settings.fps || '60',
-      effectName: effectTypeMap[effectType as keyof typeof effectTypeMap] || 'カスタム演出',
-      createdAt: new Date().toISOString(),
-      status: 'completed'
-    })
+    const body = await request.json()
+    const {
+      rarity,
+      phase,
+      cardName,
+      provider = 'veo3', // デフォルトはVEO3
+      customPrompt,
+      settings = {},
+    } = body
 
-  } catch (error) {
-    console.error('Error generating video:', error)
+    // バリデーション
+    if (!rarity || !phase) {
+      return NextResponse.json(
+        { error: 'rarity and phase are required' },
+        { status: 400 }
+      )
+    }
+
+    const validRarities = ['SS', 'S', 'A', 'B', 'C']
+    const validPhases = ['intro', 'reveal', 'final_reveal']
+    const validProviders = ['veo3', 'sora2']
+
+    if (!validRarities.includes(rarity)) {
+      return NextResponse.json({ error: 'Invalid rarity' }, { status: 400 })
+    }
+
+    if (!validPhases.includes(phase)) {
+      return NextResponse.json({ error: 'Invalid phase' }, { status: 400 })
+    }
+
+    if (!validProviders.includes(provider)) {
+      return NextResponse.json({ error: 'Invalid provider' }, { status: 400 })
+    }
+
+    console.log(`[API] Generating ${rarity} ${phase} video with ${provider}`)
+
+    // ジョブレコード作成（pending状態）
+    const { data: jobRecord, error: jobError } = await supabase
+      .from('ai_video_generation_jobs')
+      .insert({
+        user_id: user.id,
+        provider: provider,
+        rarity: rarity,
+        phase: phase,
+        card_name: cardName || `${rarity} Card`,
+        prompt: customPrompt || '',
+        status: 'pending',
+        ...settings,
+      })
+      .select()
+      .single()
+
+    if (jobError) {
+      console.error('[API] Failed to create job record:', jobError)
+      return NextResponse.json(
+        { error: 'Failed to create generation job' },
+        { status: 500 }
+      )
+    }
+
+    // 動画生成開始（非同期）
+    const generationResponse = await videoGenerationService.generateGachaAnimation(
+      rarity as Rarity,
+      phase as 'intro' | 'reveal' | 'final_reveal',
+      cardName || `${rarity} Card`,
+      provider as VideoProvider,
+      customPrompt,
+      settings.cardImageUrl // final_reveal用のカード画像URL（オプション）
+    )
+
+    // ジョブステータス更新
+    const updateData: any = {
+      provider_job_id: generationResponse.id,
+      status: generationResponse.status,
+      updated_at: new Date().toISOString(),
+    }
+
+    if (generationResponse.videoUrl) {
+      updateData.video_url = generationResponse.videoUrl
+    }
+
+    if (generationResponse.thumbnailUrl) {
+      updateData.thumbnail_url = generationResponse.thumbnailUrl
+    }
+
+    if (generationResponse.status === 'completed') {
+      updateData.completed_at = new Date().toISOString()
+    }
+
+    if (generationResponse.error) {
+      updateData.error = generationResponse.error
+    }
+
+    await supabase
+      .from('ai_video_generation_jobs')
+      .update(updateData)
+      .eq('id', jobRecord.id)
+
+    return NextResponse.json({
+      jobId: jobRecord.id,
+      providerJobId: generationResponse.id,
+      status: generationResponse.status,
+      videoUrl: generationResponse.videoUrl,
+      thumbnailUrl: generationResponse.thumbnailUrl,
+      provider: provider,
+      rarity: rarity,
+      phase: phase,
+      createdAt: generationResponse.createdAt,
+    })
+  } catch (error: any) {
+    console.error('[API] Error generating video:', error)
     return NextResponse.json(
-      { error: '動画生成中にエラーが発生しました' },
+      { error: error.message || '動画生成中にエラーが発生しました' },
       { status: 500 }
     )
   }
 }
 
-// サンプル動画URL取得
-function getSampleVideoUrl(effectType: string): string {
-  // 実際のプロジェクトでは、public/videos/samples/ に配置されたサンプル動画
-  const videoMap = {
-    normal_reveal: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    rare_reveal: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-    super_rare_reveal: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    ultra_rare_reveal: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-    gacha_animation: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
+/**
+ * ジョブステータス確認API
+ * GET /api/ai/generate-video?jobId=xxx
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = createRouteHandlerClient({ cookies })
+
+    const { searchParams } = new URL(request.url)
+    const jobId = searchParams.get('jobId')
+
+    if (!jobId) {
+      return NextResponse.json({ error: 'jobId is required' }, { status: 400 })
+    }
+
+    // ジョブレコード取得
+    const { data: job, error: jobError } = await supabase
+      .from('ai_video_generation_jobs')
+      .select('*')
+      .eq('id', jobId)
+      .single()
+
+    if (jobError || !job) {
+      return NextResponse.json({ error: 'Job not found' }, { status: 404 })
+    }
+
+    // processing状態の場合はプロバイダーにステータス確認
+    if (job.status === 'processing' && job.provider_job_id) {
+      const statusResponse = await videoGenerationService.getJobStatus(
+        job.provider_job_id,
+        job.provider as VideoProvider
+      )
+
+      // ステータス更新
+      const updateData: any = {
+        status: statusResponse.status,
+        updated_at: new Date().toISOString(),
+      }
+
+      if (statusResponse.videoUrl) {
+        updateData.video_url = statusResponse.videoUrl
+      }
+
+      if (statusResponse.thumbnailUrl) {
+        updateData.thumbnail_url = statusResponse.thumbnailUrl
+      }
+
+      if (statusResponse.status === 'completed') {
+        updateData.completed_at = new Date().toISOString()
+      }
+
+      if (statusResponse.error) {
+        updateData.error = statusResponse.error
+      }
+
+      await supabase
+        .from('ai_video_generation_jobs')
+        .update(updateData)
+        .eq('id', jobId)
+
+      return NextResponse.json({
+        jobId: job.id,
+        status: statusResponse.status,
+        videoUrl: statusResponse.videoUrl,
+        thumbnailUrl: statusResponse.thumbnailUrl,
+        error: statusResponse.error,
+      })
+    }
+
+    // 既に完了/失敗している場合はDBのデータを返す
+    return NextResponse.json({
+      jobId: job.id,
+      status: job.status,
+      videoUrl: job.video_url,
+      thumbnailUrl: job.thumbnail_url,
+      error: job.error,
+    })
+  } catch (error: any) {
+    console.error('[API] Error checking job status:', error)
+    return NextResponse.json(
+      { error: error.message || 'ジョブステータス確認中にエラーが発生しました' },
+      { status: 500 }
+    )
   }
-
-  return videoMap[effectType as keyof typeof videoMap] || videoMap.normal_reveal
-}
-
-// サンプルサムネイル取得
-function getSampleThumbnailUrl(effectType: string): string {
-  const thumbnailMap = {
-    normal_reveal: 'https://via.placeholder.com/640x360/4ade80/ffffff?text=Normal+Reveal',
-    rare_reveal: 'https://via.placeholder.com/640x360/3b82f6/ffffff?text=Rare+Reveal',
-    super_rare_reveal: 'https://via.placeholder.com/640x360/a855f7/ffffff?text=Super+Rare',
-    ultra_rare_reveal: 'https://via.placeholder.com/640x360/f59e0b/ffffff?text=Ultra+Rare',
-    gacha_animation: 'https://via.placeholder.com/640x360/ef4444/ffffff?text=Gacha+Animation'
-  }
-
-  return thumbnailMap[effectType as keyof typeof thumbnailMap] || thumbnailMap.normal_reveal
-}
-
-// エフェクトタイプ別の動画長さ
-function getDurationByEffect(effectType: string): string {
-  const durations = {
-    normal_reveal: '3秒',
-    rare_reveal: '5秒',
-    super_rare_reveal: '8秒',
-    ultra_rare_reveal: '12秒',
-    gacha_animation: '10秒'
-  }
-
-  return durations[effectType as keyof typeof durations] || '5秒'
 }
