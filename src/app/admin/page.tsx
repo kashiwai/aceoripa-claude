@@ -330,6 +330,15 @@ export default async function AdminDashboard() {
                   </a>
                 </div>
               </div>
+              <div className="row">
+                <div className="col-md-4 mb-3">
+                  <a href="/admin/points/add" className="btn btn-outline-warning w-100 h-100 d-flex flex-column justify-content-center">
+                    <div className="mb-2">💎</div>
+                    <strong>ポイント手動追加</strong>
+                    <small className="text-muted">有料・無料ポイントの手動付与</small>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>

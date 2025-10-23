@@ -38,7 +38,10 @@ export default function EditGachaPage() {
     s_animation_type: 'special',
     a_animation_type: 'normal',
     b_animation_type: 'normal',
-    c_animation_type: 'normal'
+    c_animation_type: 'normal',
+    // 天井システム
+    ceiling_enabled: true,
+    ceiling_count: 100
   })
   
   const [profitInfo, setProfitInfo] = useState({
@@ -90,7 +93,10 @@ export default function EditGachaPage() {
             s_animation_type: metadata.animation_settings?.S || 'special',
             a_animation_type: metadata.animation_settings?.A || 'normal',
             b_animation_type: metadata.animation_settings?.B || 'normal',
-            c_animation_type: metadata.animation_settings?.C || 'normal'
+            c_animation_type: metadata.animation_settings?.C || 'normal',
+            // 天井システム
+            ceiling_enabled: data.ceiling_enabled ?? true,
+            ceiling_count: data.ceiling_count || 100
           })
         }
       } catch (error) {
@@ -106,13 +112,20 @@ export default function EditGachaPage() {
 
   // URLパラメータからバナーURLを取得
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const bannerUrl = urlParams.get('bannerUrl')
-    if (bannerUrl) {
-      setFormData(prev => ({ ...prev, banner_image_url: bannerUrl }))
-      // URLパラメータをクリア
-      window.history.replaceState({}, '', `/admin/gacha/${gachaId}/edit`)
-    }
+    // タイミングを遅らせて確実にパラメータを取得
+    const timer = setTimeout(() => {
+      const urlParams = new URLSearchParams(window.location.search)
+      const bannerUrl = urlParams.get('bannerUrl')
+      console.log('Banner URL from params:', bannerUrl) // デバッグログ
+      if (bannerUrl) {
+        setFormData(prev => ({ ...prev, banner_image_url: bannerUrl }))
+        toast.success('バナー画像を選択しました')
+        // URLパラメータをクリア
+        window.history.replaceState({}, '', `/admin/gacha/${gachaId}/edit`)
+      }
+    }, 100)
+    
+    return () => clearTimeout(timer)
   }, [gachaId])
   
   // 利益計算を自動更新
@@ -222,11 +235,14 @@ export default function EditGachaPage() {
       
       // 配列とJSONフィールドは存在確認が必要
       try {
-        updateData.featured_card_ids = formData.featured_card_ids 
+        updateData.featured_card_ids = formData.featured_card_ids
           ? formData.featured_card_ids.split(',').map(id => id.trim())
           : []
         updateData.guarantee_sr_on_multi = formData.guarantee_sr_on_multi
         updateData.metadata = metadata
+        // 天井システム設定
+        updateData.ceiling_enabled = formData.ceiling_enabled
+        updateData.ceiling_count = formData.ceiling_count
       } catch (e) {
         console.warn('Some fields may not exist in database:', e)
       }
@@ -516,8 +532,8 @@ export default function EditGachaPage() {
                   checked={formData.is_daily_free_gacha}
                   onChange={(e) => {
                     const isChecked = e.target.checked
-                    setFormData({ 
-                      ...formData, 
+                    setFormData({
+                      ...formData,
                       is_daily_free_gacha: isChecked,
                       // 無料ガチャの場合は価格を0に設定
                       single_price: isChecked ? 0 : formData.single_price,
@@ -532,6 +548,41 @@ export default function EditGachaPage() {
                 <p className="text-xs text-blue-600 ml-6">
                   無料ガチャが有効な場合、価格は自動的に0に設定されます
                 </p>
+              )}
+            </div>
+          </div>
+
+          {/* 天井システム設定 */}
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <h3 className="text-sm font-bold text-purple-900 mb-3">🎯 天井システム設定</h3>
+            <div className="space-y-3">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.ceiling_enabled}
+                  onChange={(e) => setFormData({ ...formData, ceiling_enabled: e.target.checked })}
+                  className="rounded border-gray-300 text-purple-600 shadow-sm focus:border-purple-500 focus:ring-purple-500"
+                />
+                <span className="ml-2 text-sm text-gray-700">天井システムを有効にする</span>
+              </label>
+
+              {formData.ceiling_enabled && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    天井回数（SSR排出後の引き数）
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="300"
+                    value={formData.ceiling_count}
+                    onChange={(e) => setFormData({ ...formData, ceiling_count: parseInt(e.target.value) || 100 })}
+                    className="w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    SSRが出ないまま指定回数引いた場合、次回SSR確定（推奨: 100連）
+                  </p>
+                </div>
               )}
             </div>
           </div>

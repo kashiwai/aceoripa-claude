@@ -5,70 +5,29 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 
-// ローカルバナー画像のパス一覧
+// ローカルバナー画像のパス一覧（実際に存在する画像のみ）
 const LOCAL_BANNERS = [
-  // 1024×1024 高品質バナー
-  '/images/1024-ai-bg-1.png',
-  '/images/1024-ai-bg-2.png', 
-  '/images/1024-ai-bg-3.png',
-  '/images/1024-ai-bg-4.png',
-  '/images/1024-ai-bg-5.png',
-  '/images/1024-banner-1.png',
-  '/images/1024-banner-2.png',
-  '/images/1024-banner-3.png',
-  '/images/1024-black-luxury.png',
-  '/images/1024-blue-ocean.png',
-  '/images/1024-green-emerald.png',
-  '/images/1024-purple-royal.png',
-  '/images/1024-rainbow-hot.png',
-  '/images/1024-red-100.png',
-  '/images/1024-red-explosion.png',
-  '/images/1024-white-premium.png',
-
-  // 実際のガチャバナー
-  '/images/pokemon-151-real.png',
-  '/images/shiny-treasure-real.png',
-  '/images/special-box-real.png',
-  '/images/pokemon-151.png',
-  '/images/onepiece-summit.png',
-  '/images/yugioh-rare.png',
-
-  // カスタムフォントバナー
-  '/images/final-banana-slip.png',
-  '/images/final-craft-mincho.png',
-  '/images/final-dela-gothic.png',
-  '/images/final-kinkaku.png',
-  '/images/final-mobo-font.png',
-
-  // プレミアムスタイル
-  '/images/premium-black-luxury.png',
-  '/images/premium-blue-ocean.png',
-  '/images/premium-green-emerald.png',
-  '/images/premium-purple-royal.png',
-  '/images/premium-white-platinum.png',
-  '/images/premium-white-silver.png',
-
-  // 既存のJPGバナー
-  '/images/ポケモンカード151オリパ.png',
-  '/images/ワンピース頂上決戦オリパ.png',
-  '/images/遊戯王レアコレオリパ.png',
-  '/images/メインキャンペーンバナー.png',
-  '/images/LINE友達登録バナー.png',
-  '/images/SNS当選報告サンプル.png',
-
-  // リアルガチャバナー
+  // リアルガチャバナー（確認済み）
   '/images/banners/real-gacha/S__44392515_0.jpg',
   '/images/banners/real-gacha/S__44392516_0.jpg', 
   '/images/banners/real-gacha/S__44392517_0.jpg',
   '/images/banners/real-gacha/S__44392521_0.jpg',
   '/images/banners/real-gacha/S__44392523_0.jpg',
+  '/images/banners/real-gacha/leler_mariopikachu.jpg',
   '/images/banners/real-gacha/pokemon-151-ultra-rare.png',
   '/images/banners/real-gacha/premium-psa10-banner.png',
   '/images/banners/real-gacha/shiny-treasure-premium.png',
   '/images/banners/real-gacha/pikachu-collection-banner.png',
   '/images/banners/real-gacha/pikachu-festival-banner.png',
   '/images/banners/real-gacha/acerola-special-banner.png',
-  '/images/banners/real-gacha/mega-campaign-special.png'
+  '/images/banners/real-gacha/mega-campaign-special.png',
+  
+  // ベースBG画像
+  '/images/basebg/A_luxurious_gold-framed_Pokmon_trading_card_is_t-1750539990520.png',
+  '/images/basebg/A_dazzling_spectacle_featuring_a_dazzling_Pokmon_-1750539986706.png',
+  '/images/basebg/A_vibrant_and_colorful_backdrop_featuring_a_rainbo-1750539998852.png',
+  '/images/basebg/A_festive_scene_with_a_large_shimmering_drum_at_t-1750539994085.png',
+  '/images/basebg/A_cosmic_scene_featuring_a_dazzling_trading_card_-1750539978161.png',
 ]
 
 export default function BannerSelectorPage() {
@@ -92,13 +51,11 @@ export default function BannerSelectorPage() {
   }
 
   const getBannerCategory = (banner: string): string => {
-    if (banner.includes('1024-')) return '1024×1024 高品質'
     if (banner.includes('real-gacha')) return 'リアルガチャ'
-    if (banner.includes('premium-')) return 'プレミアム'
-    if (banner.includes('final-')) return 'カスタムフォント'
+    if (banner.includes('basebg')) return '背景画像'
     if (banner.includes('pokemon')) return 'ポケモン'
-    if (banner.includes('onepiece')) return 'ワンピース'
-    if (banner.includes('yugioh')) return '遊戯王'
+    if (banner.includes('pikachu')) return 'ピカチュウ'
+    if (banner.includes('premium')) return 'プレミアム'
     return 'その他'
   }
 
@@ -228,13 +185,7 @@ export default function BannerSelectorPage() {
       {/* 統計情報 */}
       <div className="mt-8 bg-gray-50 rounded-lg p-4">
         <h3 className="font-semibold text-gray-700 mb-2">利用可能なバナー統計</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="text-center">
-            <p className="font-bold text-2xl text-purple-600">
-              {LOCAL_BANNERS.filter(b => b.includes('1024-')).length}
-            </p>
-            <p className="text-gray-600">1024×1024</p>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div className="text-center">
             <p className="font-bold text-2xl text-green-600">
               {LOCAL_BANNERS.filter(b => b.includes('real-gacha')).length}
@@ -242,10 +193,10 @@ export default function BannerSelectorPage() {
             <p className="text-gray-600">リアルガチャ</p>
           </div>
           <div className="text-center">
-            <p className="font-bold text-2xl text-yellow-600">
-              {LOCAL_BANNERS.filter(b => b.includes('premium-')).length}
+            <p className="font-bold text-2xl text-purple-600">
+              {LOCAL_BANNERS.filter(b => b.includes('basebg')).length}
             </p>
-            <p className="text-gray-600">プレミアム</p>
+            <p className="text-gray-600">背景画像</p>
           </div>
           <div className="text-center">
             <p className="font-bold text-2xl text-blue-600">

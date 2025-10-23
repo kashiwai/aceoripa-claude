@@ -167,30 +167,44 @@ export default function LoginPage() {
 
               {/* X (Twitter) ログイン */}
               <button
-                disabled={true}
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-xl shadow-sm text-gray-500 bg-gray-800 cursor-not-allowed relative"
+                onClick={() => handleSocialLogin('twitter')}
+                disabled={socialLoading === 'twitter'}
+                className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-xl shadow-sm text-white bg-gray-700 hover:bg-gray-600 transition disabled:opacity-50"
               >
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
-                X (Twitter) でログイン
-                <span className="absolute -bottom-6 left-0 right-0 text-xs text-gray-500">
-                  只今開発中！出来たら押せるようになります
-                </span>
+                {socialLoading === 'twitter' ? (
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    X (Twitter) でログイン
+                  </>
+                )}
               </button>
 
               {/* LINEログイン */}
               <button
-                disabled={true}
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-xl shadow-sm text-gray-500 bg-gray-800 cursor-not-allowed relative mb-8"
+                onClick={() => handleSocialLogin('line')}
+                disabled={socialLoading === 'line'}
+                className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-xl shadow-sm text-white bg-[#00C300] hover:bg-[#00B300] transition disabled:opacity-50"
               >
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
-                </svg>
-                LINEでログイン
-                <span className="absolute -bottom-6 left-0 right-0 text-xs text-gray-500">
-                  只今開発中！出来たら押せるようになります
-                </span>
+                {socialLoading === 'line' ? (
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+                    </svg>
+                    LINEでログイン
+                  </>
+                )}
               </button>
             </div>
           </div>

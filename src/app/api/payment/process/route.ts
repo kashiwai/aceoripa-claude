@@ -12,7 +12,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { orderId, cardNumber, cardholderName, expiryMonth, expiryYear, cvv, saveCard } = body;
+    const { orderId, token, cardholderName, saveCard, last4, expiryMonth, expiryYear } = body;
+
+    // トークンの検証
+    if (!token) {
+      return NextResponse.json({ error: 'カードトークンが必要です' }, { status: 400 });
+    }
 
     // 注文情報を取得
     const { data: session, error: sessionError } = await supabase
@@ -27,9 +32,21 @@ export async function POST(request: NextRequest) {
     }
 
     // FINCODE APIで決済を実行
-    const paymentUrl = FINCODE_CONFIG.environment === 'prod' 
+    // 本番環境の判定を改善
+    const isProduction = process.env.NODE_ENV === 'production' || FINCODE_CONFIG.environment === 'prod';
+    const paymentUrl = isProduction
       ? 'https://api.fincode.jp' 
       : 'https://api.test.fincode.jp';
+    
+    console.log('====== Fincode Configuration ======');
+    console.log('Environment:', FINCODE_CONFIG.environment);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('Is Production:', isProduction);
+    console.log('API URL:', paymentUrl);
+    console.log('Shop ID:', FINCODE_CONFIG.shopId);
+    console.log('Order ID:', orderId);
+    console.log('Amount:', session.amount);
+    console.log('===================================');
 
     // 決済を作成
     const createPaymentResponse = await fetch(`${paymentUrl}/v1/payments`, {
@@ -47,37 +64,61 @@ export async function POST(request: NextRequest) {
     });
 
     if (!createPaymentResponse.ok) {
-      const error = await createPaymentResponse.json();
+      const errorText = await createPaymentResponse.text();
+      let error;
+      try {
+        error = JSON.parse(errorText);
+      } catch {
+        error = { message: errorText };
+      }
       console.error('FINCODE payment creation error:', error);
+      console.error('Response status:', createPaymentResponse.status);
+      console.error('Request body:', {
+        pay_type: 'Card',
+        job_code: 'CAPTURE',
+        amount: session.amount.toString(),
+        id: orderId,
+      });
       return NextResponse.json({ 
-        error: error.errors?.[0]?.message || '決済作成に失敗しました',
-        details: error 
+        error: error.errors?.[0]?.message || error.message || '決済作成に失敗しました',
+        details: error,
+        status: createPaymentResponse.status
       }, { status: 400 });
     }
 
     const paymentData = await createPaymentResponse.json();
 
-    // カード情報を使用して決済を実行
+    // トークンを使用して決済を実行（PCI DSS準拠）
+    // カード情報はサーバーを経由せず、トークンのみ使用
     const paymentResponse = await fetch(`${paymentUrl}/v1/payments/${orderId}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json',  
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${FINCODE_CONFIG.secretKey}`,
       },
       body: JSON.stringify({
         pay_type: 'Card',
         access_id: paymentData.access_id,
-        card_no: cardNumber,
-        expire: `${expiryYear}${expiryMonth}`,
-        security_code: cvv,
-        holder_name: cardholderName,
+        token: token, // トークンを使用（生のカード情報は不要）
         method: '1', // 1回払い
       }),
     });
 
     if (!paymentResponse.ok) {
-      const error = await paymentResponse.json();
+      const errorText = await paymentResponse.text();
+      let error;
+      try {
+        error = JSON.parse(errorText);
+      } catch {
+        error = { message: errorText };
+      }
       console.error('FINCODE payment execution error:', error);
+      console.error('Response status:', paymentResponse.status);
+      console.error('Payment request data (token-based):', {
+        token: token.substring(0, 10) + '...',
+        last4: last4,
+        holder_name: cardholderName
+      });
       
       // エラーを保存
       await supabase
@@ -128,19 +169,37 @@ export async function POST(request: NextRequest) {
       })
       .eq('order_id', orderId);
 
-    // ユーザーにポイントを付与
-    const { data: userData } = await supabase
-      .from('users')
-      .select('paid_points')
-      .eq('id', user.id)
-      .single();
+    // ユーザーにポイントを原子的に付与（競合状態を回避）
+    const { data: pointsResult, error: pointsError } = await supabase
+      .rpc('increment_paid_points', {
+        p_user_id: user.id,
+        p_points_to_add: session.points
+      });
 
-    const newPoints = (userData?.paid_points || 0) + session.points;
+    if (pointsError || !pointsResult || pointsResult.length === 0) {
+      console.error('Points allocation error:', pointsError);
 
-    await supabase
-      .from('users')
-      .update({ paid_points: newPoints })
-      .eq('id', user.id);
+      // 決済は成功したがポイント付与に失敗 - セッションを更新してエラー記録
+      await supabase
+        .from('payment_sessions')
+        .update({
+          status: 'points_failed',
+          error_message: 'ポイント付与に失敗しました。サポートにお問い合わせください。',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('order_id', orderId);
+
+      return NextResponse.json(
+        {
+          error: 'ポイント付与に失敗しました。決済は完了していますが、ポイントが反映されていない可能性があります。サポートにお問い合わせください。',
+          orderId,
+          requiresSupport: true
+        },
+        { status: 500 }
+      );
+    }
+
+    const newPoints = pointsResult[0].new_points;
 
     // トランザクション履歴に記録
     await supabase

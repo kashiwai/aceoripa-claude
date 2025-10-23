@@ -179,16 +179,20 @@ export default function GachaPlayPage() {
           }
         }
         
-        gachaResults.push({
-          ...selectedCard,
-          id: `result_${i}_${selectedCard.id}`
-        })
+        if (selectedCard) {
+          gachaResults.push({
+            ...selectedCard,
+            id: `result_${i}_${selectedCard.id}`
+          })
+        }
       }
       
-      setResults(gachaResults)
+      // nullやundefinedを除外
+      const validResults = gachaResults.filter(card => card != null)
+      setResults(validResults)
       
       // フェーズ2: カード順次公開演出
-      revealCardsSequentially(gachaResults)
+      revealCardsSequentially(validResults)
     }, 3000)
   }
   
@@ -531,13 +535,13 @@ export default function GachaPlayPage() {
                 
                 {/* 公開済みカードを表示 (モバイル2列、デスクトップ4列) */}
                 <div className="card-grid-mobile md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-4">
-                  {revealedCards.map((card, index) => {
+                  {revealedCards.filter(card => card != null).map((card, index) => {
                     const badge = getRarityBadge(card?.rarity || 'B')
                     const isLatest = index === revealedCards.length - 1
                     
                     return (
                       <motion.div
-                        key={card.id}
+                        key={card?.id || `card-${index}`}
                         initial={{ opacity: 0, scale: 0, rotateY: 180 }}
                         animate={{ 
                           opacity: 1, 
@@ -556,8 +560,8 @@ export default function GachaPlayPage() {
                       >
                         <div className="relative aspect-[3/4] md:aspect-square">
                           <Image
-                            src={card.imageUrl}
-                            alt={card.name}
+                            src={card?.imageUrl || card?.image_url || '/images/cards/default.png'}
+                            alt={card?.name || 'Unknown Card'}
                             fill
                             className="object-cover"
                             unoptimized

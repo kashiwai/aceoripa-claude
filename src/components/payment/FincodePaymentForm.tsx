@@ -5,12 +5,23 @@ import Script from 'next/script';
 import { CreditCardIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { FINCODE_CONFIG } from '@/lib/fincode/config';
 
+// 内部で使用するカード情報（トークン化前）
 interface FincodeCardData {
   cardNumber: string;
   cardholderName: string;
   expiryMonth: string;
   expiryYear: string;
   cvv: string;
+}
+
+// サーバーに送信するトークン化データ（PCI DSS準拠）
+interface FincodeTokenData {
+  token: string;
+  cardholderName: string;
+  saveCard: boolean;
+  last4: string;
+  expiryMonth: string;
+  expiryYear: string;
 }
 
 declare global {
@@ -21,7 +32,7 @@ declare global {
 
 interface FincodePaymentFormProps {
   amount: number;
-  onSubmit: (cardData: FincodeCardData) => Promise<void>;
+  onSubmit: (tokenData: FincodeTokenData) => Promise<void>;
   onCancel: () => void;
   loading?: boolean;
 }
@@ -151,25 +162,83 @@ export default function FincodePaymentForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
+    // Fincode SDKが読み込まれているか確認
+    if (!window.Fincode) {
+      console.error('Fincode SDK not loaded');
+      setErrors({ cardNumber: '決済システムの読み込みに失敗しました。ページを再読み込みしてください。' });
+      return;
+    }
+
     try {
-      // FINCODE形式でカード情報を送信（トークン化は使用しない）
+      // Fincodeでカード情報をトークン化（PCI DSS準拠）
+      console.log('Tokenizing card with Fincode...');
+
+      // カード情報をFincodeフォーマットに変換
+      const cardInfo = {
+        card_no: cardData.cardNumber.replace(/\s/g, ''),
+        expire: cardData.expiryYear + cardData.expiryMonth, // YYMM形式
+        holder_name: cardData.cardholderName,
+        security_code: cardData.cvv,
+      };
+
+      console.log('Card info for tokenization:', {
+        ...cardInfo,
+        card_no: cardInfo.card_no.substring(0, 4) + '****' + cardInfo.card_no.substring(cardInfo.card_no.length - 4),
+        security_code: '***'
+      });
+
+      // Fincodeトークン生成API呼び出し
+      const tokenResult = await new Promise<any>((resolve, reject) => {
+        try {
+          // Fincode.createToken() または Fincode.tokens.create() を試行
+          if (typeof window.Fincode.tokens?.create === 'function') {
+            window.Fincode.tokens.create(cardInfo, (status: number, response: any) => {
+              console.log('Token creation response:', { status, response });
+              if (status === 200 && response.id) {
+                resolve(response);
+              } else {
+                reject(new Error(response.errors?.[0]?.message || 'トークン生成に失敗しました'));
+              }
+            });
+          } else if (typeof window.Fincode.createToken === 'function') {
+            window.Fincode.createToken(cardInfo, (status: number, response: any) => {
+              console.log('Token creation response:', { status, response });
+              if (status === 200 && response.id) {
+                resolve(response);
+              } else {
+                reject(new Error(response.errors?.[0]?.message || 'トークン生成に失敗しました'));
+              }
+            });
+          } else {
+            reject(new Error('Fincode トークン化APIが見つかりません'));
+          }
+        } catch (error) {
+          reject(error);
+        }
+      });
+
+      console.log('Card tokenization successful:', tokenResult.id);
+
+      // トークンをサーバーに送信（生のカード情報は送らない）
       await onSubmit({
-        cardNumber: cardData.cardNumber.replace(/\s/g, ''),
+        token: tokenResult.id,
         cardholderName: cardData.cardholderName,
+        saveCard: saveCard,
+        last4: cardData.cardNumber.replace(/\s/g, '').slice(-4),
         expiryMonth: cardData.expiryMonth,
         expiryYear: cardData.expiryYear,
-        cvv: cardData.cvv,
-        saveCard: saveCard,
       });
-      
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Payment form error:', error);
-      setErrors({ cardNumber: '決済処理中にエラーが発生しました' });
+      setErrors({
+        cardNumber: error.message || '決済処理中にエラーが発生しました'
+      });
     }
   };
 
@@ -300,9 +369,9 @@ export default function FincodePaymentForm({
         <div className="flex items-start space-x-3">
           <LockClosedIcon className="h-5 w-5 text-green-500 mt-0.5" />
           <div className="text-sm text-gray-600">
-            <p className="font-semibold mb-1">安全な決済</p>
-            <p>お客様のカード情報は暗号化され、安全に処理されます。</p>
-            <p className="mt-1">決済はGMO FINCODEにより処理されます。</p>
+            <p className="font-semibold mb-1">PCI DSS準拠の安全な決済</p>
+            <p>お客様のカード情報は当サーバーを経由せず、Fincodeで直接トークン化されます。</p>
+            <p className="mt-1">決済はGMO FINCODEにより安全に処理されます。</p>
           </div>
         </div>
       </div>
