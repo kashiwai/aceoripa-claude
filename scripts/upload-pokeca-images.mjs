@@ -202,25 +202,33 @@ function filterJapaneseCards(cache) {
 
 /**
  * 画像とDBカードをマッチング
+ * 重要: すでにマッチしたカードは除外して、重複を防ぐ
  */
 function matchCardsWithImages(imageCards, dbCards) {
   const matches = []
+  const matchedCardIds = new Set() // すでにマッチしたカードIDを記録
 
   for (const imageCard of imageCards) {
     let matchType = null
 
-    // カード名で完全一致
-    let dbCard = dbCards.find(db => db.card_name === imageCard.cardName)
+    // カード名で完全一致（まだマッチしていないカードのみ）
+    let dbCard = dbCards.find(db =>
+      !matchedCardIds.has(db.id) &&
+      db.card_name === imageCard.cardName
+    )
     if (dbCard) {
       matchType = 'exact'
       stats.exactMatch++
     }
 
     // 完全一致しない場合は部分一致
-    if (!dbCard) {
+    // ただし、カード名が3文字以上の場合のみ部分一致を許可
+    if (!dbCard && imageCard.cardName.length >= 3) {
       dbCard = dbCards.find(db =>
-        db.card_name.includes(imageCard.cardName) ||
-        imageCard.cardName.includes(db.card_name)
+        !matchedCardIds.has(db.id) && (
+          db.card_name.includes(imageCard.cardName) ||
+          imageCard.cardName.includes(db.card_name)
+        )
       )
       if (dbCard) {
         matchType = 'partial'
@@ -234,6 +242,8 @@ function matchCardsWithImages(imageCards, dbCards) {
         imageCard,
         matchType
       })
+      // マッチしたカードIDを記録（重複を防ぐ）
+      matchedCardIds.add(dbCard.id)
     } else {
       stats.noMatch++
     }
@@ -292,7 +302,8 @@ async function uploadAndUpdateCard(match) {
 
     // ファイルを読み込み
     const ext = path.extname(imageCard.imagePath)
-    const fileName = `${dbCard.product_code}${ext}`
+    // ユニークなIDを使用してファイル名の重複を防ぐ
+    const fileName = `${dbCard.id}${ext}`
 
     if (DRY_RUN) {
       // ドライランモード: アップロードせず情報だけ表示
