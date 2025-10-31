@@ -7,19 +7,32 @@ export async function POST(request: Request) {
     const supabase = await createClient()
     const adminClient = createAdminClient()
     const { email, password, displayName } = await request.json()
-    
+
     // パスワードの検証
     if (!password || password.length < 6) {
-      return NextResponse.json({ 
-        error: 'パスワードは6文字以上で入力してください' 
+      return NextResponse.json({
+        error: 'パスワードは6文字以上で入力してください'
       }, { status: 400 })
     }
-    
+
+    // 🔍 事前に重複チェック（メールアドレス）
+    const { data: existingUsers } = await adminClient
+      .from('users')
+      .select('id, email')
+      .eq('email', email)
+      .limit(1)
+
+    if (existingUsers && existingUsers.length > 0) {
+      return NextResponse.json({
+        error: 'このメールアドレスは既に登録されています。ログインしてください。'
+      }, { status: 400 })
+    }
+
     // リクエストヘッダーからホストを取得
     const host = request.headers.get('host') || 'localhost:3000'
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
     const baseUrl = `${protocol}://${host}`
-    
+
     // 通常のユーザー登録でメール送信
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,

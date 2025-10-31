@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Canvas } from '@react-three/fiber';
-import { Sparkles, Stars, Ripples } from 'three-particles';
+// import { Sparkles, Stars, Ripples } from 'three-particles'; // Package not available, using alternatives
 
 // 感情的なガチャ演出システム
 interface EmotionalGachaEffectsProps {

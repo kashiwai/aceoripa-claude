@@ -226,16 +226,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ポイント更新
-    const { error: updateError } = await supabase
+    // ポイント更新（adminClientでRLSをバイパス）
+    const { error: updateError } = await adminClient
       .from('user_points')
-      .upsert({
-        user_id: userId,
+      .update({
         free_points: newFreePoints,
         paid_points: newPaidPoints,
         updated_at: new Date().toISOString()
       })
-    
+      .eq('user_id', userId)
+
     if (updateError) {
       console.error('Points update error:', updateError)
       return NextResponse.json({
@@ -244,8 +244,8 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // ポイント取引履歴を記録
-    const { error: transactionError } = await supabase
+    // ポイント取引履歴を記録（adminClientでRLSをバイパス）
+    const { error: transactionError } = await adminClient
       .from('point_transactions')
       .insert({
         user_id: userId,

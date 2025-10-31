@@ -13,28 +13,31 @@ interface AIVideoGachaAnimationProps {
   }
   onComplete: () => void
   onSkip?: () => void
+  videoUrls?: {
+    intro?: string
+    reveal?: string
+  }
 }
 
 export const AIVideoGachaAnimation = ({
   rarity,
   cardData,
   onComplete,
-  onSkip
+  onSkip,
+  videoUrls
 }: AIVideoGachaAnimationProps) => {
-  const [phase, setPhase] = useState<'intro' | 'reveal' | 'final_reveal' | 'complete'>('intro')
+  const [phase, setPhase] = useState<'intro' | 'reveal' | 'complete'>('intro')
   const [isLoading, setIsLoading] = useState(true)
   const [showSkipButton, setShowSkipButton] = useState(false)
   const [videoError, setVideoError] = useState(false)
-  const [finalRevealVideoUrl, setFinalRevealVideoUrl] = useState<string | null>(null)
 
   const introVideoRef = useRef<HTMLVideoElement>(null)
   const revealVideoRef = useRef<HTMLVideoElement>(null)
-  const finalRevealVideoRef = useRef<HTMLVideoElement>(null)
 
-  // 動画パス
+  // 動画パス（データベースのURLを優先、フォールバックとして固定パスを使用）
   const videoPaths = {
-    intro: `/videos/gacha/${rarity.toLowerCase()}_intro.mp4`,
-    reveal: `/videos/gacha/${rarity.toLowerCase()}_reveal.mp4`
+    intro: videoUrls?.intro || `/videos/gacha/${rarity.toLowerCase()}_intro.mp4`,
+    reveal: videoUrls?.reveal || `/videos/gacha/${rarity.toLowerCase()}_reveal.mp4`
   }
   
   // フォールバック用のカラースキーム
@@ -68,7 +71,7 @@ export const AIVideoGachaAnimation = ({
   
   const colors = rarityColors[rarity]
   
-  // 動画の事前読み込みとfinal_reveal動画の取得
+  // 動画の事前読み込み
   useEffect(() => {
     const preloadVideos = async () => {
       try {
@@ -81,18 +84,6 @@ export const AIVideoGachaAnimation = ({
         const revealVideo = document.createElement('video')
         revealVideo.src = videoPaths.reveal
         revealVideo.load()
-
-        // final_reveal動画をデータベースから取得
-        const response = await fetch(`/api/gacha/get-final-reveal?cardId=${cardData.id}`)
-        if (response.ok) {
-          const data = await response.json()
-          if (data.videoUrl) {
-            setFinalRevealVideoUrl(data.videoUrl)
-            console.log('[Animation] Final reveal video loaded:', data.videoUrl)
-          } else {
-            console.warn('[Animation] No final reveal video found, will use fallback')
-          }
-        }
 
         setIsLoading(false)
       } catch (error) {
@@ -110,29 +101,51 @@ export const AIVideoGachaAnimation = ({
     }, 3000)
 
     return () => clearTimeout(skipTimer)
-  }, [videoPaths.intro, videoPaths.reveal, cardData.id])
+  }, [videoPaths.intro, videoPaths.reveal])
   
-  // イントロ動画終了時の処理
+  // イントロ動画終了時の処理（または早期カット）
   const handleIntroEnd = () => {
+    console.log('[Animation] Intro ended, moving to reveal phase')
     setPhase('reveal')
   }
 
+  // イントロ動画開始から2.5秒後にリビールフェーズへ
+  useEffect(() => {
+    if (phase === 'intro') {
+      const quickCutTimer = setTimeout(() => {
+        console.log('[Animation] Quick cut: skipping to reveal')
+        if (introVideoRef.current) {
+          introVideoRef.current.pause()
+        }
+        setPhase('reveal')
+      }, 2500) // 2.5秒でリビールへ
+
+      return () => clearTimeout(quickCutTimer)
+    }
+  }, [phase])
+
   // リビール動画終了時の処理
   const handleRevealEnd = () => {
-    // final_reveal動画がある場合はそれを再生、なければ完了
-    if (finalRevealVideoUrl) {
-      setPhase('final_reveal')
-    } else {
-      setPhase('complete')
-      setTimeout(onComplete, 1000)
-    }
+    console.log('[Animation] Reveal ended, completing')
+    setPhase('complete')
+    setTimeout(onComplete, 100) // 500ms → 100msに短縮
   }
 
-  // final_reveal動画終了時の処理
-  const handleFinalRevealEnd = () => {
-    setPhase('complete')
-    setTimeout(onComplete, 1000)
-  }
+  // リビール動画開始から2.5秒後に完了（カード表示）
+  useEffect(() => {
+    if (phase === 'reveal') {
+      const quickCompleteTimer = setTimeout(() => {
+        console.log('[Animation] Quick complete: showing card immediately')
+        if (revealVideoRef.current) {
+          revealVideoRef.current.pause()
+        }
+        setPhase('complete')
+        onComplete()
+      }, 2500) // 2.5秒でカード表示
+
+      return () => clearTimeout(quickCompleteTimer)
+    }
+  }, [phase, onComplete])
   
   // スキップ処理
   const handleSkip = () => {
@@ -145,13 +158,22 @@ export const AIVideoGachaAnimation = ({
   }
   
   // エラー時のフォールバック演出
-  const FallbackAnimation = () => (
-    <motion.div 
-      className="fixed inset-0 z-50 bg-black flex items-center justify-center overflow-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+  const FallbackAnimation = () => {
+    // 3秒後に自動的に完了
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        onComplete()
+      }, 3000)
+      return () => clearTimeout(timer)
+    }, [])
+
+    return (
+      <motion.div
+        className="fixed inset-0 z-50 bg-black flex items-center justify-center overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
       {/* 背景エフェクト */}
       <motion.div
         className="absolute inset-0"
@@ -249,8 +271,9 @@ export const AIVideoGachaAnimation = ({
         </motion.div>
       </motion.div>
     </motion.div>
-  )
-  
+    )
+  }
+
   if (isLoading) {
     return (
       <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
@@ -285,10 +308,13 @@ export const AIVideoGachaAnimation = ({
             src={videoPaths.intro}
             className="w-full h-full object-cover"
             autoPlay
-            muted
             playsInline
             onEnded={handleIntroEnd}
             onError={() => setVideoError(true)}
+            onLoadedMetadata={(e) => {
+              const video = e.currentTarget
+              video.playbackRate = 1.0 // 通常速度
+            }}
           />
           
           {/* オーバーレイテキスト */}
@@ -323,10 +349,13 @@ export const AIVideoGachaAnimation = ({
             src={videoPaths.reveal}
             className="w-full h-full object-cover"
             autoPlay
-            muted
             playsInline
             onEnded={handleRevealEnd}
             onError={() => setVideoError(true)}
+            onLoadedMetadata={(e) => {
+              const video = e.currentTarget
+              video.playbackRate = 1.0 // 通常速度
+            }}
           />
           
           {/* カードオーバーレイ */}
@@ -368,51 +397,6 @@ export const AIVideoGachaAnimation = ({
                   unoptimized
                 />
               </motion.div>
-            </motion.div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Final Reveal - AI生成動画でカードを表示 */}
-      {phase === 'final_reveal' && finalRevealVideoUrl && (
-        <motion.div
-          key="final_reveal"
-          className="fixed inset-0 z-50 bg-black"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <video
-            ref={finalRevealVideoRef}
-            src={finalRevealVideoUrl}
-            className="w-full h-full object-cover"
-            autoPlay
-            muted
-            playsInline
-            onEnded={handleFinalRevealEnd}
-            onError={() => {
-              console.error('[Animation] Final reveal video error, falling back')
-              // エラー時はフォールバック演出に切り替え
-              setPhase('complete')
-              setTimeout(onComplete, 1000)
-            }}
-          />
-
-          {/* カード名オーバーレイ */}
-          <div className="absolute bottom-20 left-0 right-0 flex justify-center">
-            <motion.div
-              className="text-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 1 }}
-            >
-              <h2
-                className="text-5xl font-bold text-white mb-3"
-                style={{ textShadow: `0 0 30px ${colors.glow}` }}
-              >
-                {cardData.name}
-              </h2>
-              <p className="text-2xl text-white/90">{rarity}賞獲得！</p>
             </motion.div>
           </div>
         </motion.div>

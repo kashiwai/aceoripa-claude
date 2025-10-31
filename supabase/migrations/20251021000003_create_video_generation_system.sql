@@ -194,7 +194,7 @@ CREATE TABLE IF NOT EXISTS card_final_reveal_videos (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
   -- カード情報
-  card_id UUID NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
+  card_id UUID NOT NULL REFERENCES pokemon_cards(id) ON DELETE CASCADE,
 
   -- 動画情報
   video_url TEXT NOT NULL,

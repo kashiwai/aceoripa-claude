@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 // レアリティ別の基本確率（%）
 const RARITY_RATES = {
-  SSR: 3,
-  SR: 12,
-  R: 35,
-  N: 50
+  SS: 3,   // 最高レア
+  S: 12,   // 高レア
+  A: 40,   // 中レア
+  B: 45    // 低レア
 }
 
-// ピックアップ確率（SSR内での確率）
+// ピックアップ確率（SS内での確率）
 const PICKUP_RATE = 50 // 50%
 
 interface GachaDrawRequest {
@@ -32,35 +33,36 @@ interface DrawResult {
 function drawRarity(): string {
   const random = Math.random() * 100
   let accumulated = 0
-  
+
   for (const [rarity, rate] of Object.entries(RARITY_RATES)) {
     accumulated += rate
     if (random < accumulated) {
       return rarity
     }
   }
-  
-  return 'N' // フォールバック
+
+  return 'B' // フォールバック（最低レア）
 }
 
-// 10連ガチャのSR以上確定枠の抽選
-function drawGuaranteedSROrAbove(ssrRate: number = 20, srRate: number = 80): string {
+// 10連ガチャのS以上確定枠の抽選
+function drawGuaranteedSOrAbove(ssRate: number = 20, sRate: number = 80): string {
   const random = Math.random() * 100
-  const total = ssrRate + srRate
-  const normalizedSSRRate = (ssrRate / total) * 100
+  const total = ssRate + sRate
+  const normalizedSSRate = (ssRate / total) * 100
 
-  if (random < normalizedSSRRate) {
-    console.log(`[Gacha] Guaranteed slot: SSR (${ssrRate}% rate)`)
-    return 'SSR'
+  if (random < normalizedSSRate) {
+    console.log(`[Gacha] Guaranteed slot: SS (${ssRate}% rate)`)
+    return 'SS'
   }
-  console.log(`[Gacha] Guaranteed slot: SR (${srRate}% rate)`)
-  return 'SR'
+  console.log(`[Gacha] Guaranteed slot: S (${sRate}% rate)`)
+  return 'S'
 }
 
 export async function POST(req: NextRequest) {
   try {
     const supabase = createRouteHandlerClient({ cookies })
-    
+    const adminClient = createAdminClient()
+
     // 認証チェック
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
@@ -125,11 +127,21 @@ export async function POST(req: NextRequest) {
 
     // ガチャプール情報の取得
     const { data: gachaPool, error: poolError } = await supabase
-      .from('gacha_pools')
-      .select('*')
-      .eq('gacha_id', gachaId)
+      .from('gacha_pokemon_pools')
+      .select(`
+        id,
+        weight,
+        pokemon_card:pokemon_cards (
+          id,
+          card_name,
+          rarity,
+          image_url
+        )
+      `)
+      .eq('gacha_product_id', gachaId)
 
     if (poolError || !gachaPool || gachaPool.length === 0) {
+      console.error('Pool fetch error:', poolError)
       return NextResponse.json({ error: 'Gacha pool not found' }, { status: 404 })
     }
     
@@ -137,47 +149,37 @@ export async function POST(req: NextRequest) {
     const cardsByRarity: Record<string, any[]> = {}
     const pickupCards: any[] = []
 
-    // N+1クエリ問題を解決: 1回のクエリで全カード取得
-    const cardIds = gachaPool.map(p => p.card_id)
+    // プールからカードを抽出（既にpokemon_cardが含まれている）
+    for (const poolItem of gachaPool) {
+      if (!poolItem.pokemon_card) continue
 
-    const { data: cards, error: cardsError } = await supabase
-      .from('cards')
-      .select('*')
-      .in('id', cardIds)
-
-    if (cardsError) {
-      console.error('Cards fetch error:', cardsError)
-      return NextResponse.json({ error: 'Failed to load cards' }, { status: 500 })
-    }
-
-    // カードをマップに変換（高速アクセス用）
-    const cardsMap = new Map(cards?.map(c => [c.id, c]) || [])
-
-    // プールカードと対応するカードを結合
-    for (const poolCard of gachaPool) {
-      const card = cardsMap.get(poolCard.card_id)
-
-      if (card) {
-        if (!cardsByRarity[card.rarity]) {
-          cardsByRarity[card.rarity] = []
-        }
-        cardsByRarity[card.rarity].push(card)
-
-        if (poolCard.is_pickup) {
-          pickupCards.push(card)
-        }
+      const card = {
+        id: poolItem.pokemon_card.id,
+        name: poolItem.pokemon_card.card_name,
+        rarity: poolItem.pokemon_card.rarity,
+        image_url: poolItem.pokemon_card.image_url
       }
+
+      if (!cardsByRarity[card.rarity]) {
+        cardsByRarity[card.rarity] = []
+      }
+      cardsByRarity[card.rarity].push(card)
+
+      // TODO: ピックアップフラグが必要な場合はテーブルに追加
+      // if (poolItem.is_pickup) {
+      //   pickupCards.push(card)
+      // }
     }
     
     // 抽選実行
     const results: DrawResult[] = []
 
     // ガチャ商品の確定枠確率設定（デフォルト値を使用、将来的にDB設定可能）
-    const guaranteedSSRRate = (gachaProduct as any).guaranteed_ssr_rate || 20
-    const guaranteedSRRate = (gachaProduct as any).guaranteed_sr_rate || 80
+    const guaranteedSSRate = (gachaProduct as any).guaranteed_ss_rate || 20
+    const guaranteedSRate = (gachaProduct as any).guaranteed_s_rate || 80
 
     console.log(`[Gacha] Starting draw: ${gachaProduct.name}, ${drawCount} pulls`)
-    console.log(`[Gacha] Guaranteed slot rates: SSR ${guaranteedSSRRate}%, SR ${guaranteedSRRate}%`)
+    console.log(`[Gacha] Guaranteed slot rates: SSR ${guaranteedSSRate}%, SR ${guaranteedSRate}%`)
 
     for (let i = 0; i < drawCount; i++) {
       let rarity: string
@@ -187,20 +189,20 @@ export async function POST(req: NextRequest) {
       // 天井到達時は最初の1枚をSSR確定
       if (isCeilingActive && i === 0) {
         console.log(`[Gacha] CEILING REACHED! First pull is guaranteed SSR`)
-        rarity = 'SSR'
+        rarity = 'SS'
         isCeilingDraw = true
         isGuaranteedSlot = true
       }
       // 10連の最後の1枚はSR以上確定
       else if (drawCount === 10 && i === 9) {
         // 既にSR以上が出ているか確認
-        const hasSROrAbove = results.some(r => r.rarity === 'SSR' || r.rarity === 'SR')
-        if (!hasSROrAbove) {
-          console.log(`[Gacha] No SR+ in first 9 pulls, activating guarantee on pull 10`)
-          rarity = drawGuaranteedSROrAbove(guaranteedSSRRate, guaranteedSRRate)
+        const hasSOrAbove = results.some(r => r.rarity === 'SS' || r.rarity === 'S')
+        if (!hasSOrAbove) {
+          console.log(`[Gacha] No S+ in first 9 pulls, activating guarantee on pull 10`)
+          rarity = drawGuaranteedSOrAbove(guaranteedSSRate, guaranteedSRate)
           isGuaranteedSlot = true
         } else {
-          console.log(`[Gacha] SR+ already obtained, pull 10 uses normal rates`)
+          console.log(`[Gacha] S+ already obtained, pull 10 uses normal rates`)
           rarity = drawRarity()
         }
       } else {
@@ -236,11 +238,11 @@ export async function POST(req: NextRequest) {
       
       // ピックアップ判定（SSRの場合）
       let selectedCard
-      if (rarity === 'SSR' && pickupCards.length > 0 && Math.random() < PICKUP_RATE / 100) {
+      if (rarity === 'SS' && pickupCards.length > 0 && Math.random() < PICKUP_RATE / 100) {
         // ピックアップから選択
-        const ssrPickups = pickupCards.filter(c => c.rarity === 'SSR')
-        if (ssrPickups.length > 0) {
-          selectedCard = ssrPickups[Math.floor(Math.random() * ssrPickups.length)]
+        const ssPickups = pickupCards.filter(c => c.rarity === 'SS')
+        if (ssPickups.length > 0) {
+          selectedCard = ssPickups[Math.floor(Math.random() * ssPickups.length)]
         }
       }
       
@@ -251,7 +253,7 @@ export async function POST(req: NextRequest) {
       
       // ユーザーが既に持っているか確認
       const { data: existingCard } = await supabase
-        .from('user_cards')
+        .from('user_pokemon_cards')
         .select('*')
         .eq('user_id', user.id)
         .eq('card_id', selectedCard.id)
@@ -281,91 +283,110 @@ export async function POST(req: NextRequest) {
     let paidPointsToDeduct = 0
     let remainingCost = requiredPoints
 
+    // NULL対策: free_pointsとpaid_pointsがnullの場合は0として扱う
+    const currentFreePoints = userPoints.free_points || 0
+    const currentPaidPoints = userPoints.paid_points || 0
+
     // まず無料ポイントから消費
-    if (userPoints.free_points >= remainingCost) {
+    if (currentFreePoints >= remainingCost) {
       freePointsToDeduct = remainingCost
       remainingCost = 0
     } else {
-      freePointsToDeduct = userPoints.free_points
-      remainingCost -= userPoints.free_points
+      freePointsToDeduct = currentFreePoints
+      remainingCost -= currentFreePoints
       paidPointsToDeduct = remainingCost
     }
 
-    // ポイントを原子的に減算（競合状態を回避）
-    const { data: pointsResult, error: deductError } = await supabase
-      .rpc('decrement_user_points', {
-        p_user_id: user.id,
-        p_free_points_to_deduct: freePointsToDeduct,
-        p_paid_points_to_deduct: paidPointsToDeduct
+    // ポイントを減算（直接UPDATE、adminClientでRLSをバイパス）
+    const { error: deductError } = await adminClient
+      .from('user_points')
+      .update({
+        free_points: currentFreePoints - freePointsToDeduct,
+        paid_points: currentPaidPoints - paidPointsToDeduct,
+        updated_at: new Date().toISOString()
       })
+      .eq('user_id', user.id)
 
-    if (deductError || !pointsResult || pointsResult.length === 0) {
+    if (deductError) {
       console.error('Points deduction error:', deductError)
       return NextResponse.json({ error: 'ポイント減算に失敗しました' }, { status: 500 })
     }
 
-    // ポイント残高確認
-    if (!pointsResult[0].success) {
-      return NextResponse.json({
-        error: 'ポイントが不足しています',
-        required: requiredPoints,
-        available: userPoints.free_points + userPoints.paid_points
-      }, { status: 400 })
+    // point_transactionsテーブルに消費履歴を記録（無料ポイント）
+    if (freePointsToDeduct > 0) {
+      const { error: freeTransactionError } = await adminClient
+        .from('point_transactions')
+        .insert({
+          user_id: user.id,
+          amount: -freePointsToDeduct,
+          type: 'gacha',
+          is_paid: false,
+          description: `${gachaProduct.name} ${drawCount}連（無料ポイント消費）`,
+          created_at: new Date().toISOString()
+        })
+
+      if (freeTransactionError) {
+        console.error('Free point transaction record error:', freeTransactionError)
+      }
+    }
+
+    // point_transactionsテーブルに消費履歴を記録（有料ポイント）
+    if (paidPointsToDeduct > 0) {
+      const { error: paidTransactionError } = await adminClient
+        .from('point_transactions')
+        .insert({
+          user_id: user.id,
+          amount: -paidPointsToDeduct,
+          type: 'gacha',
+          is_paid: true,
+          description: `${gachaProduct.name} ${drawCount}連（有料ポイント消費）`,
+          created_at: new Date().toISOString()
+        })
+
+      if (paidTransactionError) {
+        console.error('Paid point transaction record error:', paidTransactionError)
+      }
     }
 
     // 更新後のポイント計算
     const newFreePoints = userPoints.free_points - freePointsToDeduct
     const newPaidPoints = userPoints.paid_points - paidPointsToDeduct
 
-    // カード付与とガチャ結果の記録（エラー時はポイントをロールバック）
+    // カード付与（エラー時はポイントをロールバック）
     try {
+      console.log(`[Gacha] Cards drawn successfully, starting card allocation`)
+      console.log(`[Gacha] User ${user.id} received ${results.length} cards`)
+
+      // 各カードをuser_cardsテーブルに保存
       for (const result of results) {
-        // user_cardsに追加（重複の場合は枚数を増やす）
-        const { data: existingCard } = await supabase
+        // user_cardsテーブルに追加（シンプルに毎回新規レコードを追加）
+        const { error: insertError } = await adminClient
           .from('user_cards')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('card_id', result.cardId)
-          .single()
-
-        if (existingCard) {
-          const { error: updateError } = await supabase
-            .from('user_cards')
-            .update({
-              quantity: existingCard.quantity + 1,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', existingCard.id)
-
-          if (updateError) throw updateError
-        } else {
-          const { error: insertError } = await supabase
-            .from('user_cards')
-            .insert({
-              user_id: user.id,
-              card_id: result.cardId,
-              quantity: 1,
-              obtained_at: new Date().toISOString()
-            })
-
-          if (insertError) throw insertError
-        }
-
-        // gacha_resultsに記録
-        const { error: resultError } = await supabase
-          .from('gacha_results')
           .insert({
             user_id: user.id,
-            gacha_id: gachaId,
             card_id: result.cardId,
-            drawn_at: new Date().toISOString()
+            obtained_at: new Date().toISOString()
           })
 
-        if (resultError) throw resultError
+        if (insertError) {
+          console.error('[Gacha] Card insert error:', insertError)
+          console.error('[Gacha] Error details:', {
+            code: insertError.code,
+            message: insertError.message,
+            details: insertError.details,
+            hint: insertError.hint
+          })
+          throw new Error(`カード付与に失敗しました: ${insertError.message}`)
+        }
+
+        console.log(`[Gacha] Added card: ${result.cardName} (${result.rarity})`)
       }
 
-      // トランザクション記録
-      const { error: transactionError } = await supabase
+      console.log(`[Gacha] All ${results.length} cards allocated successfully`)
+
+      // トランザクション記録（adminClientでRLSをバイパス）
+      console.log(`[Gacha] Recording transaction`)
+      const { error: transactionError } = await adminClient
         .from('transactions')
         .insert({
           user_id: user.id,
@@ -375,18 +396,32 @@ export async function POST(req: NextRequest) {
           created_at: new Date().toISOString()
         })
 
-      if (transactionError) throw transactionError
+      if (transactionError) {
+        console.error(`[Gacha] transactions insert error:`, transactionError)
+        // トランザクション記録失敗は致命的ではないのでログだけ出す
+        console.log(`[Gacha] Transaction recording failed, but continuing...`)
+      } else {
+        console.log(`[Gacha] Transaction recorded successfully`)
+      }
 
-    } catch (cardAllocationError) {
-      console.error('Card allocation failed, rolling back points:', cardAllocationError)
+    } catch (cardAllocationError: any) {
+      console.error('Card allocation failed, rolling back points:', {
+        message: cardAllocationError?.message,
+        code: cardAllocationError?.code,
+        details: cardAllocationError?.details,
+        hint: cardAllocationError?.hint,
+        full: cardAllocationError
+      })
 
-      // ポイントをロールバック
-      const { error: rollbackError } = await supabase
-        .rpc('rollback_user_points', {
-          p_user_id: user.id,
-          p_free_points_to_add: freePointsToDeduct,
-          p_paid_points_to_add: paidPointsToDeduct
+      // ポイントをロールバック（直接UPDATE、adminClientでRLSをバイパス）
+      const { error: rollbackError } = await adminClient
+        .from('user_points')
+        .update({
+          free_points: currentFreePoints,
+          paid_points: currentPaidPoints,
+          updated_at: new Date().toISOString()
         })
+        .eq('user_id', user.id)
 
       if (rollbackError) {
         console.error('Rollback failed:', rollbackError)
@@ -394,6 +429,34 @@ export async function POST(req: NextRequest) {
           error: 'カード付与に失敗し、ポイントのロールバックも失敗しました。サポートにお問い合わせください。',
           requiresSupport: true
         }, { status: 500 })
+      }
+
+      // ロールバック履歴をpoint_transactionsに記録（無料ポイント）
+      if (freePointsToDeduct > 0) {
+        await adminClient
+          .from('point_transactions')
+          .insert({
+            user_id: user.id,
+            amount: freePointsToDeduct,
+            type: 'refund',
+            is_paid: false,
+            description: `${gachaProduct.name} ${drawCount}連（カード付与失敗による返却）`,
+            created_at: new Date().toISOString()
+          })
+      }
+
+      // ロールバック履歴をpoint_transactionsに記録（有料ポイント）
+      if (paidPointsToDeduct > 0) {
+        await adminClient
+          .from('point_transactions')
+          .insert({
+            user_id: user.id,
+            amount: paidPointsToDeduct,
+            type: 'refund',
+            is_paid: true,
+            description: `${gachaProduct.name} ${drawCount}連（カード付与失敗による返却）`,
+            created_at: new Date().toISOString()
+          })
       }
 
       return NextResponse.json({
@@ -405,21 +468,21 @@ export async function POST(req: NextRequest) {
     // 天井カウンター更新
     let ceilingUpdateResult: any = null
     if (gachaProduct.ceiling_enabled) {
-      const hasSSR = results.some(r => r.rarity === 'SSR')
+      const hasSS = results.some(r => r.rarity === 'SS')
 
       const { data: updateData, error: updateError } = await supabase
         .rpc('increment_ceiling_progress', {
           p_user_id: user.id,
           p_gacha_id: gachaId,
           p_pull_count: drawCount,
-          p_has_ssr: hasSSR
+          p_has_ss: hasSS
         })
 
       if (updateError) {
         console.error('[Gacha] Ceiling progress update failed:', updateError)
       } else if (updateData && updateData.length > 0) {
         ceilingUpdateResult = updateData[0]
-        console.log(`[Gacha] Ceiling progress updated: ${ceilingUpdateResult.current_pull_count}/${ceilingUpdateResult.ceiling_count}${hasSSR ? ' (RESET by SSR)' : ''}`)
+        console.log(`[Gacha] Ceiling progress updated: ${ceilingUpdateResult.current_pull_count}/${ceilingUpdateResult.ceiling_count}${hasSS ? ' (RESET by SSR)' : ''}`)
       }
     }
 
@@ -433,7 +496,7 @@ export async function POST(req: NextRequest) {
     const newCardCount = results.filter(r => r.isNew).length
     const guaranteedCount = results.filter(r => r.isGuaranteed).length
 
-    console.log(`[Gacha] Draw complete - Results: SSR=${rarityCounts.SSR || 0}, SR=${rarityCounts.SR || 0}, R=${rarityCounts.R || 0}, N=${rarityCounts.N || 0}`)
+    console.log(`[Gacha] Draw complete - Results: SS=${rarityCounts.SSR || 0}, S=${rarityCounts.SR || 0}, A=${rarityCounts.R || 0}, B=${rarityCounts.N || 0}`)
     console.log(`[Gacha] Pickup: ${pickupCount}, New: ${newCardCount}, Guaranteed: ${guaranteedCount}`)
     console.log(`[Gacha] Points spent: ${requiredPoints} (Free: ${freePointsToDeduct}, Paid: ${paidPointsToDeduct})`)
     console.log(`[Gacha] Remaining points: ${newFreePoints + newPaidPoints} (Free: ${newFreePoints}, Paid: ${newPaidPoints})`)

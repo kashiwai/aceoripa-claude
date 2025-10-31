@@ -35,6 +35,9 @@ interface GachaHistory {
 }
 
 function SettingsTab() {
+  const supabase = createClientComponentClient()
+  const router = useRouter()
+
   // const {
   //   permission,
   //   subscription,
@@ -44,9 +47,9 @@ function SettingsTab() {
   //   unsubscribe,
   //   sendTestNotification
   // } = useNotificationPermission()
-  
+
   // 一時的にダミーデータを設定
-  const permission = 'default'
+  const permission: NotificationPermission = 'default'
   const subscription = null
   const isSupported = true
   const isLoading = false

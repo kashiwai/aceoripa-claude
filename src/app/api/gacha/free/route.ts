@@ -124,6 +124,15 @@ export async function POST(request: NextRequest) {
       selectedCard = pokemonPool[pokemonPool.length - 1].pokemon_cards
     }
 
+    // selectedCardがnullでないことを確認
+    if (!selectedCard) {
+      console.error('Failed to select a card from the pool')
+      return NextResponse.json({
+        success: false,
+        error: 'カードの抽選に失敗しました'
+      }, { status: 500 })
+    }
+
     // 無料ガチャ利用記録
     const { error: logError } = await supabase
       .rpc('record_daily_free_gacha_usage', {

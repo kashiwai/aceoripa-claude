@@ -338,6 +338,13 @@ export default async function AdminDashboard() {
                     <small className="text-muted">有料・無料ポイントの手動付与</small>
                   </a>
                 </div>
+                <div className="col-md-4 mb-3">
+                  <a href="/admin/cards/remaining" className="btn btn-outline-info w-100 h-100 d-flex flex-column justify-content-center">
+                    <div className="mb-2">🖼️</div>
+                    <strong>画像なしカード管理</strong>
+                    <small className="text-muted">残り328件のカード画像を手動アップロード</small>
+                  </a>
+                </div>
               </div>
             </div>
           </div>

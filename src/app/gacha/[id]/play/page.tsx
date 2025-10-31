@@ -7,6 +7,8 @@ import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { UltimateGachaExperience } from '@/components/effects/UltimateGachaExperience'
 import { EmotionalGachaEffects } from '@/components/effects/EmotionalGachaEffects'
+import { AIVideoGachaAnimation } from '@/components/gacha/AIVideoGachaAnimation'
+import { SimpleCardReveal } from '@/components/gacha/SimpleCardReveal'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { usePoints } from '@/hooks/usePoints'
@@ -17,6 +19,7 @@ interface Card {
   name: string
   rarity: string
   imageUrl: string
+  image_url?: string  // Database field compatibility
   description?: string
 }
 
@@ -56,6 +59,10 @@ export default function GachaPlayPage() {
   const [gachaInfo, setGachaInfo] = useState<GachaProduct | null>(null)
   const [authChecking, setAuthChecking] = useState(true)
   const [cardPool, setCardPool] = useState<Card[]>([])
+  const [showVideoAnimation, setShowVideoAnimation] = useState(false)
+  const [videoAnimationCard, setVideoAnimationCard] = useState<Card | null>(null)
+  const [animationVideos, setAnimationVideos] = useState<{[key: string]: {intro?: string, reveal?: string}}>({})
+  const [currentCardIndex, setCurrentCardIndex] = useState(0)
 
   // 認証とポイント管理
   const { user, loading: authLoading } = useAuth()
@@ -118,11 +125,50 @@ export default function GachaPlayPage() {
         setCardPool([])
       }
     }
-    
+
     if (!authChecking) {
       fetchCardPool()
     }
   }, [gachaId, authChecking])
+
+  // 動画URLの取得
+  useEffect(() => {
+    const fetchAnimationVideos = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('gacha_animation_library')
+          .select('rarity, phase, video_url')
+          .eq('is_active', true)
+
+        if (error) {
+          console.error('Error fetching animation videos:', error)
+          return
+        }
+
+        if (data) {
+          const videos: {[key: string]: {intro?: string, reveal?: string}} = {}
+          data.forEach((item: any) => {
+            if (!videos[item.rarity]) {
+              videos[item.rarity] = {}
+            }
+            if (item.phase === 'intro') {
+              videos[item.rarity].intro = item.video_url
+            } else if (item.phase === 'reveal') {
+              videos[item.rarity].reveal = item.video_url
+            }
+          })
+          setAnimationVideos(videos)
+          console.log('[Gacha Play] Loaded animation videos:', videos)
+        }
+      } catch (error) {
+        console.error('Error fetching animation videos:', error)
+      }
+    }
+
+    if (!authChecking) {
+      fetchAnimationVideos()
+    }
+  }, [authChecking, supabase])
 
   // サンプルカードプール
   const sampleCards: Card[] = [
@@ -142,58 +188,65 @@ export default function GachaPlayPage() {
   const executeGacha = async () => {
     // ポイントチェック
     const requiredPoints = (gachaInfo?.price || 150) * count
-    
+
     if (!hasEnoughPoints(requiredPoints)) {
       toast.error(`ポイントが不足しています。必要ポイント: ${requiredPoints}`)
       // ポイント不足の場合、支払いページへリダイレクト
       router.push('/payment')
       return
     }
-    
+
     setIsPlaying(true)
     setCurrentPhase('spinning')
     setRevealedCards([])
     setCurrentRevealIndex(0)
-    
-    // フェーズ1: スピニング演出（3秒）
-    setTimeout(() => {
-      setCurrentPhase('revealing')
-      
-      // ガチャ結果を事前計算（DBカードプールを使用）
-      const gachaResults: Card[] = []
-      const activeCardPool = cardPool.length > 0 ? cardPool : sampleCards
-      
-      // 総重み計算
-      const totalWeight = activeCardPool.reduce((sum, card) => sum + (card.probability || 1), 0)
-      
-      for (let i = 0; i < count; i++) {
-        const random = Math.random() * totalWeight
-        let currentWeight = 0
-        let selectedCard: Card = activeCardPool[0] // フォールバック
-        
-        for (const card of activeCardPool) {
-          currentWeight += (card.probability || 1)
-          if (random <= currentWeight) {
-            selectedCard = card
-            break
-          }
-        }
-        
-        if (selectedCard) {
-          gachaResults.push({
-            ...selectedCard,
-            id: `result_${i}_${selectedCard.id}`
-          })
-        }
+
+    try {
+      // サーバーでガチャ実行（ポイント消費、カード抽選、DB登録）
+      const response = await fetch('/api/gacha/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: gachaId,
+          pullCount: count
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'ガチャ実行エラー')
       }
-      
-      // nullやundefinedを除外
-      const validResults = gachaResults.filter(card => card != null)
-      setResults(validResults)
-      
-      // フェーズ2: カード順次公開演出
-      revealCardsSequentially(validResults)
-    }, 3000)
+
+      const data = await response.json()
+      console.log('[Gacha] Server response:', data)
+
+      // サーバーから受け取った結果を変換
+      const gachaResults: Card[] = data.results.map((result: any) => ({
+        id: result.cardId,
+        name: result.cardName,
+        rarity: result.rarity,
+        imageUrl: result.imageUrl || '/images/ngcard.jpg',
+        description: result.cardName
+      }))
+
+      // フェーズ1: スピニング演出（3秒）
+      setTimeout(() => {
+        setCurrentPhase('revealing')
+        setResults(gachaResults)
+
+        // ポイント再取得
+        fetchPoints()
+
+        // フェーズ2: カード順次公開演出
+        revealCardsSequentially(gachaResults)
+      }, 3000)
+
+    } catch (error: any) {
+      console.error('[Gacha] Execute error:', error)
+      toast.error(error.message || 'ガチャ実行に失敗しました')
+      setIsPlaying(false)
+      setCurrentPhase('idle')
+    }
   }
   
   // 簡単な演出エフェクト（テスト用）
@@ -208,15 +261,36 @@ export default function GachaPlayPage() {
   
   // カード順次公開演出（新演出システム統合版）
   const revealCardsSequentially = (cards: Card[]) => {
+    console.log('[Gacha] Starting card reveal sequence:', cards)
+    console.log('[Gacha] Pull count:', count)
+
+    // 連続ガチャ（5連、10連など）の場合は、アニメーションをスキップして結果をまとめて表示
+    if (count > 1) {
+      console.log('[Gacha] Multi-pull detected, showing all results immediately')
+      setResults(cards)
+      setRevealedCards(cards)
+      setTimeout(() => {
+        setCurrentPhase('celebration')
+        setIsPlaying(false)
+        setShowResults(true)
+      }, 1000) // 1秒後に結果画面を表示
+      return
+    }
+
+    // 単発ガチャの場合のみアニメーションを表示
     // 高レアリティカードを事前にフィルタリング
     const premiumCards = cards.filter(card => ['SS', 'S', 'A'].includes(card.rarity))
-    
+    console.log('[Gacha] Premium cards (SS/S/A):', premiumCards)
+    console.log('[Gacha] Animation videos loaded:', animationVideos)
+
     if (premiumCards.length > 0) {
       // 高レアカードがある場合は新演出システムを使用
+      console.log('[Gacha] Using video animation system')
       setEffectQueue(cards)
       processEffectQueue(cards)
     } else {
       // 通常カードのみの場合は従来の演出
+      console.log('[Gacha] Using standard reveal (no premium cards)')
       standardRevealSequence(cards)
     }
   }
@@ -224,31 +298,26 @@ export default function GachaPlayPage() {
   // 新演出システムでのカード公開処理
   const processEffectQueue = (cards: Card[]) => {
     let index = 0
-    
+    setCurrentCardIndex(0) // カウンター初期化
+
     const showNextCard = () => {
       if (index < cards.length) {
         const currentCard = cards[index]
-        
-        // 高レアリティカードは感動的な演出で表示
-        if (['SS', 'S', 'A'].includes(currentCard.rarity)) {
-          setCurrentEffectCard(currentCard)
-          setShowUltimateEffect(true)
-        } else {
-          // 通常カードは標準的な演出
-          setRevealedCards(prev => [...prev, currentCard])
-          index++
-          setTimeout(showNextCard, 1000)
-        }
+        setCurrentCardIndex(index + 1) // カウンター更新
+
+        // 全レアリティで動画演出を表示
+        setVideoAnimationCard(currentCard)
+        setShowVideoAnimation(true)
       } else {
         // 全カード公開完了
         setTimeout(() => {
           setCurrentPhase('celebration')
           setIsPlaying(false)
           setShowResults(true)
-        }, 1000)
+        }, 500)
       }
     }
-    
+
     showNextCard()
   }
 
@@ -276,27 +345,49 @@ export default function GachaPlayPage() {
     }, 800)
   }
 
-  // 新演出完了後の処理
-  const handleEffectComplete = () => {
+  // 動画演出完了後の処理
+  const handleVideoAnimationComplete = () => {
+    if (videoAnimationCard) {
+      setShowVideoAnimation(false)
+      // 動画演出終了後、SimpleCardRevealでカードを表示
+      setCurrentEffectCard(videoAnimationCard)
+      setShowUltimateEffect(true)
+    }
+  }
+
+  // 新演出完了後の処理（次のカードへ進む）
+  const handleNextCard = () => {
     if (currentEffectCard) {
       setRevealedCards(prev => [...prev, currentEffectCard])
       setShowUltimateEffect(false)
-      
+      setCurrentEffectCard(null)
+
       // 次のカードの処理
       const currentIndex = effectQueue.findIndex(card => card.id === currentEffectCard.id)
       if (currentIndex < effectQueue.length - 1) {
+        // 次のカードを表示
+        setCurrentCardIndex(currentIndex + 2) // カウンター更新（次のカードは index+1 なので +2）
         setTimeout(() => {
-          processEffectQueue(effectQueue.slice(currentIndex + 1))
-        }, 1000)
+          const nextCard = effectQueue[currentIndex + 1]
+          // 全レアリティで動画演出を表示
+          setVideoAnimationCard(nextCard)
+          setShowVideoAnimation(true)
+        }, 100)
       } else {
-        // 全カード公開完了
+        // 最後のカード - 演出完了
+        console.log('[Gacha] All cards revealed, moving to celebration')
         setTimeout(() => {
           setCurrentPhase('celebration')
           setIsPlaying(false)
           setShowResults(true)
-        }, 1000)
+        }, 500)
       }
     }
+  }
+
+  // 全カード表示完了後の処理（廃止）
+  const handleEffectComplete = () => {
+    // このハンドラは使わなくなった
   }
   
   // 星エフェクト生成 (モバイル最適化)
@@ -698,24 +789,31 @@ export default function GachaPlayPage() {
             </div>
 
             {/* アクションボタン */}
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={() => {
-                  setShowResults(false)
-                  setResults([])
-                  setRevealedCards([])
-                  setCurrentRevealIndex(0)
-                  setCurrentPhase('idle')
-                }}
-                className="bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white font-bold px-8 py-4 rounded-xl hover:scale-105 transition transform shadow-lg"
-              >
-                🎲 もう一度回す
-              </button>
-              <Link href={`/gacha/${gachaId}`}>
-                <button className="bg-gray-700 text-white font-bold px-8 py-4 rounded-xl hover:bg-gray-600 transition">
-                  ← ガチャ詳細に戻る
+            <div className="flex flex-col gap-4 justify-center items-center">
+              <Link href="/mypage">
+                <button className="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold px-12 py-5 rounded-xl hover:scale-105 transition transform shadow-lg text-xl">
+                  📦 マイページで確認
                 </button>
               </Link>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setShowResults(false)
+                    setResults([])
+                    setRevealedCards([])
+                    setCurrentRevealIndex(0)
+                    setCurrentPhase('idle')
+                  }}
+                  className="bg-gradient-to-r from-[#FF6600] to-[#FF0033] text-white font-bold px-8 py-4 rounded-xl hover:scale-105 transition transform shadow-lg"
+                >
+                  🎲 もう一度回す
+                </button>
+                <Link href={`/gacha/${gachaId}`}>
+                  <button className="bg-gray-700 text-white font-bold px-8 py-4 rounded-xl hover:bg-gray-600 transition">
+                    ← ガチャ詳細に戻る
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         )}
@@ -736,16 +834,53 @@ export default function GachaPlayPage() {
         ))}
       </div>
 
-      {/* 新感動演出システム */}
+      {/* カウンター表示（連続ガチャ時） */}
+      {count > 1 && (showVideoAnimation || showUltimateEffect) && currentCardIndex > 0 && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[9999] pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full shadow-2xl"
+          >
+            <div className="text-center">
+              <div className="text-4xl font-black">
+                {currentCardIndex} / {count}
+              </div>
+              <div className="text-sm font-medium opacity-90 mt-1">
+                カード公開中
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* AI動画演出システム (Veo 3 / Sora 2) */}
+      {showVideoAnimation && videoAnimationCard && (
+        <AIVideoGachaAnimation
+          rarity={videoAnimationCard.rarity as 'SS' | 'S' | 'A' | 'B' | 'C'}
+          cardData={{
+            id: videoAnimationCard.id,
+            name: videoAnimationCard.name,
+            imageUrl: videoAnimationCard.imageUrl
+          }}
+          onComplete={handleVideoAnimationComplete}
+          onSkip={handleVideoAnimationComplete}
+          videoUrls={animationVideos[videoAnimationCard.rarity]}
+        />
+      )}
+
+      {/* シンプルカード表示システム */}
       {showUltimateEffect && currentEffectCard && (
-        <UltimateGachaExperience
-          pokemonName={currentEffectCard.name}
-          rarity={currentEffectCard.rarity as 'SS' | 'S' | 'A' | 'B' | 'C'}
-          cardImageUrl={currentEffectCard.imageUrl}
-          onComplete={handleEffectComplete}
-          enableHaptics={true}
-          enableSound={true}
-          autoPlay={true}
+        <SimpleCardReveal
+          card={{
+            id: currentEffectCard.id,
+            name: currentEffectCard.name,
+            rarity: currentEffectCard.rarity,
+            imageUrl: currentEffectCard.imageUrl
+          }}
+          onNext={handleNextCard}
+          hasMore={effectQueue.findIndex(card => card.id === currentEffectCard.id) < effectQueue.length - 1}
+          fanfareSound={`/sounds/fanfare_${currentEffectCard.rarity.toLowerCase()}.mp3`}
         />
       )}
     </div>

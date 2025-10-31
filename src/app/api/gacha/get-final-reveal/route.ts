@@ -1,78 +1,68 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 
-/**
- * カードのfinal_reveal動画を取得するAPI
- * GET /api/gacha/get-final-reveal?cardId=xxx
- */
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const cardId = searchParams.get('cardId')
 
     if (!cardId) {
-      return NextResponse.json({ error: 'cardId is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'cardId is required' },
+        { status: 400 }
+      )
     }
 
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // カード情報を取得してレアリティを確認
-    const { data: card, error: cardError } = await supabase
-      .from('cards')
-      .select('rarity')
-      .eq('id', cardId)
-      .single()
-
-    if (cardError || !card) {
-      console.warn(`[FinalReveal] Card not found: ${cardId}`)
-      return NextResponse.json({ videoUrl: null })
-    }
-
-    // 該当カードのfinal_reveal動画をcard_final_reveal_videosテーブルから取得
-    const { data: cardVideo, error: cardVideoError } = await supabase
+    // カード固有のfinal_reveal動画を取得
+    const { data, error } = await supabase
       .from('card_final_reveal_videos')
-      .select('video_url, thumbnail_url')
+      .select('video_url, thumbnail_url, duration, provider')
       .eq('card_id', cardId)
       .eq('is_active', true)
       .single()
 
-    if (!cardVideoError && cardVideo?.video_url) {
-      // カード固有の動画がある場合
-      console.log(`[FinalReveal] Found card-specific video for ${cardId}`)
-      return NextResponse.json({
-        videoUrl: cardVideo.video_url,
-        thumbnailUrl: cardVideo.thumbnail_url,
-        source: 'card_specific',
-      })
+    if (error) {
+      // データが見つからない場合は空のレスポンスを返す（エラーではない）
+      if (error.code === 'PGRST116') {
+        console.log(`[get-final-reveal] No video found for card ${cardId}`)
+        return NextResponse.json({
+          videoUrl: null,
+          message: 'No final reveal video found for this card'
+        })
+      }
+
+      console.error('[get-final-reveal] Database error:', error)
+      return NextResponse.json(
+        { error: 'Failed to fetch video' },
+        { status: 500 }
+      )
     }
 
-    // カード固有の動画がない場合は、レアリティ別の汎用動画を使用
-    const { data: rarityVideo, error: rarityVideoError } = await supabase
-      .from('gacha_animation_library')
-      .select('video_url, thumbnail_url')
-      .eq('rarity', card.rarity)
-      .eq('phase', 'final_reveal')
-      .eq('is_active', true)
-      .single()
+    // 使用カウントを増やす
+    // Note: Supabase client doesn't support .raw() directly
+    // Using RPC or direct SQL increment would be better
+    await supabase.rpc('increment_video_usage', {
+      p_card_id: cardId
+    }).catch(err => {
+      // Fallback: ignore increment errors for now
+      console.warn('Failed to increment usage count:', err)
+    })
 
-    if (!rarityVideoError && rarityVideo?.video_url) {
-      console.log(`[FinalReveal] Using rarity-based video for ${card.rarity} rarity`)
-      return NextResponse.json({
-        videoUrl: rarityVideo.video_url,
-        thumbnailUrl: rarityVideo.thumbnail_url,
-        source: 'rarity_generic',
-      })
-    }
+    console.log(`[get-final-reveal] Video found for card ${cardId}: ${data.video_url}`)
 
-    // どちらの動画もない場合
-    console.warn(`[FinalReveal] No final_reveal video found for card ${cardId} (${card.rarity} rarity)`)
     return NextResponse.json({
-      videoUrl: null,
-      message: 'No final_reveal video found, will use fallback animation',
+      videoUrl: data.video_url,
+      thumbnailUrl: data.thumbnail_url,
+      duration: data.duration,
+      provider: data.provider
     })
   } catch (error: any) {
-    console.error('[FinalReveal] Error:', error)
+    console.error('[get-final-reveal] Error:', error)
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
