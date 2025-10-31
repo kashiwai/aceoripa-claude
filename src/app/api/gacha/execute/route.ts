@@ -297,20 +297,9 @@ export async function POST(req: NextRequest) {
       paidPointsToDeduct = remainingCost
     }
 
-    // ポイントを減算（直接UPDATE、adminClientでRLSをバイパス）
-    const { error: deductError } = await adminClient
-      .from('user_points')
-      .update({
-        free_points: currentFreePoints - freePointsToDeduct,
-        paid_points: currentPaidPoints - paidPointsToDeduct,
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', user.id)
-
-    if (deductError) {
-      console.error('Points deduction error:', deductError)
-      return NextResponse.json({ error: 'ポイント減算に失敗しました' }, { status: 500 })
-    }
+    // point_transactionsテーブルに消費履歴を記録
+    // 注意: user_pointsは自動同期トリガー(sync_points_after_transaction)で更新されるため、
+    // 直接UPDATEは不要。トランザクション記録だけで自動的にポイントが減算される。
 
     // point_transactionsテーブルに消費履歴を記録（無料ポイント）
     if (freePointsToDeduct > 0) {
@@ -327,6 +316,7 @@ export async function POST(req: NextRequest) {
 
       if (freeTransactionError) {
         console.error('Free point transaction record error:', freeTransactionError)
+        return NextResponse.json({ error: 'ポイント減算に失敗しました（無料ポイント）' }, { status: 500 })
       }
     }
 
@@ -345,6 +335,7 @@ export async function POST(req: NextRequest) {
 
       if (paidTransactionError) {
         console.error('Paid point transaction record error:', paidTransactionError)
+        return NextResponse.json({ error: 'ポイント減算に失敗しました（有料ポイント）' }, { status: 500 })
       }
     }
 
