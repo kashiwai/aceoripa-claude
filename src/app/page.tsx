@@ -18,52 +18,34 @@ export default function HomePage() {
   const supabase = createClientComponentClient()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   
-  // フォールバックデータを初期値として設定
+  // フォールバックデータを初期値として設定（実際のUUID形式のIDを使用）
   const gachaProductsFallback = [
-    { 
-      id: '1', 
-      name: 'ピカチュウ大祭り', 
-      price: 150, 
-      image: '/images/banners/real-gacha/S__44392515_0.jpg',
-      remaining: 850,
-      total: 1000,
-      status: 'active'
-    },
-    { 
-      id: '2', 
-      name: 'ナンジャモ大量発生オリパ', 
-      price: 200, 
+    {
+      id: 'c7000985-ac13-4824-9390-10e0a94ba842',
+      name: 'ナンジャモ大量発生オリパ',
+      price: 300,
       image: '/images/banners/real-gacha/S__44392516_0.jpg',
       remaining: 650,
       total: 1000,
       status: 'active'
     },
-    { 
-      id: '3', 
-      name: 'リザードン祭盤 炎のプレミアオリパ', 
-      price: 300, 
+    {
+      id: '299fcff0-fa72-4610-b001-bb727ffd2d00',
+      name: 'リザードン祭盤 炎のプレミアオリパ',
+      price: 500,
       image: '/images/banners/real-gacha/S__44392517_0.jpg',
       remaining: 420,
       total: 1000,
       status: 'ending_soon'
     },
-    { 
-      id: '4', 
-      name: 'ブラッキー超感謝祭', 
-      price: 250, 
+    {
+      id: 'cd200829-199f-48e9-9ecc-523f77148cd6',
+      name: 'ブラッキー超感謝祭',
+      price: 300,
       image: '/images/banners/real-gacha/S__44392521_0.jpg',
       remaining: 780,
       total: 1000,
       status: 'active'
-    },
-    { 
-      id: '5', 
-      name: 'リーリエ×マリオピカチュウ 超豪華オリパ', 
-      price: 400, 
-      image: '/images/banners/real-gacha/S__44392523_0.jpg',
-      remaining: 120,
-      total: 1000,
-      status: 'ending_soon'
     },
   ]
 
@@ -153,45 +135,29 @@ export default function HomePage() {
   }, [])
 
   const [squareBanners, setSquareBanners] = useState([
-    { 
-      id: 1, 
-      gachaId: '1',
-      title: '激アツ！ピカチュウ祭り', 
-      subtitle: 'マリオピカチュウPSA10確定！', 
+    {
+      id: 1,
+      gachaId: 'c7000985-ac13-4824-9390-10e0a94ba842',  // ナンジャモ大量発生オリパ
+      title: '激アツ！ナンジャモ大量発生',
+      subtitle: 'プレミアムカード多数封入！',
       color: 'bg-gradient-to-r from-[#FFD700] to-[#FF6600]',
       image: '/images/basebg/A_luxurious_gold-framed_Pokmon_trading_card_is_t-1750539990520.png'
     },
-    { 
-      id: 2, 
-      gachaId: '2',
-      title: 'プレミアムBOX', 
-      subtitle: 'SSレア確率50%UP！', 
+    {
+      id: 2,
+      gachaId: '299fcff0-fa72-4610-b001-bb727ffd2d00',  // リザードン祭盤
+      title: 'プレミアムBOX',
+      subtitle: 'リザードン祭盤 炎のオリパ',
       color: 'bg-gradient-to-r from-[#9333EA] to-[#EC4899]',
       image: '/images/basebg/A_dazzling_spectacle_featuring_a_dazzling_Pokmon_-1750539986706.png'
     },
-    { 
-      id: 3, 
-      gachaId: '3',
-      title: '限定100パック！', 
-      subtitle: 'ナンジャモ&リーリエ狙い撃ち', 
+    {
+      id: 3,
+      gachaId: 'cd200829-199f-48e9-9ecc-523f77148cd6',  // ブラッキー超感謝祭
+      title: '限定パック！',
+      subtitle: 'ブラッキー超感謝祭',
       color: 'bg-gradient-to-r from-[#0EA5E9] to-[#6366F1]',
       image: '/images/basebg/A_vibrant_and_colorful_backdrop_featuring_a_rainbo-1750539998852.png'
-    },
-    { 
-      id: 4, 
-      gachaId: '4',
-      title: '新春超豪華オリパ', 
-      subtitle: 'アセロラPSA10大量封入！', 
-      color: 'bg-gradient-to-r from-[#FF0033] to-[#FF6B6B]',
-      image: '/images/basebg/A_festive_scene_with_a_large_shimmering_drum_at_t-1750539994085.png'
-    },
-    { 
-      id: 5, 
-      gachaId: '5',
-      title: 'ブラッキー感謝祭', 
-      subtitle: 'ブラッキーex PSA10確率3倍！', 
-      color: 'bg-gradient-to-r from-[#1F2937] to-[#7C3AED]',
-      image: '/images/basebg/A_cosmic_scene_featuring_a_dazzling_trading_card_-1750539978161.png'
     },
   ])
 
