@@ -308,7 +308,7 @@ export async function POST(req: NextRequest) {
         .insert({
           user_id: user.id,
           amount: -freePointsToDeduct,
-          type: 'gacha',
+          type: 'use',  // CHECK制約: 'purchase', 'use', 'bonus', 'refund'のみ許可
           is_paid: false,
           description: `${gachaProduct.name} ${drawCount}連（無料ポイント消費）`,
           created_at: new Date().toISOString()
@@ -327,7 +327,7 @@ export async function POST(req: NextRequest) {
         .insert({
           user_id: user.id,
           amount: -paidPointsToDeduct,
-          type: 'gacha',
+          type: 'use',  // CHECK制約: 'purchase', 'use', 'bonus', 'refund'のみ許可
           is_paid: true,
           description: `${gachaProduct.name} ${drawCount}連（有料ポイント消費）`,
           created_at: new Date().toISOString()
