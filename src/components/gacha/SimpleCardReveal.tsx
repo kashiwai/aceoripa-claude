@@ -13,6 +13,7 @@ interface SimpleCardRevealProps {
     imageUrl: string
   }
   onNext?: () => void
+  onSkip?: () => void
   hasMore?: boolean
   fanfareSound?: string
 }
@@ -36,12 +37,14 @@ const RARITY_GLOW: { [key: string]: string } = {
 export const SimpleCardReveal = ({
   card,
   onNext,
+  onSkip,
   hasMore = false,
   fanfareSound = '/sounds/fanfare.mp3'
 }: SimpleCardRevealProps) => {
   const router = useRouter()
   const [showCard, setShowCard] = useState(false)
   const [audioPlayed, setAudioPlayed] = useState(false)
+  const [showSkipButton, setShowSkipButton] = useState(false)
 
   useEffect(() => {
     // 2つ目の動画終了後、5秒待ってからカード表示
@@ -63,6 +66,14 @@ export const SimpleCardReveal = ({
       setAudioPlayed(true)
     }
   }, [showCard, audioPlayed, fanfareSound])
+
+  // 3秒後にスキップボタンを表示
+  useEffect(() => {
+    const skipTimer = setTimeout(() => {
+      setShowSkipButton(true)
+    }, 3000)
+    return () => clearTimeout(skipTimer)
+  }, [])
 
   const handleCardClick = () => {
     if (hasMore && onNext) {
@@ -242,6 +253,24 @@ export const SimpleCardReveal = ({
               )}
             </motion.div>
           </div>
+
+          {/* スキップボタン */}
+          <AnimatePresence>
+            {showSkipButton && showCard && onSkip && (
+              <motion.button
+                className="fixed top-8 right-8 z-[60] px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-full hover:bg-white/30 transition-all"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 50 }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onSkip()
+                }}
+              >
+                スキップ ▶
+              </motion.button>
+            )}
+          </AnimatePresence>
 
           {/* クリックヒント */}
           <motion.div

@@ -376,15 +376,22 @@ export async function POST(req: NextRequest) {
       console.log(`[Gacha] All ${results.length} cards allocated successfully`)
 
       // トランザクション記録（adminClientでRLSをバイパス）
+      // 注意: transactionsテーブルはproduct_idが必須カラムなので、ガチャIDを指定
       console.log(`[Gacha] Recording transaction`)
       const { error: transactionError } = await adminClient
         .from('transactions')
         .insert({
           user_id: user.id,
-          type: 'gacha',
-          amount: -requiredPoints,
-          description: `${gachaProduct.name} ${drawCount}連`,
-          created_at: new Date().toISOString()
+          product_id: gachaId,
+          amount: requiredPoints,
+          status: 'completed',
+          metadata: {
+            draw_count: drawCount,
+            free_points_used: freePointsToDeduct,
+            paid_points_used: paidPointsToDeduct
+          },
+          created_at: new Date().toISOString(),
+          completed_at: new Date().toISOString()
         })
 
       if (transactionError) {

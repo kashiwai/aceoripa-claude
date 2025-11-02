@@ -264,35 +264,12 @@ export default function GachaPlayPage() {
     console.log('[Gacha] Starting card reveal sequence:', cards)
     console.log('[Gacha] Pull count:', count)
 
-    // 連続ガチャ（5連、10連など）の場合は、アニメーションをスキップして結果をまとめて表示
-    if (count > 1) {
-      console.log('[Gacha] Multi-pull detected, showing all results immediately')
-      setResults(cards)
-      setRevealedCards(cards)
-      setTimeout(() => {
-        setCurrentPhase('celebration')
-        setIsPlaying(false)
-        setShowResults(true)
-      }, 1000) // 1秒後に結果画面を表示
-      return
-    }
-
-    // 単発ガチャの場合のみアニメーションを表示
-    // 高レアリティカードを事前にフィルタリング
-    const premiumCards = cards.filter(card => ['SS', 'S', 'A'].includes(card.rarity))
-    console.log('[Gacha] Premium cards (SS/S/A):', premiumCards)
+    // 全てのカードで動画演出を表示（5連でも1枚ずつ表示）
+    console.log('[Gacha] Using video animation system for all cards')
     console.log('[Gacha] Animation videos loaded:', animationVideos)
 
-    if (premiumCards.length > 0) {
-      // 高レアカードがある場合は新演出システムを使用
-      console.log('[Gacha] Using video animation system')
-      setEffectQueue(cards)
-      processEffectQueue(cards)
-    } else {
-      // 通常カードのみの場合は従来の演出
-      console.log('[Gacha] Using standard reveal (no premium cards)')
-      standardRevealSequence(cards)
-    }
+    setEffectQueue(cards)
+    processEffectQueue(cards)
   }
 
   // 新演出システムでのカード公開処理
@@ -353,6 +330,20 @@ export default function GachaPlayPage() {
       setCurrentEffectCard(videoAnimationCard)
       setShowUltimateEffect(true)
     }
+  }
+
+  // スキップボタンが押された時の処理
+  const handleSkipAll = () => {
+    console.log('[Gacha] Skip button pressed - jumping to final results')
+    // 全ての演出をスキップして最終結果画面へ移動
+    setShowVideoAnimation(false)
+    setShowUltimateEffect(false)
+    setCurrentEffectCard(null)
+    setVideoAnimationCard(null)
+    setRevealedCards(results.length > 0 ? results : effectQueue)
+    setCurrentPhase('celebration')
+    setIsPlaying(false)
+    setShowResults(true)
   }
 
   // 新演出完了後の処理（次のカードへ進む）
@@ -864,7 +855,7 @@ export default function GachaPlayPage() {
             imageUrl: videoAnimationCard.imageUrl
           }}
           onComplete={handleVideoAnimationComplete}
-          onSkip={handleVideoAnimationComplete}
+          onSkip={handleSkipAll}
           videoUrls={animationVideos[videoAnimationCard.rarity]}
         />
       )}
@@ -879,6 +870,7 @@ export default function GachaPlayPage() {
             imageUrl: currentEffectCard.imageUrl
           }}
           onNext={handleNextCard}
+          onSkip={handleSkipAll}
           hasMore={effectQueue.findIndex(card => card.id === currentEffectCard.id) < effectQueue.length - 1}
           fanfareSound={`/sounds/fanfare_${currentEffectCard.rarity.toLowerCase()}.mp3`}
         />
