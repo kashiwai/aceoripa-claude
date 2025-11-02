@@ -30,6 +30,7 @@ export const AIVideoGachaAnimation = ({
   const [isLoading, setIsLoading] = useState(true)
   const [showSkipButton, setShowSkipButton] = useState(false)
   const [videoError, setVideoError] = useState(false)
+  const [isSkipped, setIsSkipped] = useState(false) // スキップされたかどうか
 
   const introVideoRef = useRef<HTMLVideoElement>(null)
 
@@ -103,24 +104,32 @@ export const AIVideoGachaAnimation = ({
     setPhase('card')
   }
 
-  // カード表示後、2秒待って次のカードへ自動進行
+  // カード表示後、自動進行（スキップ時は500ms、通常は2000ms）
   useEffect(() => {
     if (phase === 'card') {
+      const delay = isSkipped ? 500 : 2000 // スキップ時は500ms、通常は2秒
       const autoNextTimer = setTimeout(() => {
-        console.log('[Animation] Auto-advancing to next card')
+        console.log('[Animation] Auto-advancing to next card (skipped:', isSkipped, ')')
         setPhase('complete')
         onComplete()
-      }, 2000) // 2秒後に次へ
+      }, delay)
 
       return () => clearTimeout(autoNextTimer)
     }
-  }, [phase, onComplete])
+  }, [phase, onComplete, isSkipped])
 
   // スキップ処理
   const handleSkip = () => {
-    if (onSkip) {
-      onSkip()
-    } else {
+    console.log('[Animation] Skip button pressed, phase:', phase)
+
+    if (phase === 'intro') {
+      // 動画フェーズの場合：動画をスキップしてカードを表示
+      console.log('[Animation] Skipping intro video, showing card')
+      setIsSkipped(true) // スキップフラグを立てる
+      setPhase('card')
+    } else if (phase === 'card') {
+      // カードフェーズの場合：すぐに次のカードへ
+      console.log('[Animation] Skipping card display, moving to next')
       setPhase('complete')
       onComplete()
     }

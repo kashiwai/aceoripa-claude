@@ -847,7 +847,6 @@ export default function GachaPlayPage() {
             imageUrl: videoAnimationCard.imageUrl
           }}
           onComplete={handleVideoAnimationComplete}
-          onSkip={handleSkipAll}
           videoUrls={animationVideos[videoAnimationCard.rarity]}
         />
       )}
