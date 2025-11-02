@@ -103,21 +103,19 @@ export const AIVideoGachaAnimation = ({
     setPhase('card')
   }
 
-  // イントロ動画開始から2秒後にカード表示へ
+  // カード表示後、2秒待って次のカードへ自動進行
   useEffect(() => {
-    if (phase === 'intro') {
-      const quickCutTimer = setTimeout(() => {
-        console.log('[Animation] Quick cut: showing card')
-        if (introVideoRef.current) {
-          introVideoRef.current.pause()
-        }
-        setPhase('card')
-      }, 2000) // 2秒でカード表示
+    if (phase === 'card') {
+      const autoNextTimer = setTimeout(() => {
+        console.log('[Animation] Auto-advancing to next card')
+        setPhase('complete')
+        onComplete()
+      }, 2000) // 2秒後に次へ
 
-      return () => clearTimeout(quickCutTimer)
+      return () => clearTimeout(autoNextTimer)
     }
-  }, [phase])
-  
+  }, [phase, onComplete])
+
   // スキップ処理
   const handleSkip = () => {
     if (onSkip) {
@@ -374,8 +372,9 @@ export const AIVideoGachaAnimation = ({
               duration: 1.5,
               ease: "easeOut"
             }}
-            className="relative z-10"
+            className="relative z-10 cursor-pointer"
             onClick={() => {
+              console.log('[Animation] Card clicked, advancing to next')
               setPhase('complete')
               onComplete()
             }}
@@ -423,11 +422,11 @@ export const AIVideoGachaAnimation = ({
 
             {/* タップヒント */}
             <motion.div
-              className="absolute -bottom-28 left-1/2 transform -translate-x-1/2 text-white/60 text-sm"
+              className="absolute -bottom-28 left-1/2 transform -translate-x-1/2 text-white/60 text-sm text-center"
               animate={{ opacity: [0.4, 1, 0.4] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              画面をタップ
+              タップで次へ / 2秒後に自動進行
             </motion.div>
           </motion.div>
         </motion.div>
