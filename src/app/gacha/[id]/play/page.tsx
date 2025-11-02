@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -58,6 +58,7 @@ export default function GachaPlayPage() {
   const [videoAnimationCard, setVideoAnimationCard] = useState<Card | null>(null)
   const [animationVideos, setAnimationVideos] = useState<{[key: string]: {intro?: string, reveal?: string}}>({})
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
+  const cardQueueIndexRef = useRef(0) // カードキューのインデックスを管理
 
   // 認証とポイント管理
   const { user, loading: authLoading } = useAuth()
@@ -263,25 +264,31 @@ export default function GachaPlayPage() {
     console.log('[Gacha] Using video animation system for all cards')
     console.log('[Gacha] Animation videos loaded:', animationVideos)
 
+    // カウンターをリセット
+    cardQueueIndexRef.current = 0
+
     setEffectQueue(cards)
     processEffectQueue(cards)
   }
 
   // 新演出システムでのカード公開処理
   const processEffectQueue = (cards: Card[]) => {
-    let index = 0
     setCurrentCardIndex(0) // カウンター初期化
 
     const showNextCard = () => {
-      if (index < cards.length) {
-        const currentCard = cards[index]
-        setCurrentCardIndex(index + 1) // カウンター更新
+      const currentIndex = cardQueueIndexRef.current
+
+      if (currentIndex < cards.length) {
+        const currentCard = cards[currentIndex]
+        setCurrentCardIndex(currentIndex + 1) // カウンター更新（表示用）
+        console.log(`[Gacha] Showing card ${currentIndex + 1}/${cards.length}:`, currentCard.name)
 
         // 全レアリティで動画演出を表示
         setVideoAnimationCard(currentCard)
         setShowVideoAnimation(true)
       } else {
         // 全カード公開完了
+        console.log('[Gacha] All cards revealed, moving to celebration')
         setTimeout(() => {
           setCurrentPhase('celebration')
           setIsPlaying(false)
@@ -323,13 +330,19 @@ export default function GachaPlayPage() {
       setShowVideoAnimation(false)
       setRevealedCards(prev => [...prev, videoAnimationCard])
 
+      // refカウンターをインクリメント
+      cardQueueIndexRef.current += 1
+      const nextIndex = cardQueueIndexRef.current
+
+      console.log(`[Gacha] Card ${nextIndex}/${effectQueue.length} completed. Moving to next...`)
+
       // 次のカードの処理
-      const currentIndex = effectQueue.findIndex(card => card.id === videoAnimationCard.id)
-      if (currentIndex < effectQueue.length - 1) {
+      if (nextIndex < effectQueue.length) {
         // 次のカードを表示
-        setCurrentCardIndex(currentIndex + 2)
+        setCurrentCardIndex(nextIndex + 1)
         setTimeout(() => {
-          const nextCard = effectQueue[currentIndex + 1]
+          const nextCard = effectQueue[nextIndex]
+          console.log(`[Gacha] Showing next card: ${nextCard.name} (${nextIndex + 1}/${effectQueue.length})`)
           setVideoAnimationCard(nextCard)
           setShowVideoAnimation(true)
         }, 100)
