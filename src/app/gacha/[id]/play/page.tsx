@@ -5,10 +5,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { UltimateGachaExperience } from '@/components/effects/UltimateGachaExperience'
-import { EmotionalGachaEffects } from '@/components/effects/EmotionalGachaEffects'
 import { AIVideoGachaAnimation } from '@/components/gacha/AIVideoGachaAnimation'
-import { SimpleCardReveal } from '@/components/gacha/SimpleCardReveal'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { usePoints } from '@/hooks/usePoints'
@@ -53,8 +50,6 @@ export default function GachaPlayPage() {
   const [revealedCards, setRevealedCards] = useState<Card[]>([])
   const [currentRevealIndex, setCurrentRevealIndex] = useState(0)
   const [sparkles, setSparkles] = useState<Array<{id: number, x: number, y: number}>>([])
-  const [showUltimateEffect, setShowUltimateEffect] = useState(false)
-  const [currentEffectCard, setCurrentEffectCard] = useState<Card | null>(null)
   const [effectQueue, setEffectQueue] = useState<Card[]>([])
   const [gachaInfo, setGachaInfo] = useState<GachaProduct | null>(null)
   const [authChecking, setAuthChecking] = useState(true)
@@ -322,13 +317,31 @@ export default function GachaPlayPage() {
     }, 800)
   }
 
-  // 動画演出完了後の処理
+  // 動画演出完了後の処理（カード表示完了）
   const handleVideoAnimationComplete = () => {
     if (videoAnimationCard) {
       setShowVideoAnimation(false)
-      // 動画演出終了後、SimpleCardRevealでカードを表示
-      setCurrentEffectCard(videoAnimationCard)
-      setShowUltimateEffect(true)
+      setRevealedCards(prev => [...prev, videoAnimationCard])
+
+      // 次のカードの処理
+      const currentIndex = effectQueue.findIndex(card => card.id === videoAnimationCard.id)
+      if (currentIndex < effectQueue.length - 1) {
+        // 次のカードを表示
+        setCurrentCardIndex(currentIndex + 2)
+        setTimeout(() => {
+          const nextCard = effectQueue[currentIndex + 1]
+          setVideoAnimationCard(nextCard)
+          setShowVideoAnimation(true)
+        }, 100)
+      } else {
+        // 最後のカード - 演出完了
+        console.log('[Gacha] All cards revealed, moving to celebration')
+        setTimeout(() => {
+          setCurrentPhase('celebration')
+          setIsPlaying(false)
+          setShowResults(true)
+        }, 500)
+      }
     }
   }
 
@@ -346,40 +359,6 @@ export default function GachaPlayPage() {
     setShowResults(true)
   }
 
-  // 新演出完了後の処理（次のカードへ進む）
-  const handleNextCard = () => {
-    if (currentEffectCard) {
-      setRevealedCards(prev => [...prev, currentEffectCard])
-      setShowUltimateEffect(false)
-      setCurrentEffectCard(null)
-
-      // 次のカードの処理
-      const currentIndex = effectQueue.findIndex(card => card.id === currentEffectCard.id)
-      if (currentIndex < effectQueue.length - 1) {
-        // 次のカードを表示
-        setCurrentCardIndex(currentIndex + 2) // カウンター更新（次のカードは index+1 なので +2）
-        setTimeout(() => {
-          const nextCard = effectQueue[currentIndex + 1]
-          // 全レアリティで動画演出を表示
-          setVideoAnimationCard(nextCard)
-          setShowVideoAnimation(true)
-        }, 100)
-      } else {
-        // 最後のカード - 演出完了
-        console.log('[Gacha] All cards revealed, moving to celebration')
-        setTimeout(() => {
-          setCurrentPhase('celebration')
-          setIsPlaying(false)
-          setShowResults(true)
-        }, 500)
-      }
-    }
-  }
-
-  // 全カード表示完了後の処理（廃止）
-  const handleEffectComplete = () => {
-    // このハンドラは使わなくなった
-  }
   
   // 星エフェクト生成 (モバイル最適化)
   const generateSparkles = () => {
@@ -826,7 +805,7 @@ export default function GachaPlayPage() {
       </div>
 
       {/* カウンター表示（連続ガチャ時） */}
-      {count > 1 && (showVideoAnimation || showUltimateEffect) && currentCardIndex > 0 && (
+      {count > 1 && showVideoAnimation && currentCardIndex > 0 && (
         <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[9999] pointer-events-none">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -860,21 +839,6 @@ export default function GachaPlayPage() {
         />
       )}
 
-      {/* シンプルカード表示システム */}
-      {showUltimateEffect && currentEffectCard && (
-        <SimpleCardReveal
-          card={{
-            id: currentEffectCard.id,
-            name: currentEffectCard.name,
-            rarity: currentEffectCard.rarity,
-            imageUrl: currentEffectCard.imageUrl
-          }}
-          onNext={handleNextCard}
-          onSkip={handleSkipAll}
-          hasMore={effectQueue.findIndex(card => card.id === currentEffectCard.id) < effectQueue.length - 1}
-          fanfareSound={`/sounds/fanfare_${currentEffectCard.rarity.toLowerCase()}.mp3`}
-        />
-      )}
     </div>
   )
 }
