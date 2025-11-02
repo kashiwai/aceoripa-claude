@@ -56,7 +56,7 @@ export default function PaymentPage() {
         console.error('Failed to fetch payment plans:', error);
       }
     };
-    
+
     fetchPaymentPlans();
   }, []);
 
