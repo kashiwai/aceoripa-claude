@@ -98,9 +98,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'User points not found' }, { status: 404 })
     }
     
-    const requiredPoints = gachaProduct.cost * drawCount
+    // ガチャ商品の価格を決定（単発か複数回かで異なる）
+    const product = gachaProduct as any
+    let requiredPoints: number
+
+    if (drawCount === 1) {
+      // 単発の場合: single_price または price を使用
+      requiredPoints = product.single_price || product.price || 0
+    } else {
+      // 複数回の場合: multi_price を使用、なければ price * drawCount
+      requiredPoints = product.multi_price || (product.price || 0) * drawCount
+    }
+
     const totalPoints = userPoints.free_points + userPoints.paid_points
-    
+
+    console.log(`[Gacha] Price check: drawCount=${drawCount}, requiredPoints=${requiredPoints}, available=${totalPoints}`)
+
     if (totalPoints < requiredPoints) {
       return NextResponse.json({ error: 'Insufficient points' }, { status: 400 })
     }
