@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs/promises'
 import path from 'path'
 
+export const dynamic = 'force-dynamic'
+
 const POKECA_DIR = '/Users/kousuke/Downloads/pokeca'
 const IMAGES_DIR = path.join(POKECA_DIR, 'images')
 const MANUAL_IMAGES_DIR = path.join(POKECA_DIR, '手動画像')
