@@ -2,25 +2,47 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { createBrowserClient } from '@supabase/ssr'
 
 export default function PaymentPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [userPoints, setUserPoints] = useState({ free: 0, paid: 0, total: 0 });
   const [isProcessing, setIsProcessing] = useState(false);
-  const { user, loading } = useAuth();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const [paymentPlans, setPaymentPlans] = useState<any[]>([]);
 
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  // 認証チェック
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth/login');
+    const checkAuth = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        setUser(user)
+
+        if (!user) {
+          router.push('/auth/login?redirect=/payment')
+          return
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+        router.push('/auth/login?redirect=/payment')
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [user, loading, router]);
+
+    checkAuth()
+  }, [router, supabase]);
 
   useEffect(() => {
     const fetchUserPoints = async () => {
@@ -126,6 +148,14 @@ export default function PaymentPage() {
       setIsProcessing(false);
     }
   };
+
+  if (loading) {
+    return <LoadingSpinner fullScreen />
+  }
+
+  if (!user) {
+    return null
+  }
 
   return (
     <main className="min-h-screen bg-gray-900 text-white">
