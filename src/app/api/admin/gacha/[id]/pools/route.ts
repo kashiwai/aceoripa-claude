@@ -95,13 +95,13 @@ export async function POST(
     
     // 複数カードの一括追加に対応
     const poolsToInsert = body.cards.map((card: any) => ({
-      product_id: params.id,
-      card_id: card.card_id,
-      drop_rate: card.drop_rate || 100
+      gacha_product_id: params.id,
+      pokemon_card_id: card.card_id,
+      weight: card.drop_rate || 100
     }))
-    
+
     const { data: pools, error } = await supabase
-      .from('gacha_pools')
+      .from('gacha_pokemon_pools')
       .insert(poolsToInsert)
       .select()
     
@@ -187,10 +187,10 @@ export async function DELETE(
     }
     
     const { error } = await supabase
-      .from('gacha_pools')
+      .from('gacha_pokemon_pools')
       .delete()
       .eq('id', poolId)
-      .eq('product_id', params.id)
+      .eq('gacha_product_id', params.id)
     
     if (error) throw error
     

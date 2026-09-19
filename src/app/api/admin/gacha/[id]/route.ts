@@ -37,16 +37,16 @@ export async function GET(
       .from('gacha_products')
       .select(`
         *,
-        gacha_pools (
+        gacha_pokemon_pools (
           id,
-          card_id,
-          drop_rate,
-          cards (
+          pokemon_card_id,
+          weight,
+          pokemon_cards (
             id,
-            name,
+            card_name,
             rarity,
             image_url,
-            description
+            product_code
           )
         )
       `)

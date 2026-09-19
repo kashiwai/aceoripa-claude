@@ -152,12 +152,20 @@ export default function HomePage() {
     return () => clearTimeout(timeoutId)
   }, [])
 
-  const [squareBanners, setSquareBanners] = useState([
-    { 
-      id: 1, 
+  const [squareBanners, setSquareBanners] = useState<Array<{
+    id: number | string
+    gachaId: string
+    title: string
+    subtitle: string
+    color: string
+    image: string
+    isActive?: boolean
+  }>>([
+    {
+      id: 1,
       gachaId: '1',
-      title: '激アツ！ピカチュウ祭り', 
-      subtitle: 'マリオピカチュウPSA10確定！', 
+      title: '激アツ！ピカチュウ祭り',
+      subtitle: 'マリオピカチュウPSA10確定！',
       color: 'bg-gradient-to-r from-[#FFD700] to-[#FF6600]',
       image: '/images/basebg/A_luxurious_gold-framed_Pokmon_trading_card_is_t-1750539990520.png'
     },

@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     // 2. ユーザーのポイントを更新
     const { data: currentUser, error: userError } = await supabase
       .from('users')
-      .select('paid_points')
+      .select('paid_points, free_points')
       .eq('id', user.id)
       .single();
 

@@ -1,21 +1,26 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { createClient } from '@/lib/supabase/server'
 
-const supabase = createClient(
+export const dynamic = 'force-dynamic'
+
+// DBアクセスはサービスロールキーで実行（RLSに縛られず紹介実績を集計するため）
+const supabase = createServiceClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 export async function GET(request: Request) {
   try {
-    // 認証チェック
-    const cookieStore = cookies()
-    const userId = cookieStore.get('userId')?.value
+    // 認証チェック（ログイン中のSupabaseセッションを確認）
+    const authClient = await createClient()
+    const { data: { user }, error: authError } = await authClient.auth.getUser()
 
-    if (!userId) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const userId = user.id
 
     // ユーザーの紹介コードを取得または生成
     const { data: userCode, error: codeError } = await supabase

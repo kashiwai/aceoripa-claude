@@ -44,11 +44,18 @@ export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState<'notifications' | 'settings'>('notifications')
   const [showModal, setShowModal] = useState(false)
   const [editingNotification, setEditingNotification] = useState<PushNotification | null>(null)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string
+    body: string
+    target_type: 'all' | 'specific' | 'segment'
+    target_users: string[]
+    target_segment: string
+    scheduled_at: string
+  }>({
     title: '',
     body: '',
-    target_type: 'all' as const,
-    target_users: [] as string[],
+    target_type: 'all',
+    target_users: [],
     target_segment: '',
     scheduled_at: ''
   })

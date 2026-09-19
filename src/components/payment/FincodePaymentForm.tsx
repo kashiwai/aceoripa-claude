@@ -11,6 +11,7 @@ interface FincodeCardData {
   expiryMonth: string;
   expiryYear: string;
   cvv: string;
+  saveCard?: boolean;
 }
 
 declare global {

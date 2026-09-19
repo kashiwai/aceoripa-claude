@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import sharp from 'sharp'
 
 export async function POST(request: NextRequest) {
+  let requestType = 'mobile'
   try {
     const { prompt, size = '1024x1024', type = 'mobile' } = await request.json()
+    requestType = type
 
     if (!prompt) {
       return NextResponse.json(
@@ -76,8 +78,8 @@ export async function POST(request: NextRequest) {
     console.error('Banner generation error:', error)
     
     // エラー時はプレースホルダー画像を返す
-    const width = request.body?.type === 'mobile' ? 375 : 1920
-    const height = request.body?.type === 'mobile' ? 200 : 400
+    const width = requestType === 'mobile' ? 375 : 1920
+    const height = requestType === 'mobile' ? 200 : 400
     const placeholderUrl = `https://via.placeholder.com/${width}x${height}/667eea/ffffff?text=Top+Banner`
     return NextResponse.json({ 
       imageUrl: placeholderUrl,

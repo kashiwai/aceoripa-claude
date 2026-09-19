@@ -57,14 +57,22 @@ export async function POST(request: Request) {
       })
     }
 
-    // トランザクション開始
-    const updates = []
-
     // 1. 被紹介者（新規ユーザー）にポイント付与
+    // Supabase JS クライアントには `.raw()` は存在しないため、現在値を取得してから加算する
+    const { data: referredUser, error: referredFetchError } = await supabase
+      .from('users')
+      .select('points')
+      .eq('id', userId)
+      .single()
+
+    if (referredFetchError || !referredUser) {
+      throw new Error('被紹介者のポイント取得エラー')
+    }
+
     const { error: referredUpdateError } = await supabase
       .from('users')
-      .update({ 
-        points: supabase.raw(`points + ${campaignSettings.referred_bonus_points}`)
+      .update({
+        points: (referredUser.points || 0) + campaignSettings.referred_bonus_points
       })
       .eq('id', userId)
 
@@ -73,11 +81,21 @@ export async function POST(request: Request) {
     }
 
     // 2. 紹介者にポイント付与
+    const { data: referrerUser, error: referrerFetchError } = await supabase
+      .from('users')
+      .select('points, referral_points_earned')
+      .eq('id', referral.referrer_id)
+      .single()
+
+    if (referrerFetchError || !referrerUser) {
+      throw new Error('紹介者のポイント取得エラー')
+    }
+
     const { error: referrerUpdateError } = await supabase
       .from('users')
-      .update({ 
-        points: supabase.raw(`points + ${campaignSettings.referrer_bonus_points}`),
-        referral_points_earned: supabase.raw(`referral_points_earned + ${campaignSettings.referrer_bonus_points}`)
+      .update({
+        points: (referrerUser.points || 0) + campaignSettings.referrer_bonus_points,
+        referral_points_earned: (referrerUser.referral_points_earned || 0) + campaignSettings.referrer_bonus_points
       })
       .eq('id', referral.referrer_id)
 

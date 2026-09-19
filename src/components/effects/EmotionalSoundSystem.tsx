@@ -18,7 +18,7 @@ export const EmotionalSoundSystem = ({
 }: EmotionalSoundSystemProps) => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
-  const currentSoundsRef = useRef<Set<AudioBufferSourceNode>>(new Set());
+  const currentSoundsRef = useRef<Set<AudioScheduledSourceNode>>(new Set());
 
   // オーディオコンテキストの初期化
   useEffect(() => {

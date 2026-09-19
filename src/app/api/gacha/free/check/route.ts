@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,18 +17,16 @@ export async function GET(request: NextRequest) {
     }
 
     // ユーザー認証チェック
-    const cookieStore = await cookies()
-    const userSession = cookieStore.get('user_session')
-    
-    if (!userSession) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
       return NextResponse.json({
         success: false,
         error: 'ログインが必要です'
       }, { status: 401 })
     }
 
-    const session = JSON.parse(userSession.value)
-    const userId = session.user_id
+    const userId = user.id
 
     // ガチャ商品の無料ガチャ設定確認
     const { data: gachaProduct, error: gachaError } = await supabase

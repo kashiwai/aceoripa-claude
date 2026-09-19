@@ -5,47 +5,52 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
-    
-    // 管理者権限チェック
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user || user.email !== process.env.ADMIN_EMAIL) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    // 管理者権限チェック（Cookieベース）
+    const adminSessionCookie = request.cookies.get('admin_session')
+    if (!adminSessionCookie) {
+      return NextResponse.json({ error: '管理者認証が必要です' }, { status: 401 })
     }
-    
+
     const { data: products, error } = await supabase
       .from('gacha_products')
       .select(`
         *,
-        gacha_pools (
+        gacha_pokemon_pools (
           id,
-          card_id,
-          drop_rate,
-          cards (
+          pokemon_card_id,
+          weight,
+          pokemon_cards (
             id,
-            name,
+            card_name,
             rarity,
             image_url
           )
         )
       `)
       .order('created_at', { ascending: false })
-    
+
     if (error) throw error
-    
+
     // 統計情報を追加
     const productsWithStats = products?.map(product => {
-      const totalCards = product.gacha_pools?.length || 0
-      const ssrCount = product.gacha_pools?.filter((p: any) => p.cards?.rarity === 'SSR').length || 0
-      const srCount = product.gacha_pools?.filter((p: any) => p.cards?.rarity === 'SR').length || 0
-      
+      const pools = (product as any).gacha_pokemon_pools
+      const totalCards = pools?.length || 0
+      const ssCount = pools?.filter((p: any) => p.pokemon_cards?.rarity === 'SS').length || 0
+      const sCount = pools?.filter((p: any) => p.pokemon_cards?.rarity === 'S').length || 0
+      const aCount = pools?.filter((p: any) => p.pokemon_cards?.rarity === 'A').length || 0
+      const bCount = pools?.filter((p: any) => p.pokemon_cards?.rarity === 'B').length || 0
+      const cCount = pools?.filter((p: any) => p.pokemon_cards?.rarity === 'C').length || 0
+
       return {
         ...product,
         stats: {
           total_cards: totalCards,
-          ssr_count: ssrCount,
-          sr_count: srCount,
-          r_count: product.gacha_pools?.filter((p: any) => p.cards?.rarity === 'R').length || 0,
-          n_count: product.gacha_pools?.filter((p: any) => p.cards?.rarity === 'N').length || 0
+          ss_count: ssCount,
+          s_count: sCount,
+          a_count: aCount,
+          b_count: bCount,
+          c_count: cCount
         }
       }
     })
@@ -67,15 +72,15 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
-    
-    // 管理者権限チェック
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user || user.email !== process.env.ADMIN_EMAIL) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    // 管理者権限チェック（Cookieベース）
+    const adminSessionCookie = request.cookies.get('admin_session')
+    if (!adminSessionCookie) {
+      return NextResponse.json({ error: '管理者認証が必要です' }, { status: 401 })
     }
-    
+
     const body = await request.json()
-    
+
     // バリデーション
     if (!body.name || !body.single_price || !body.multi_price) {
       return NextResponse.json(

@@ -8,6 +8,7 @@ import { useParams } from 'next/navigation'
 
 interface Prize {
   id?: string
+  card_id: string
   rarity: string
   card_name: string
   description: string

@@ -106,13 +106,20 @@ export default function EditGachaPage() {
 
   // URLパラメータからバナーURLを取得
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const bannerUrl = urlParams.get('bannerUrl')
-    if (bannerUrl) {
-      setFormData(prev => ({ ...prev, banner_image_url: bannerUrl }))
-      // URLパラメータをクリア
-      window.history.replaceState({}, '', `/admin/gacha/${gachaId}/edit`)
-    }
+    // タイミングを遅らせて確実にパラメータを取得
+    const timer = setTimeout(() => {
+      const urlParams = new URLSearchParams(window.location.search)
+      const bannerUrl = urlParams.get('bannerUrl')
+      console.log('Banner URL from params:', bannerUrl) // デバッグログ
+      if (bannerUrl) {
+        setFormData(prev => ({ ...prev, banner_image_url: bannerUrl }))
+        toast.success('バナー画像を選択しました')
+        // URLパラメータをクリア
+        window.history.replaceState({}, '', `/admin/gacha/${gachaId}/edit`)
+      }
+    }, 100)
+    
+    return () => clearTimeout(timer)
   }, [gachaId])
   
   // 利益計算を自動更新

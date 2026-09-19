@@ -143,7 +143,7 @@ function CheckoutContent() {
         const mdInput = document.createElement('input');
         mdInput.type = 'hidden';
         mdInput.name = 'MD';
-        mdInput.value = orderId;
+        mdInput.value = orderId || '';
         form.appendChild(mdInput);
         
         document.body.appendChild(form);
