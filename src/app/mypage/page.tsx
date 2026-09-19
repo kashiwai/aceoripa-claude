@@ -554,9 +554,9 @@ export default function MyPage() {
                   <div className="mt-8">
                     <h4 className="text-xl font-bold text-white mb-4">おすすめガチャ</h4>
                     <div className="bg-gradient-to-r from-[#FF0033] to-[#FF6B6B] rounded-xl p-6 text-white">
-                      <h5 className="text-2xl font-black mb-2">ポケモンカード151</h5>
+                      <h5 className="text-2xl font-black mb-2">リザードン祭盤 炎のプレミアオリパ</h5>
                       <p className="text-sm mb-4 opacity-90">リザードンex確率UPキャンペーン中！</p>
-                      <Link href="/gacha/1" className="inline-block bg-white text-[#FF0033] font-bold px-6 py-3 rounded-lg hover:bg-gray-100 transition">
+                      <Link href="/gacha/299fcff0-fa72-4610-b001-bb727ffd2d00" className="inline-block bg-white text-[#FF0033] font-bold px-6 py-3 rounded-lg hover:bg-gray-100 transition">
                         今すぐ引く！
                       </Link>
                     </div>

@@ -143,11 +143,15 @@ export async function GET(
     
     if (error) {
       console.error('Database error:', error)
-      return NextResponse.json({ error: 'Database error', details: error.message }, { status: 500 })
+      // 不正な形式のID(UUID以外)や該当データなしは404として扱う
+      if (error.code === '22P02' || error.code === 'PGRST116') {
+        return NextResponse.json({ error: '指定されたガチャが見つかりません' }, { status: 404 })
+      }
+      return NextResponse.json({ error: 'ガチャ情報の取得に失敗しました' }, { status: 500 })
     }
-    
+
     if (!gacha) {
-      return NextResponse.json({ error: 'Gacha not found' }, { status: 404 })
+      return NextResponse.json({ error: '指定されたガチャが見つかりません' }, { status: 404 })
     }
     
     // データベースのフィールド名をフロントエンドで期待する形式に変換
@@ -169,6 +173,6 @@ export async function GET(
     })
   } catch (error) {
     console.error('Error fetching gacha detail:', error)
-    return NextResponse.json({ error: 'Internal server error', details: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'ガチャ情報の取得中にエラーが発生しました' }, { status: 500 })
   }
 }

@@ -81,7 +81,11 @@ export async function GET(
     
     if (poolError) {
       console.error('Error fetching pool from Supabase:', poolError)
-      return NextResponse.json({ error: 'Database error', details: poolError.message }, { status: 500 })
+      // 不正な形式のID(UUID以外)は「カードなし」として扱う
+      if (poolError.code === '22P02') {
+        return NextResponse.json({ success: true, cards: [] })
+      }
+      return NextResponse.json({ error: 'カード情報の取得に失敗しました' }, { status: 500 })
     }
     
     // データが存在しない場合は空配列を返す

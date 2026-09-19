@@ -24,7 +24,7 @@ export async function GET() {
             subtitle: 'SSR確率2倍UP開催中',
             description: '期間限定でSSR確率が2倍！この機会をお見逃しなく！',
             imageUrl: '/images/banners/real-gacha/S__44392515_0.jpg',
-            linkUrl: '/gacha/1',
+            linkUrl: '/gacha/299fcff0-fa72-4610-b001-bb727ffd2d00',
             linkType: 'gacha',
             priority: 1,
             isActive: true,
