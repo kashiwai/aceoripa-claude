@@ -27,9 +27,21 @@ export async function POST(request: NextRequest) {
     }
 
     // FINCODE APIで決済を実行
-    const paymentUrl = FINCODE_CONFIG.environment === 'prod' 
+    // 本番環境の判定を改善
+    const isProduction = process.env.NODE_ENV === 'production' || FINCODE_CONFIG.environment === 'prod';
+    const paymentUrl = isProduction
       ? 'https://api.fincode.jp' 
       : 'https://api.test.fincode.jp';
+    
+    console.log('====== Fincode Configuration ======');
+    console.log('Environment:', FINCODE_CONFIG.environment);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('Is Production:', isProduction);
+    console.log('API URL:', paymentUrl);
+    console.log('Shop ID:', FINCODE_CONFIG.shopId);
+    console.log('Order ID:', orderId);
+    console.log('Amount:', session.amount);
+    console.log('===================================');
 
     // 決済を作成
     const createPaymentResponse = await fetch(`${paymentUrl}/v1/payments`, {
@@ -47,11 +59,25 @@ export async function POST(request: NextRequest) {
     });
 
     if (!createPaymentResponse.ok) {
-      const error = await createPaymentResponse.json();
+      const errorText = await createPaymentResponse.text();
+      let error;
+      try {
+        error = JSON.parse(errorText);
+      } catch {
+        error = { message: errorText };
+      }
       console.error('FINCODE payment creation error:', error);
+      console.error('Response status:', createPaymentResponse.status);
+      console.error('Request body:', {
+        pay_type: 'Card',
+        job_code: 'CAPTURE',
+        amount: session.amount.toString(),
+        id: orderId,
+      });
       return NextResponse.json({ 
-        error: error.errors?.[0]?.message || '決済作成に失敗しました',
-        details: error 
+        error: error.errors?.[0]?.message || error.message || '決済作成に失敗しました',
+        details: error,
+        status: createPaymentResponse.status
       }, { status: 400 });
     }
 
@@ -76,8 +102,20 @@ export async function POST(request: NextRequest) {
     });
 
     if (!paymentResponse.ok) {
-      const error = await paymentResponse.json();
+      const errorText = await paymentResponse.text();
+      let error;
+      try {
+        error = JSON.parse(errorText);
+      } catch {
+        error = { message: errorText };
+      }
       console.error('FINCODE payment execution error:', error);
+      console.error('Response status:', paymentResponse.status);
+      console.error('Card data sent (masked):', {
+        card_no: cardNumber.substring(0, 4) + '****' + cardNumber.substring(cardNumber.length - 4),
+        expire: `${expiryYear}${expiryMonth}`,
+        holder_name: cardholderName
+      });
       
       // エラーを保存
       await supabase

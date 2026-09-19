@@ -1,8 +1,23 @@
+// Fincode環境設定
+// 重要: テスト環境と本番環境を正しく切り替えてください
+const isTestMode = process.env.NEXT_PUBLIC_FINCODE_ENV === 'test';
+
 export const FINCODE_CONFIG = {
-  publicKey: process.env.NEXT_PUBLIC_FINCODE_PUBLIC_KEY!,
-  secretKey: process.env.FINCODE_SECRET_KEY!,
-  shopId: process.env.FINCODE_SHOP_ID!,
-  environment: process.env.NEXT_PUBLIC_FINCODE_ENV || 'prod',
+  // 環境に応じてAPIキーを切り替え
+  publicKey: isTestMode 
+    ? process.env.NEXT_PUBLIC_FINCODE_TEST_PUBLIC_KEY!
+    : process.env.NEXT_PUBLIC_FINCODE_PROD_PUBLIC_KEY!,
+  secretKey: isTestMode
+    ? process.env.FINCODE_TEST_SECRET_KEY!
+    : process.env.FINCODE_PROD_SECRET_KEY!,
+  shopId: isTestMode
+    ? process.env.NEXT_PUBLIC_FINCODE_TEST_SHOP_ID!
+    : process.env.NEXT_PUBLIC_FINCODE_PROD_SHOP_ID!,
+  environment: process.env.NEXT_PUBLIC_FINCODE_ENV || 'test', // デフォルトはテスト環境
+  
+  // API URLs
+  apiUrl: isTestMode ? 'https://api.test.fincode.jp' : 'https://api.fincode.jp',
+  jsUrl: isTestMode ? 'https://js.test.fincode.jp/v1/fincode.js' : 'https://js.fincode.jp/v1/fincode.js',
   
   // ポイントパッケージ設定
   pointPackages: [
