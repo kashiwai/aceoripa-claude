@@ -53,17 +53,14 @@ export function usePoints() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'エラーが発生しました'
       setError(errorMessage)
-      console.error('Points fetch error:', err)
-      
-      // 開発環境でのフォールバック
-      if (process.env.NODE_ENV === 'development') {
-        setPoints({
-          free_points: 1000,
-          paid_points: 5000,
-          total_points: 6000,
-          last_updated: new Date().toISOString()
-        })
-      }
+      console.error('[usePoints] Points fetch error:', err)
+      // エラー時は0ポイントを表示（固定値は使用しない）
+      setPoints({
+        free_points: 0,
+        paid_points: 0,
+        total_points: 0,
+        last_updated: new Date().toISOString()
+      })
     } finally {
       setIsLoading(false)
     }

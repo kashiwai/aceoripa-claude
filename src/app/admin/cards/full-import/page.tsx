@@ -9,7 +9,7 @@ import Link from 'next/link'
 // サービスロールキーで直接接続
 const supabaseAdmin = createClient(
   'https://vshkekffhjbvszzpagjt.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzaGtla2ZmaGpidnN6enBhZ2p0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDQwMjYyNywiZXhwIjoyMDY1OTc4NjI3fQ.rIPYTr2iHWRoe6Q57GT1wz907luOMnYkUyJd6ZFvmIE'
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 )
 
 // CSVデータ（全231件）

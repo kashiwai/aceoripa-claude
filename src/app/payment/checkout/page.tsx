@@ -94,23 +94,24 @@ function CheckoutContent() {
     }
   };
 
-  // 新しいカードで決済
-  const handleNewCardPayment = async (cardData: any) => {
+  // 新しいカードで決済（トークンベース）
+  const handleNewCardPayment = async (tokenData: any) => {
     setIsLoading(true);
-    
+
     try {
-      // カード情報を使用して決済処理
+      // トークンを使用して決済処理（PCI DSS準拠）
+      // カード情報は送信されず、トークンのみ送信
       const response = await fetch('/api/payment/process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderId,
-          cardNumber: cardData.cardNumber,
-          cardholderName: cardData.cardholderName,
-          expiryMonth: cardData.expiryMonth,
-          expiryYear: cardData.expiryYear,
-          cvv: cardData.cvv,
-          saveCard: cardData.saveCard,
+          token: tokenData.token,
+          cardholderName: tokenData.cardholderName,
+          saveCard: tokenData.saveCard,
+          last4: tokenData.last4,
+          expiryMonth: tokenData.expiryMonth,
+          expiryYear: tokenData.expiryYear,
         }),
       });
 

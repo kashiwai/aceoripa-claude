@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 const supabaseAdmin = createClient(
   'https://vshkekffhjbvszzpagjt.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzaGtla2ZmaGpidnN6enBhZ2p0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDQwMjYyNywiZXhwIjoyMDY1OTc4NjI3fQ.rIPYTr2iHWRoe6Q57GT1wz907luOMnYkUyJd6ZFvmIE'
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 )
 
 interface SystemInfo {
@@ -207,7 +207,7 @@ export default function SystemPage() {
         supabase: {
           url: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vshkekffhjbvszzpagjt.supabase.co',
           anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-          serviceRoleKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZzaGtla2ZmaGpidnN6enBhZ2p0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDQwMjYyNywiZXhwIjoyMDY1OTc4NjI3fQ.rIPYTr2iHWRoe6Q57GT1wz907luOMnYkUyJd6ZFvmIE'
+          serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || ''
         },
         deployment: {
           vercelUrl: process.env.VERCEL_URL,

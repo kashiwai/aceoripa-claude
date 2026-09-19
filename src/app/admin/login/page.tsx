@@ -8,7 +8,38 @@ import { toast } from 'react-hot-toast'
 export default function AdminLogin() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/admin'
+
+  // セキュアなリダイレクト先検証
+  const rawRedirect = searchParams.get('redirect') || '/admin'
+
+  // 検証関数: 内部パスのみ許可（オープンリダイレクト脆弱性対策）
+  const validateRedirect = (url: string): string => {
+    // 空文字やnullチェック
+    if (!url || url.trim() === '') return '/admin'
+
+    // 外部URLチェック（http://, https://, // で始まる場合は拒否）
+    if (url.match(/^(https?:)?\/\//i)) {
+      console.warn('External redirect attempt blocked:', url)
+      return '/admin'
+    }
+
+    // /admin で始まるパスのみ許可
+    if (!url.startsWith('/admin')) {
+      console.warn('Non-admin path redirect attempt blocked:', url)
+      return '/admin'
+    }
+
+    // パストラバーサル攻撃を防ぐ（../ を含む場合は拒否）
+    if (url.includes('../')) {
+      console.warn('Path traversal attempt blocked:', url)
+      return '/admin'
+    }
+
+    return url
+  }
+
+  const redirect = validateRedirect(rawRedirect)
+
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!

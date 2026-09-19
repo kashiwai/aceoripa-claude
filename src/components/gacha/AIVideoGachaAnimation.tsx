@@ -13,26 +13,31 @@ interface AIVideoGachaAnimationProps {
   }
   onComplete: () => void
   onSkip?: () => void
+  videoUrls?: {
+    intro?: string
+    reveal?: string
+  }
 }
 
 export const AIVideoGachaAnimation = ({
   rarity,
   cardData,
   onComplete,
-  onSkip
+  onSkip,
+  videoUrls
 }: AIVideoGachaAnimationProps) => {
-  const [phase, setPhase] = useState<'intro' | 'reveal' | 'complete'>('intro')
+  const [phase, setPhase] = useState<'intro' | 'card' | 'complete'>('intro')
   const [isLoading, setIsLoading] = useState(true)
   const [showSkipButton, setShowSkipButton] = useState(false)
   const [videoError, setVideoError] = useState(false)
-  
+  const [isSkipped, setIsSkipped] = useState(false) // スキップされたかどうか
+
   const introVideoRef = useRef<HTMLVideoElement>(null)
-  const revealVideoRef = useRef<HTMLVideoElement>(null)
-  
-  // 動画パス
+
+  // 動画パス（データベースのURLを優先、フォールバックとして固定パスを使用）
   const videoPaths = {
-    intro: `/videos/gacha/${rarity.toLowerCase()}_intro.mp4`,
-    reveal: `/videos/gacha/${rarity.toLowerCase()}_reveal.mp4`
+    intro: videoUrls?.intro || `/videos/gacha/${rarity.toLowerCase()}_intro.mp4`,
+    reveal: videoUrls?.reveal || `/videos/gacha/${rarity.toLowerCase()}_reveal.mp4`
   }
   
   // フォールバック用のカラースキーム
@@ -70,16 +75,11 @@ export const AIVideoGachaAnimation = ({
   useEffect(() => {
     const preloadVideos = async () => {
       try {
-        // イントロ動画のプリロード
+        // イントロ動画のプリロードのみ
         const introVideo = document.createElement('video')
         introVideo.src = videoPaths.intro
         introVideo.load()
-        
-        // リビール動画のプリロード
-        const revealVideo = document.createElement('video')
-        revealVideo.src = videoPaths.reveal
-        revealVideo.load()
-        
+
         setIsLoading(false)
       } catch (error) {
         console.error('Video preload error:', error)
@@ -87,46 +87,71 @@ export const AIVideoGachaAnimation = ({
         setIsLoading(false)
       }
     }
-    
+
     preloadVideos()
-    
-    // 3秒後にスキップボタンを表示
+
+    // 1秒後にスキップボタンを表示
     const skipTimer = setTimeout(() => {
       setShowSkipButton(true)
-    }, 3000)
-    
+    }, 1000)
+
     return () => clearTimeout(skipTimer)
-  }, [videoPaths.intro, videoPaths.reveal])
+  }, [videoPaths.intro])
   
   // イントロ動画終了時の処理
   const handleIntroEnd = () => {
-    setPhase('reveal')
+    console.log('[Animation] Intro ended, showing card')
+    setPhase('card')
   }
-  
-  // リビール動画終了時の処理
-  const handleRevealEnd = () => {
-    setPhase('complete')
-    setTimeout(onComplete, 1000)
-  }
-  
+
+  // カード表示後、自動進行（スキップ時は500ms、通常は2000ms）
+  useEffect(() => {
+    if (phase === 'card') {
+      const delay = isSkipped ? 500 : 2000 // スキップ時は500ms、通常は2秒
+      const autoNextTimer = setTimeout(() => {
+        console.log('[Animation] Auto-advancing to next card (skipped:', isSkipped, ')')
+        setPhase('complete')
+        onComplete()
+      }, delay)
+
+      return () => clearTimeout(autoNextTimer)
+    }
+  }, [phase, onComplete, isSkipped])
+
   // スキップ処理
   const handleSkip = () => {
-    if (onSkip) {
-      onSkip()
-    } else {
+    console.log('[Animation] Skip button pressed, phase:', phase)
+
+    if (phase === 'intro') {
+      // 動画フェーズの場合：動画をスキップしてカードを表示
+      console.log('[Animation] Skipping intro video, showing card')
+      setIsSkipped(true) // スキップフラグを立てる
+      setPhase('card')
+    } else if (phase === 'card') {
+      // カードフェーズの場合：すぐに次のカードへ
+      console.log('[Animation] Skipping card display, moving to next')
       setPhase('complete')
       onComplete()
     }
   }
   
   // エラー時のフォールバック演出
-  const FallbackAnimation = () => (
-    <motion.div 
-      className="fixed inset-0 z-50 bg-black flex items-center justify-center overflow-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
+  const FallbackAnimation = () => {
+    // 3秒後に自動的に完了
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        onComplete()
+      }, 3000)
+      return () => clearTimeout(timer)
+    }, [])
+
+    return (
+      <motion.div
+        className="fixed inset-0 z-50 bg-black flex items-center justify-center overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
       {/* 背景エフェクト */}
       <motion.div
         className="absolute inset-0"
@@ -224,8 +249,9 @@ export const AIVideoGachaAnimation = ({
         </motion.div>
       </motion.div>
     </motion.div>
-  )
-  
+    )
+  }
+
   if (isLoading) {
     return (
       <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
@@ -260,19 +286,27 @@ export const AIVideoGachaAnimation = ({
             src={videoPaths.intro}
             className="w-full h-full object-cover"
             autoPlay
-            muted
             playsInline
+            muted
             onEnded={handleIntroEnd}
-            onError={() => setVideoError(true)}
+            onError={() => {
+              console.log('[Video] Error loading video, using fallback')
+              setVideoError(true)
+            }}
+            onLoadedMetadata={(e) => {
+              const video = e.currentTarget
+              video.playbackRate = 1.0
+              console.log('[Video] Intro video loaded and playing')
+            }}
           />
-          
+
           {/* オーバーレイテキスト */}
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <motion.h1
-              className="text-6xl font-bold text-white text-center"
+              className="text-6xl font-bold text-white text-center px-8"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 2, duration: 1 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
               style={{ textShadow: `0 0 40px ${colors.glow}` }}
             >
               {rarity === 'SS' && '伝説降臨...'}
@@ -284,70 +318,129 @@ export const AIVideoGachaAnimation = ({
           </div>
         </motion.div>
       )}
-      
-      {phase === 'reveal' && (
+
+      {phase === 'card' && (
         <motion.div
-          key="reveal"
-          className="fixed inset-0 z-50 bg-black"
+          key="card"
+          className="fixed inset-0 z-50 bg-black flex items-center justify-center overflow-hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <video
-            ref={revealVideoRef}
-            src={videoPaths.reveal}
-            className="w-full h-full object-cover"
-            autoPlay
-            muted
-            playsInline
-            onEnded={handleRevealEnd}
-            onError={() => setVideoError(true)}
+          {/* 背景エフェクト */}
+          <motion.div
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(circle at center, ${colors.glow}, transparent 70%)`
+            }}
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.5, 0.8, 0.5]
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
           />
-          
-          {/* カードオーバーレイ */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div
-              initial={{ scale: 0, rotateY: 180, opacity: 0 }}
-              animate={{ 
-                scale: 1, 
-                rotateY: 360, 
-                opacity: 1 
-              }}
-              transition={{
-                delay: 1,
-                duration: 1.5,
-                ease: "easeOut"
-              }}
-            >
+
+          {/* パーティクルエフェクト */}
+          <div className="absolute inset-0">
+            {[...Array(50)].map((_, i) => (
               <motion.div
+                key={i}
+                className="absolute w-2 h-2 rounded-full"
+                style={{
+                  background: colors.primary,
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                }}
                 animate={{
-                  y: [0, -10, 0],
-                  filter: [
-                    'drop-shadow(0 0 30px ' + colors.glow + ')',
-                    'drop-shadow(0 0 50px ' + colors.glow + ')',
-                    'drop-shadow(0 0 30px ' + colors.glow + ')'
-                  ]
+                  y: [-20, -100],
+                  opacity: [0, 1, 0],
+                  scale: [0, 1.5, 0]
                 }}
                 transition={{
-                  duration: 2,
+                  duration: 2 + Math.random() * 2,
                   repeat: Infinity,
-                  ease: "easeInOut"
+                  delay: Math.random() * 2,
+                  ease: "easeOut"
                 }}
-              >
-                <Image
-                  src={cardData.imageUrl}
-                  alt={cardData.name}
-                  width={350}
-                  height={490}
-                  className="rounded-lg"
-                  unoptimized
-                />
-              </motion.div>
-            </motion.div>
+              />
+            ))}
           </div>
+
+          {/* カード表示 */}
+          <motion.div
+            initial={{ scale: 0, rotateY: 180 }}
+            animate={{
+              scale: [0, 1.2, 1],
+              rotateY: [180, 360, 360]
+            }}
+            transition={{
+              duration: 1.5,
+              ease: "easeOut"
+            }}
+            className="relative z-10 cursor-pointer"
+            onClick={() => {
+              console.log('[Animation] Card clicked, advancing to next')
+              setPhase('complete')
+              onComplete()
+            }}
+          >
+            <motion.div
+              className="relative"
+              animate={{
+                y: [0, -10, 0],
+                filter: [
+                  'drop-shadow(0 0 20px ' + colors.glow + ')',
+                  'drop-shadow(0 0 40px ' + colors.glow + ')',
+                  'drop-shadow(0 0 20px ' + colors.glow + ')'
+                ]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity
+              }}
+            >
+              <Image
+                src={cardData.imageUrl}
+                alt={cardData.name}
+                width={350}
+                height={490}
+                className="rounded-lg cursor-pointer"
+                unoptimized
+              />
+            </motion.div>
+
+            {/* カード名表示 */}
+            <motion.div
+              className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+            >
+              <h2 className="text-3xl font-bold text-white mb-2 whitespace-nowrap px-8"
+                  style={{ textShadow: `0 0 20px ${colors.glow}` }}>
+                {cardData.name}
+              </h2>
+              <p className="text-xl text-white/80">
+                {rarity}賞獲得！
+              </p>
+            </motion.div>
+
+            {/* タップヒント */}
+            <motion.div
+              className="absolute -bottom-28 left-1/2 transform -translate-x-1/2 text-white/60 text-sm text-center"
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              タップで次へ / 2秒後に自動進行
+            </motion.div>
+          </motion.div>
         </motion.div>
       )}
-      
+
       {/* スキップボタン */}
       <AnimatePresence>
         {showSkipButton && phase !== 'complete' && (

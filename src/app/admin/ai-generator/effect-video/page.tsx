@@ -1,177 +1,246 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { toast } from 'react-hot-toast'
 import Link from 'next/link'
 
-// 演出タイプ
-const EFFECT_TYPES = [
-  {
-    id: 'normal_reveal',
-    name: 'ノーマル開封',
-    description: 'シンプルなカード表示',
-    duration: '3秒',
-    effects: ['フェードイン', 'カード回転', '基本BGM'],
-    difficulty: 1
-  },
-  {
-    id: 'rare_reveal',
-    name: 'レア開封',
-    description: 'キラエフェクト付き',
-    duration: '5秒',
-    effects: ['光の筋', 'キラキラ効果', 'レアBGM', 'カメラズーム'],
-    difficulty: 2
-  },
-  {
-    id: 'super_rare_reveal',
-    name: 'スーパーレア開封',
-    description: '豪華な演出効果',
-    duration: '8秒',
-    effects: ['虹色オーラ', 'パーティクル爆発', 'エピックBGM', '3D回転'],
-    difficulty: 3
-  },
-  {
-    id: 'ultra_rare_reveal',
-    name: 'ウルトラレア開封',
-    description: '最高級の演出',
-    duration: '12秒',
-    effects: ['全画面エフェクト', '稲妻効果', 'オーケストラBGM', 'スローモーション', 'カメラワーク'],
-    difficulty: 5
-  },
-  {
-    id: 'gacha_animation',
-    name: 'ガチャ回転演出',
-    description: 'ガチャマシン演出',
-    duration: '10秒',
-    effects: ['3Dガチャマシン', '回転アニメーション', 'コイン投入', 'カプセル排出'],
-    difficulty: 4
-  }
-]
+type VideoProvider = 'veo3' | 'sora2'
+type Rarity = 'SS' | 'S' | 'A' | 'B' | 'C'
+type Phase = 'intro' | 'reveal' | 'final_reveal'
 
-// シーン設定
-const SCENE_SETTINGS = [
-  { id: 'space', name: '宇宙空間', description: '星と銀河の背景' },
-  { id: 'temple', name: '神殿', description: '荘厳な古代神殿' },
-  { id: 'cyber', name: 'サイバー空間', description: 'デジタルネオン空間' },
-  { id: 'nature', name: '自然', description: '森と光の演出' },
-  { id: 'stadium', name: 'スタジアム', description: '観客とスポットライト' }
+interface GenerationJob {
+  jobId: string
+  rarity: Rarity
+  phase: Phase
+  provider: VideoProvider
+  status: 'pending' | 'processing' | 'completed' | 'failed'
+  videoUrl?: string
+  thumbnailUrl?: string
+  error?: string
+  createdAt: string
+}
+
+const RARITIES: { id: Rarity; name: string; color: string }[] = [
+  { id: 'SS', name: 'SS賞（最高レア）', color: 'bg-gradient-to-r from-yellow-400 to-orange-500' },
+  { id: 'S', name: 'S賞（高レア）', color: 'bg-gradient-to-r from-red-500 to-pink-500' },
+  { id: 'A', name: 'A賞（中レア）', color: 'bg-gradient-to-r from-blue-500 to-cyan-500' },
+  { id: 'B', name: 'B賞（低レア）', color: 'bg-gradient-to-r from-green-500 to-emerald-500' },
+  { id: 'C', name: 'C賞（通常）', color: 'bg-gradient-to-r from-gray-400 to-gray-500' },
 ]
 
 export default function EffectVideoGeneratorPage() {
-  const [selectedEffect, setSelectedEffect] = useState(EFFECT_TYPES[0])
-  const [selectedScene, setSelectedScene] = useState(SCENE_SETTINGS[0])
+  const [selectedRarity, setSelectedRarity] = useState<Rarity>('SS')
+  const [selectedPhase, setSelectedPhase] = useState<Phase>('intro')
+  const [selectedProvider, setSelectedProvider] = useState<VideoProvider>('veo3')
   const [isGenerating, setIsGenerating] = useState(false)
-  const [generatedVideos, setGeneratedVideos] = useState<any[]>([])
-  const [videoSettings, setVideoSettings] = useState({
-    cardName: '',
-    cardRarity: 'normal',
-    soundEnabled: true,
-    resolution: '1080p',
-    fps: '60',
-    customText: ''
-  })
-  
+  const [generationJobs, setGenerationJobs] = useState<GenerationJob[]>([])
+  const [cardName, setCardName] = useState('')
+
   const supabase = createClientComponentClient()
 
-  const generateEffectVideo = async () => {
-    setIsGenerating(true)
-    
+  // 生成ジョブの一覧を取得
+  useEffect(() => {
+    fetchGenerationJobs()
+  }, [])
+
+  const fetchGenerationJobs = async () => {
     try {
-      // 動画生成のリクエスト
+      const { data, error } = await supabase
+        .from('ai_video_generation_jobs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+      if (error) throw error
+
+      const jobs: GenerationJob[] = data.map((job: any) => ({
+        jobId: job.id,
+        rarity: job.rarity,
+        phase: job.phase,
+        provider: job.provider,
+        status: job.status,
+        videoUrl: job.video_url,
+        thumbnailUrl: job.thumbnail_url,
+        error: job.error,
+        createdAt: job.created_at,
+      }))
+
+      setGenerationJobs(jobs)
+    } catch (error) {
+      console.error('Failed to fetch jobs:', error)
+    }
+  }
+
+  // 動画生成
+  const generateVideo = async () => {
+    setIsGenerating(true)
+
+    try {
       const response = await fetch('/api/ai/generate-video', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          effectType: selectedEffect.id,
-          scene: selectedScene.id,
-          settings: videoSettings,
-          prompt: `
-Create a ${selectedEffect.name} animation for a Pokemon card gacha game.
-Scene: ${selectedScene.name} (${selectedScene.description})
-Duration: ${selectedEffect.duration}
-Effects: ${selectedEffect.effects.join(', ')}
-Card: ${videoSettings.cardName || 'Mystery Card'} (${videoSettings.cardRarity} rarity)
-
-The video should include:
-1. Opening sequence with anticipation build-up
-2. Main reveal moment with ${selectedEffect.name} effects
-3. Card showcase with appropriate visual effects
-4. Closing celebration sequence
-
-Quality: ${videoSettings.resolution} at ${videoSettings.fps}fps
-Style: Premium gacha game quality similar to Pokemon TCG Pocket
-          `.trim()
-        })
+          rarity: selectedRarity,
+          phase: selectedPhase,
+          cardName: cardName || `${selectedRarity}賞カード`,
+          provider: selectedProvider,
+        }),
       })
 
       if (!response.ok) {
-        throw new Error('動画生成に失敗しました')
+        const errorData = await response.json()
+        throw new Error(errorData.error || '動画生成に失敗しました')
       }
 
       const data = await response.json()
-      
-      if (data.videoUrl) {
-        setGeneratedVideos(prev => [{
-          url: data.videoUrl,
-          thumbnail: data.thumbnail,
-          duration: selectedEffect.duration,
-          createdAt: new Date().toISOString()
-        }, ...prev])
-        toast.success('演出動画を生成しました！')
+
+      toast.success(`動画生成を開始しました！（Job ID: ${data.jobId}）`)
+
+      // ジョブリストに追加
+      setGenerationJobs(prev => [{
+        jobId: data.jobId,
+        rarity: selectedRarity,
+        phase: selectedPhase,
+        provider: selectedProvider,
+        status: data.status,
+        videoUrl: data.videoUrl,
+        thumbnailUrl: data.thumbnailUrl,
+        createdAt: data.createdAt,
+      }, ...prev])
+
+      // ステータス確認ポーリング開始
+      if (data.status !== 'completed') {
+        startPollingJob(data.jobId)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating video:', error)
-      toast.error('動画生成中にエラーが発生しました')
+      toast.error(error.message || '動画生成中にエラーが発生しました')
     } finally {
       setIsGenerating(false)
     }
   }
 
-  const saveVideo = async (video: any) => {
+  // ジョブステータスのポーリング
+  const startPollingJob = (jobId: string) => {
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch(`/api/ai/generate-video?jobId=${jobId}`)
+        if (!response.ok) {
+          clearInterval(interval)
+          return
+        }
+
+        const data = await response.json()
+
+        // ジョブリスト更新
+        setGenerationJobs(prev =>
+          prev.map(job =>
+            job.jobId === jobId
+              ? { ...job, status: data.status, videoUrl: data.videoUrl, thumbnailUrl: data.thumbnailUrl, error: data.error }
+              : job
+          )
+        )
+
+        // 完了または失敗したらポーリング停止
+        if (data.status === 'completed' || data.status === 'failed') {
+          clearInterval(interval)
+          if (data.status === 'completed') {
+            toast.success('動画生成が完了しました！')
+          } else {
+            toast.error(`動画生成に失敗しました: ${data.error}`)
+          }
+        }
+      } catch (error) {
+        console.error('Error polling job:', error)
+        clearInterval(interval)
+      }
+    }, 5000) // 5秒ごとにチェック
+  }
+
+  // 動画をライブラリに保存
+  const saveToLibrary = async (job: GenerationJob) => {
     try {
-      // Supabaseストレージに保存
-      const timestamp = new Date().getTime()
-      const fileName = `effect-video-${selectedEffect.id}-${timestamp}.mp4`
-      
-      // 動画をダウンロードしてBlobに変換
-      const response = await fetch(video.url)
-      const blob = await response.blob()
-      
-      const { data, error } = await supabase.storage
-        .from('effect-videos')
-        .upload(fileName, blob, {
-          contentType: 'video/mp4',
-          cacheControl: '3600'
-        })
-      
-      if (error) throw error
-      
-      // 公開URLを取得
-      const { data: { publicUrl } } = supabase.storage
-        .from('effect-videos')
-        .getPublicUrl(fileName)
-      
-      // データベースに登録
-      const { error: dbError } = await supabase
-        .from('effect_videos')
+      const { error } = await supabase
+        .from('gacha_animation_library')
         .insert({
-          name: `${selectedEffect.name} - ${videoSettings.cardName || '汎用'}`,
-          type: selectedEffect.id,
-          url: publicUrl,
-          duration: selectedEffect.duration,
-          scene: selectedScene.id,
-          settings: videoSettings
+          rarity: job.rarity,
+          phase: job.phase,
+          video_url: job.videoUrl,
+          thumbnail_url: job.thumbnailUrl,
+          storage_path: job.videoUrl, // 後でSupabase Storageに保存する場合は変更
+          provider: job.provider,
+          generation_job_id: job.jobId,
+          is_active: true,
         })
-      
-      if (dbError) throw dbError
-      
-      toast.success('動画を保存しました！')
-    } catch (error) {
-      console.error('Error saving video:', error)
-      toast.error('動画の保存に失敗しました')
+
+      if (error) throw error
+      toast.success('動画をライブラリに保存しました！')
+    } catch (error: any) {
+      console.error('Error saving to library:', error)
+      toast.error('保存に失敗しました: ' + error.message)
+    }
+  }
+
+  // 全レアリティの動画を一括生成
+  const generateAllRarities = async () => {
+    if (!confirm('全レアリティ（SS/S/A/B/C）のintro/reveal/final_reveal動画を生成します。よろしいですか？')) {
+      return
+    }
+
+    setIsGenerating(true)
+
+    try {
+      for (const rarity of RARITIES) {
+        for (const phase of ['intro', 'reveal', 'final_reveal'] as Phase[]) {
+          await generateVideoWithParams(rarity.id, phase)
+          // 各生成の間に少し待機（レート制限対策）
+          await new Promise(resolve => setTimeout(resolve, 2000))
+        }
+      }
+      toast.success('全レアリティの動画生成を開始しました！')
+    } catch (error: any) {
+      toast.error('一括生成中にエラーが発生しました')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const generateVideoWithParams = async (rarity: Rarity, phase: Phase) => {
+    const response = await fetch('/api/ai/generate-video', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        rarity,
+        phase,
+        cardName: `${rarity}賞カード`,
+        provider: selectedProvider,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`${rarity} ${phase} の生成に失敗しました`)
+    }
+
+    const data = await response.json()
+
+    setGenerationJobs(prev => [{
+      jobId: data.jobId,
+      rarity,
+      phase,
+      provider: selectedProvider,
+      status: data.status,
+      videoUrl: data.videoUrl,
+      thumbnailUrl: data.thumbnailUrl,
+      createdAt: data.createdAt,
+    }, ...prev])
+
+    if (data.status !== 'completed') {
+      startPollingJob(data.jobId)
     }
   }
 
@@ -187,268 +256,263 @@ Style: Premium gacha game quality similar to Pokemon TCG Pocket
             AI生成管理
           </Link>
           <span className="mx-2">/</span>
-          <span className="text-gray-900">演出動画生成</span>
+          <span className="text-gray-900">演出動画生成（VEO3/SORA2）</span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-800">演出動画生成</h1>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">AI演出動画生成</h1>
+            <p className="text-gray-600 mt-2">Google Veo 3 と OpenAI Sora 2 を使用してガチャ演出動画を生成</p>
+          </div>
+          <Link
+            href="/admin/ai-generator/upload-video"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-semibold shadow-md"
+          >
+            📹 動画をアップロード
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* 設定パネル */}
         <div className="lg:col-span-1 space-y-6">
-          {/* 演出タイプ選択 */}
+          {/* AIプロバイダー選択 */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold mb-4">演出タイプ</h2>
+            <h2 className="text-lg font-bold mb-4">AIプロバイダー</h2>
             <div className="space-y-2">
-              {EFFECT_TYPES.map((effect) => (
-                <button
-                  key={effect.id}
-                  onClick={() => setSelectedEffect(effect)}
-                  className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
-                    selectedEffect.id === effect.id
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <p className="font-semibold">{effect.name}</p>
-                      <p className="text-sm text-gray-600">{effect.description}</p>
-                      <p className="text-xs text-gray-500 mt-1">長さ: {effect.duration}</p>
-                    </div>
-                    <div className="flex items-center">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`w-4 h-4 ${i < effect.difficulty ? 'text-yellow-400' : 'text-gray-300'}`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {effect.effects.map((fx, idx) => (
-                      <span key={idx} className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
-                        {fx}
-                      </span>
-                    ))}
-                  </div>
-                </button>
-              ))}
+              <label className="flex items-center cursor-pointer p-3 rounded border hover:bg-gray-50">
+                <input
+                  type="radio"
+                  name="provider"
+                  value="veo3"
+                  checked={selectedProvider === 'veo3'}
+                  onChange={(e) => setSelectedProvider(e.target.value as VideoProvider)}
+                  className="mr-3"
+                />
+                <div>
+                  <div className="font-semibold">Google Veo 3</div>
+                  <div className="text-sm text-gray-500">高品質、比較的高速</div>
+                </div>
+              </label>
+              <label className="flex items-center cursor-pointer p-3 rounded border hover:bg-gray-50">
+                <input
+                  type="radio"
+                  name="provider"
+                  value="sora2"
+                  checked={selectedProvider === 'sora2'}
+                  onChange={(e) => setSelectedProvider(e.target.value as VideoProvider)}
+                  className="mr-3"
+                />
+                <div>
+                  <div className="font-semibold">OpenAI Sora 2</div>
+                  <div className="text-sm text-gray-500">最高品質、時間がかかる</div>
+                </div>
+              </label>
             </div>
           </div>
 
-          {/* シーン設定 */}
+          {/* レアリティ選択 */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold mb-4">背景シーン</h2>
+            <h2 className="text-lg font-bold mb-4">レアリティ</h2>
             <div className="space-y-2">
-              {SCENE_SETTINGS.map((scene) => (
+              {RARITIES.map((rarity) => (
                 <label
-                  key={scene.id}
-                  className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition-all ${
-                    selectedScene.id === scene.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                  key={rarity.id}
+                  className="flex items-center cursor-pointer p-3 rounded border hover:bg-gray-50"
                 >
                   <input
                     type="radio"
-                    name="scene"
-                    value={scene.id}
-                    checked={selectedScene.id === scene.id}
-                    onChange={() => setSelectedScene(scene)}
-                    className="sr-only"
+                    name="rarity"
+                    value={rarity.id}
+                    checked={selectedRarity === rarity.id}
+                    onChange={(e) => setSelectedRarity(e.target.value as Rarity)}
+                    className="mr-3"
                   />
-                  <div>
-                    <p className="font-medium">{scene.name}</p>
-                    <p className="text-sm text-gray-600">{scene.description}</p>
+                  <div className="flex-1">
+                    <div className="font-semibold">{rarity.name}</div>
+                    <div className={`h-2 ${rarity.color} rounded mt-1`}></div>
                   </div>
                 </label>
               ))}
             </div>
           </div>
 
-          {/* 詳細設定 */}
+          {/* フェーズ選択 */}
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold mb-4">詳細設定</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  カード名（オプション）
-                </label>
+            <h2 className="text-lg font-bold mb-4">演出フェーズ</h2>
+            <div className="space-y-2">
+              <label className="flex items-center cursor-pointer p-3 rounded border hover:bg-gray-50">
                 <input
-                  type="text"
-                  value={videoSettings.cardName}
-                  onChange={(e) => setVideoSettings({ ...videoSettings, cardName: e.target.value })}
-                  placeholder="例: ピカチュウex"
-                  className="w-full border-gray-300 rounded-md shadow-sm"
+                  type="radio"
+                  name="phase"
+                  value="intro"
+                  checked={selectedPhase === 'intro'}
+                  onChange={(e) => setSelectedPhase(e.target.value as Phase)}
+                  className="mr-3"
                 />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  レアリティ
-                </label>
-                <select
-                  value={videoSettings.cardRarity}
-                  onChange={(e) => setVideoSettings({ ...videoSettings, cardRarity: e.target.value })}
-                  className="w-full border-gray-300 rounded-md shadow-sm"
-                >
-                  <option value="normal">ノーマル</option>
-                  <option value="rare">レア</option>
-                  <option value="super_rare">スーパーレア</option>
-                  <option value="hyper_rare">ハイパーレア</option>
-                  <option value="ultra_rare">ウルトラレア</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    解像度
-                  </label>
-                  <select
-                    value={videoSettings.resolution}
-                    onChange={(e) => setVideoSettings({ ...videoSettings, resolution: e.target.value })}
-                    className="w-full border-gray-300 rounded-md shadow-sm"
-                  >
-                    <option value="720p">720p</option>
-                    <option value="1080p">1080p</option>
-                    <option value="4K">4K</option>
-                  </select>
+                  <div className="font-semibold">イントロ</div>
+                  <div className="text-sm text-gray-500">期待感を高める導入演出</div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    FPS
-                  </label>
-                  <select
-                    value={videoSettings.fps}
-                    onChange={(e) => setVideoSettings({ ...videoSettings, fps: e.target.value })}
-                    className="w-full border-gray-300 rounded-md shadow-sm"
-                  >
-                    <option value="30">30fps</option>
-                    <option value="60">60fps</option>
-                    <option value="120">120fps</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex items-center">
+              </label>
+              <label className="flex items-center cursor-pointer p-3 rounded border hover:bg-gray-50">
                 <input
-                  type="checkbox"
-                  id="soundEnabled"
-                  checked={videoSettings.soundEnabled}
-                  onChange={(e) => setVideoSettings({ ...videoSettings, soundEnabled: e.target.checked })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  type="radio"
+                  name="phase"
+                  value="reveal"
+                  checked={selectedPhase === 'reveal'}
+                  onChange={(e) => setSelectedPhase(e.target.value as Phase)}
+                  className="mr-3"
                 />
-                <label htmlFor="soundEnabled" className="ml-2 text-sm text-gray-700">
-                  サウンドエフェクトを含める
-                </label>
-              </div>
+                <div>
+                  <div className="font-semibold">リビール</div>
+                  <div className="text-sm text-gray-500">カード開封演出</div>
+                </div>
+              </label>
+              <label className="flex items-center cursor-pointer p-3 rounded border hover:bg-gray-50 bg-purple-50">
+                <input
+                  type="radio"
+                  name="phase"
+                  value="final_reveal"
+                  checked={selectedPhase === 'final_reveal'}
+                  onChange={(e) => setSelectedPhase(e.target.value as Phase)}
+                  className="mr-3"
+                />
+                <div>
+                  <div className="font-semibold text-purple-700">🎬 最終演出（Final Reveal）</div>
+                  <div className="text-sm text-purple-600">実際のカードが表示される最終演出（AI生成）</div>
+                </div>
+              </label>
             </div>
           </div>
 
+          {/* カード名（オプション） */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-lg font-bold mb-4">カード名（任意）</h2>
+            <input
+              type="text"
+              value={cardName}
+              onChange={(e) => setCardName(e.target.value)}
+              placeholder={`${selectedRarity}賞カード`}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           {/* 生成ボタン */}
-          <button
-            onClick={generateEffectVideo}
-            disabled={isGenerating}
-            className={`w-full py-4 rounded-lg font-bold text-white transition-all ${
-              isGenerating
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:scale-105'
-            }`}
-          >
-            {isGenerating ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                生成中... (最大30秒)
-              </span>
-            ) : (
-              '演出動画を生成'
-            )}
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={generateVideo}
+              disabled={isGenerating}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-bold py-4 px-6 rounded-lg hover:from-blue-600 hover:to-purple-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            >
+              {isGenerating ? (
+                <div className="flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  生成中...
+                </div>
+              ) : (
+                '🎬 動画を生成'
+              )}
+            </button>
+
+            <button
+              onClick={generateAllRarities}
+              disabled={isGenerating}
+              className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold py-3 px-6 rounded-lg hover:from-orange-600 hover:to-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              全レアリティ一括生成（15個）
+            </button>
+            <p className="text-xs text-gray-500 text-center">
+              全5レアリティ × 3フェーズ（intro/reveal/final_reveal）
+            </p>
+          </div>
         </div>
 
-        {/* プレビューエリア */}
+        {/* 生成ジョブリスト */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold mb-4">生成結果</h2>
-            
-            {generatedVideos.length === 0 ? (
-              <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-                <div className="text-center">
-                  <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  <p className="text-gray-500">生成された動画がここに表示されます</p>
-                  <p className="text-sm text-gray-400 mt-2">{videoSettings.resolution} / {videoSettings.fps}fps</p>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {generatedVideos.map((video, index) => (
-                  <div key={index} className="border rounded-lg overflow-hidden">
-                    <div className="aspect-video bg-black relative">
-                      {video.thumbnail ? (
-                        <img
-                          src={video.thumbnail}
-                          alt={`Video thumbnail ${index + 1}`}
-                          className="w-full h-full object-contain"
-                        />
-                      ) : (
-                        <video
-                          src={video.url}
-                          controls
-                          className="w-full h-full"
-                        />
-                      )}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold">生成ジョブ一覧</h2>
+              <button
+                onClick={fetchGenerationJobs}
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded transition"
+              >
+                🔄 更新
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {generationJobs.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">まだ動画を生成していません</p>
+              ) : (
+                generationJobs.map((job) => (
+                  <div key={job.jobId} className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-2xl font-bold">{job.rarity}</span>
+                        <span className="text-gray-500">
+                          / {job.phase === 'intro' ? 'イントロ' : job.phase === 'reveal' ? 'リビール' : '最終演出'}
+                        </span>
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          job.provider === 'veo3' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+                        }`}>
+                          {job.provider === 'veo3' ? 'Veo3' : 'Sora2'}
+                        </span>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        job.status === 'completed' ? 'bg-green-100 text-green-700' :
+                        job.status === 'processing' ? 'bg-yellow-100 text-yellow-700' :
+                        job.status === 'failed' ? 'bg-red-100 text-red-700' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {job.status === 'completed' ? '✓ 完了' :
+                         job.status === 'processing' ? '⏳ 処理中' :
+                         job.status === 'failed' ? '✗ 失敗' :
+                         '待機中'}
+                      </span>
                     </div>
-                    <div className="p-4 bg-gray-50">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">{selectedEffect.name}</p>
-                          <p className="text-sm text-gray-600">
-                            {video.duration} / {new Date(video.createdAt).toLocaleString('ja-JP')}
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
+
+                    {job.error && (
+                      <div className="mt-2 p-2 bg-red-50 text-red-700 rounded text-sm">
+                        {job.error}
+                      </div>
+                    )}
+
+                    {job.videoUrl && (
+                      <div className="mt-4">
+                        <video
+                          src={job.videoUrl}
+                          controls
+                          className="w-full rounded"
+                          poster={job.thumbnailUrl}
+                        />
+                        <div className="mt-2 flex space-x-2">
                           <button
-                            onClick={() => saveVideo(video)}
-                            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                            onClick={() => saveToLibrary(job)}
+                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition text-sm"
                           >
-                            保存
+                            ライブラリに保存
                           </button>
                           <a
-                            href={video.url}
-                            download={`effect-${selectedEffect.id}-${Date.now()}.mp4`}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                            href={job.videoUrl}
+                            download
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-sm"
                           >
                             ダウンロード
                           </a>
                         </div>
                       </div>
+                    )}
+
+                    <div className="mt-2 text-xs text-gray-400">
+                      Job ID: {job.jobId}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* 使用ガイド */}
-          <div className="mt-6 bg-green-50 rounded-lg p-4">
-            <h3 className="font-semibold text-green-900 mb-2">使用ガイド</h3>
-            <ul className="text-sm text-green-800 space-y-1">
-              <li>• AI生成による高品質な演出動画</li>
-              <li>• レアリティ別の豪華なエフェクト</li>
-              <li>• カスタマイズ可能な背景とサウンド</li>
-              <li>• ガチャ演出に直接使用可能</li>
-              <li>• 生成後は動画演出管理から設定</li>
-            </ul>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>

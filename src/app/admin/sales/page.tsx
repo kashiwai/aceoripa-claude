@@ -113,6 +113,8 @@ async function getSalesData() {
   }
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function SalesPage() {
   const sales = await getSalesData()
   
