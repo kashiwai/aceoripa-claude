@@ -1,3 +1,6 @@
+'use client'
+
+import { usePathname } from 'next/navigation'
 import AdminSidebar from '@/components/admin/AdminSidebar'
 import Script from 'next/script'
 
@@ -10,28 +13,35 @@ export default function AdminLayout({
   // admin_session Cookieの存在と有効期限（24時間）をチェック
   // 未認証の場合は /admin/login へ自動リダイレクト
 
+  const pathname = usePathname()
+  const isLoginPage = pathname === '/admin/login'
+
   return (
     <>
-      <Script 
+      <Script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
         strategy="afterInteractive"
       />
-      <link 
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+      <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
         rel="stylesheet"
       />
-      <link 
+      <link
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
         rel="stylesheet"
       />
-      <div className="d-flex">
-        <AdminSidebar />
-        <main className="flex-fill">
-          <div className="container-fluid p-4">
-            {children}
-          </div>
-        </main>
-      </div>
+      {isLoginPage ? (
+        children
+      ) : (
+        <div className="d-flex">
+          <AdminSidebar />
+          <main className="flex-fill">
+            <div className="container-fluid p-4">
+              {children}
+            </div>
+          </main>
+        </div>
+      )}
     </>
   )
 }
