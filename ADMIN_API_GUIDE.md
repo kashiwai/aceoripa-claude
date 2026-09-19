@@ -11,7 +11,7 @@
 ```env
 # .env.local
 ADMIN_EMAIL=admin@aceoripa.com
-ADMIN_PASSWORD=AceoripaAdmin2024!
+ADMIN_PASSWORD=【変更後の管理者パスワードに置き換えてください・値は.env.localで管理】
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
@@ -24,7 +24,7 @@ const loginResponse = await fetch('/api/auth/login', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     email: 'admin@aceoripa.com',
-    password: 'AceoripaAdmin2024!'
+    password: '【変更後の管理者パスワードに置き換えてください・値は.env.localで管理】'
   })
 });
 

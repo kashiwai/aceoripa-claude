@@ -72,7 +72,7 @@ SUPABASE_SERVICE_ROLE_KEY=[SERVICE_ROLE_KEY]
 
 # Admin
 ADMIN_EMAIL=admin@aceoripa.com
-ADMIN_PASSWORD=AceoripaAdmin2024!
+ADMIN_PASSWORD=【変更後の管理者パスワードに置き換えてください・値は.env.localで管理】
 
 # Square Payment
 NEXT_PUBLIC_SQUARE_APPLICATION_ID=[SQUARE_APP_ID]

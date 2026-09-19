@@ -6,7 +6,7 @@
 
 #### A1. Admin Login フロー
 - [ ] 1. ブラウザで `http://localhost:9012/admin/login` にアクセス
-- [ ] 2. 正しい認証情報を入力: `admin@aceoripa.com` / `AceoripaAdmin2024!`
+- [ ] 2. 正しい認証情報を入力: `admin@aceoripa.com` / `【変更後の管理者パスワードに置き換えてください・値は.env.localで管理】`
 - [ ] 3. 「ログイン」ボタンクリック → Admin ダッシュボードに遷移
 - [ ] 4. 不正な認証情報でログイン試行 → エラーメッセージ表示
 - [ ] 5. Admin権限なしユーザーでアクセス → アクセス拒否

@@ -33,7 +33,7 @@
 
 ### 管理者設定
 - [ ] `ADMIN_EMAIL`: `admin@aceoripa.com`
-- [ ] `ADMIN_PASSWORD`: `AceoripaAdmin2024!`
+- [ ] `ADMIN_PASSWORD`: `【変更後の管理者パスワードに置き換えてください・値は.env.localで管理】`
 
 ### Basic認証設定
 - [ ] `BASIC_AUTH_USER`: `aceoripa`
