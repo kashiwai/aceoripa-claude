@@ -55,19 +55,81 @@ async function getSalesData() {
       .lt('created_at', lastMonthEnd.toISOString())
       .eq('status', 'completed')
     
-    // 人気ガチャランキング
-    const { data: popularGacha } = await supabase
+    // 人気ガチャランキング(今月の完了済み取引をproduct_idごとに集計)
+    const { data: monthTransactionsForRanking } = await supabase
       .from('transactions')
-      .select(`
-        product_id,
-        gacha_products!inner(name, price),
-        count:product_id.count(),
-        total:amount.sum()
-      `)
+      .select('product_id, amount')
       .eq('status', 'completed')
       .gte('created_at', monthStart.toISOString())
-      .order('count', { ascending: false })
+
+    const rankingMap = new Map<string, { count: number; total: number }>()
+    for (const t of monthTransactionsForRanking || []) {
+      if (!t.product_id) continue
+      const entry = rankingMap.get(t.product_id) || { count: 0, total: 0 }
+      entry.count += 1
+      entry.total += t.amount || 0
+      rankingMap.set(t.product_id, entry)
+    }
+    const rankedProductIds = Array.from(rankingMap.entries())
+      .sort((a, b) => b[1].count - a[1].count)
+      .slice(0, 5)
+
+    let popularGacha: { productId: string; name: string; count: number; total: number }[] = []
+    if (rankedProductIds.length > 0) {
+      const { data: productNames } = await supabase
+        .from('gacha_products')
+        .select('id, name')
+        .in('id', rankedProductIds.map(([id]) => id))
+      const nameMap = new Map((productNames || []).map(p => [p.id, p.name]))
+      popularGacha = rankedProductIds.map(([productId, stats]) => ({
+        productId,
+        name: nameMap.get(productId) || '不明な商品',
+        count: stats.count,
+        total: stats.total,
+      }))
+    }
+
+    // 最近の取引(ユーザー・商品名を突き合わせて表示)
+    const { data: recentTransactionsRaw } = await supabase
+      .from('transactions')
+      .select('id, user_id, product_id, amount, status, created_at')
+      .order('created_at', { ascending: false })
       .limit(5)
+
+    let recentTransactions: {
+      id: string
+      email: string
+      productName: string
+      amount: number
+      status: string
+      createdAt: string
+    }[] = []
+
+    if (recentTransactionsRaw && recentTransactionsRaw.length > 0) {
+      const userIds = Array.from(new Set(recentTransactionsRaw.map(t => t.user_id).filter(Boolean)))
+      const productIds = Array.from(new Set(recentTransactionsRaw.map(t => t.product_id).filter(Boolean)))
+
+      const [{ data: users }, { data: products }] = await Promise.all([
+        userIds.length > 0
+          ? supabase.from('users').select('id, email').in('id', userIds)
+          : Promise.resolve({ data: [] as { id: string; email: string }[] }),
+        productIds.length > 0
+          ? supabase.from('gacha_products').select('id, name').in('id', productIds)
+          : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+      ])
+
+      const userMap = new Map((users || []).map(u => [u.id, u.email]))
+      const productMap = new Map((products || []).map(p => [p.id, p.name]))
+
+      recentTransactions = recentTransactionsRaw.map(t => ({
+        id: t.id,
+        email: userMap.get(t.user_id) || '不明なユーザー',
+        productName: productMap.get(t.product_id) || '不明な商品',
+        amount: t.amount || 0,
+        status: t.status,
+        createdAt: t.created_at,
+      }))
+    }
     
     // 日別売上（過去7日間）
     const dailySales = []
@@ -97,7 +159,8 @@ async function getSalesData() {
       yesterdayTotal: yesterdaySales?.reduce((sum, t) => sum + t.amount, 0) || 0,
       monthTotal: monthSales?.reduce((sum, t) => sum + t.amount, 0) || 0,
       lastMonthTotal: lastMonthSales?.reduce((sum, t) => sum + t.amount, 0) || 0,
-      popularGacha: popularGacha || [],
+      popularGacha,
+      recentTransactions,
       dailySales
     }
   } catch (error) {
@@ -107,8 +170,9 @@ async function getSalesData() {
       yesterdayTotal: 0,
       monthTotal: 0,
       lastMonthTotal: 0,
-      popularGacha: [],
-      dailySales: []
+      popularGacha: [] as { productId: string; name: string; count: number; total: number }[],
+      recentTransactions: [] as { id: string; email: string; productName: string; amount: number; status: string; createdAt: string }[],
+      dailySales: [] as { date: string; amount: number }[]
     }
   }
 }
@@ -273,30 +337,38 @@ export default async function SalesPage() {
         <div className="col-lg-6 mb-4">
           <div className="card">
             <div className="card-body">
-              <h5 className="card-title">人気ガチャTOP5</h5>
+              <h5 className="card-title">人気ガチャTOP5(今月)</h5>
               <div>
-                {[1, 2, 3, 4, 5].map((rank) => (
-                  <div key={rank} className="d-flex justify-content-between align-items-center p-3 mb-2 bg-light rounded">
-                    <div className="d-flex align-items-center">
-                      <span className={`h5 me-3 ${
-                        rank === 1 ? 'text-warning' :
-                        rank === 2 ? 'text-secondary' :
-                        rank === 3 ? 'text-danger' :
-                        'text-muted'
-                      }`}>
-                        #{rank}
-                      </span>
-                      <div>
-                        <div className="fw-medium">ポケモンカード151</div>
-                        <small className="text-muted">購入数: {100 - rank * 15}回</small>
+                {sales.popularGacha.length === 0 && (
+                  <p className="text-muted text-center py-3">今月はまだ購入実績がありません</p>
+                )}
+                {sales.popularGacha.map((item, index) => {
+                  const rank = index + 1
+                  const monthTotalCount = sales.popularGacha.reduce((sum, g) => sum + g.count, 0) || 1
+                  const share = Math.round((item.count / monthTotalCount) * 100)
+                  return (
+                    <div key={item.productId} className="d-flex justify-content-between align-items-center p-3 mb-2 bg-light rounded">
+                      <div className="d-flex align-items-center">
+                        <span className={`h5 me-3 ${
+                          rank === 1 ? 'text-warning' :
+                          rank === 2 ? 'text-secondary' :
+                          rank === 3 ? 'text-danger' :
+                          'text-muted'
+                        }`}>
+                          #{rank}
+                        </span>
+                        <div>
+                          <div className="fw-medium">{item.name}</div>
+                          <small className="text-muted">購入数: {item.count}回</small>
+                        </div>
+                      </div>
+                      <div className="text-end">
+                        <div className="fw-bold">¥{item.total.toLocaleString()}</div>
+                        <small className="text-muted">{share}%</small>
                       </div>
                     </div>
-                    <div className="text-end">
-                      <div className="fw-bold">¥{((100 - rank * 15) * 1500).toLocaleString()}</div>
-                      <small className="text-muted">{25 - rank * 3}%</small>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -321,23 +393,24 @@ export default async function SalesPage() {
                 </tr>
               </thead>
               <tbody>
-                {[...Array(5)].map((_, i) => (
-                  <tr key={i}>
+                {sales.recentTransactions.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="text-center text-muted py-4">取引履歴がありません</td>
+                  </tr>
+                )}
+                {sales.recentTransactions.map((t) => (
+                  <tr key={t.id}>
                     <td>
-                      <small>{new Date(Date.now() - i * 3600000).toLocaleString('ja-JP')}</small>
+                      <small>{new Date(t.createdAt).toLocaleString('ja-JP')}</small>
                     </td>
-                    <td>
-                      user{i + 1}@example.com
-                    </td>
-                    <td>
-                      ポケモンカード151 10連
-                    </td>
+                    <td>{t.email}</td>
+                    <td>{t.productName}</td>
                     <td className="fw-bold">
-                      ¥{(15000 - i * 1000).toLocaleString()}
+                      ¥{t.amount.toLocaleString()}
                     </td>
                     <td>
-                      <span className="badge bg-success">
-                        完了
+                      <span className={`badge ${t.status === 'completed' ? 'bg-success' : t.status === 'pending' ? 'bg-warning' : 'bg-secondary'}`}>
+                        {t.status === 'completed' ? '完了' : t.status === 'pending' ? '保留中' : t.status}
                       </span>
                     </td>
                   </tr>

@@ -17,7 +17,7 @@ const navigation = [
   { name: 'AI生成管理', href: '/admin/ai-generator' },
   { name: 'お知らせ管理', href: '/admin/announcements' },
   { name: '売上統計', href: '/admin/sales' },
-  { name: 'システム設定', href: '/admin/settings' },
+  { name: 'システム設定', href: '/admin/system' },
 ]
 
 export default function AdminSidebar() {

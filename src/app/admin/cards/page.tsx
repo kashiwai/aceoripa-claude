@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
 import { toast } from 'react-hot-toast'
 import Link from 'next/link'
 
@@ -34,13 +33,8 @@ const RARITY_COLORS = {
   'D': 'bg-gradient-to-r from-gray-300 to-gray-400'
 }
 
-// サービスロールキーで直接接続
-const supabaseAdmin = createClient(
-  'https://vshkekffhjbvszzpagjt.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-)
-
 export default function CardsPage() {
+  const [allCards, setAllCards] = useState<Card[]>([])
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('')
@@ -49,55 +43,26 @@ export default function CardsPage() {
   const [rarityCounts, setRarityCounts] = useState<Record<string, number>>({})
 
   const fetchCards = async () => {
+    setLoading(true)
     try {
-      console.log('Fetching cards directly from Supabase...')
-      
-      // まず全体のカード数を取得（フィルター条件なし）
-      const { count: total, error: countError } = await supabaseAdmin
-        .from('pokemon_cards')
-        .select('*', { count: 'exact', head: true })
-      
-      if (countError) throw countError
-      setTotalCount(total || 0)
-      
-      // レアリティ別の集計（フィルター条件なし）
-      const rarities = ['SS', 'S', 'A', 'B', 'C', 'D']
+      const response = await fetch('/api/admin/cards?limit=10000')
+
+      if (!response.ok) {
+        throw new Error('カード一覧の取得に失敗しました')
+      }
+
+      const data = await response.json()
+      const fetchedCards: Card[] = data.cards || []
+
+      setAllCards(fetchedCards)
+      setTotalCount(data.total || fetchedCards.length)
+
+      // レアリティ別の集計はフィルターなしの全件から算出
       const counts: Record<string, number> = {}
-      
-      for (const rarity of rarities) {
-        const { count, error } = await supabaseAdmin
-          .from('pokemon_cards')
-          .select('*', { count: 'exact', head: true })
-          .eq('rarity', rarity)
-        
-        if (!error) {
-          counts[rarity] = count || 0
-        }
+      for (const card of fetchedCards) {
+        counts[card.rarity] = (counts[card.rarity] || 0) + 1
       }
       setRarityCounts(counts)
-      
-      // カード一覧を取得（フィルター条件あり）
-      let query = supabaseAdmin
-        .from('pokemon_cards')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10000) // 最大10000件まで取得
-
-      // 検索条件追加
-      if (filter) {
-        query = query.or(`card_name.ilike.%${filter}%,product_code.ilike.%${filter}%`)
-      }
-      if (rarityFilter) {
-        query = query.eq('rarity', rarityFilter)
-      }
-
-      const { data, error } = await query
-      
-      if (error) {
-        throw new Error(error.message)
-      }
-      
-      setCards(data || [])
     } catch (error) {
       console.error('Error fetching cards:', error)
       toast.error('カード一覧の取得に失敗しました')
@@ -107,23 +72,34 @@ export default function CardsPage() {
   }
 
   useEffect(() => {
-    // console.log('CardsPage mounted, fetching cards...')
     fetchCards()
-  }, [filter, rarityFilter])
+  }, [])
+
+  // 検索・レアリティ絞り込みはクライアント側で適用
+  useEffect(() => {
+    let filtered = allCards
+    if (filter) {
+      const keyword = filter.toLowerCase()
+      filtered = filtered.filter(card =>
+        card.card_name?.toLowerCase().includes(keyword) ||
+        card.product_code?.toLowerCase().includes(keyword)
+      )
+    }
+    if (rarityFilter) {
+      filtered = filtered.filter(card => card.rarity === rarityFilter)
+    }
+    setCards(filtered)
+  }, [allCards, filter, rarityFilter])
 
   const deleteCard = async (id: string) => {
     if (!confirm('このカードを削除しますか？')) return
 
     try {
-      console.log('Deleting card:', id)
-      
-      const { error } = await supabaseAdmin
-        .from('pokemon_cards')
-        .delete()
-        .eq('id', id)
-      
-      if (error) {
-        throw new Error(error.message)
+      const response = await fetch(`/api/admin/cards?id=${id}`, { method: 'DELETE' })
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error || 'カードの削除に失敗しました')
       }
 
       toast.success('カードを削除しました')
