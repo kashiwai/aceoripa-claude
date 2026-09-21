@@ -415,6 +415,16 @@ export async function POST(req: NextRequest) {
         console.log(`[Gacha] Transaction recorded successfully`)
       }
 
+      // 販売済み枚数を更新（管理画面「販売済み」表示に反映するため）
+      const { error: soldCountError } = await adminClient
+        .from('gacha_products')
+        .update({ sold_count: (gachaProduct.sold_count || 0) + drawCount })
+        .eq('id', gachaId)
+
+      if (soldCountError) {
+        console.error('[Gacha] sold_count update error:', soldCountError)
+      }
+
     } catch (cardAllocationError: any) {
       console.error('Card allocation failed, rolling back points:', {
         message: cardAllocationError?.message,

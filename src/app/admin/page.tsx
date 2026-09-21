@@ -1,14 +1,14 @@
-import { createClient } from '@/lib/supabase/server'
-import { 
-  UsersIcon, 
-  CurrencyDollarIcon, 
+import { getServiceClient } from '@/lib/supabase-admin'
+import {
+  UsersIcon,
+  CurrencyDollarIcon,
   CubeIcon,
   ChartBarIcon,
   SpeakerWaveIcon
 } from '@heroicons/react/24/outline'
 
 async function getStats() {
-  const supabase = await createClient()
+  const supabase = getServiceClient()
   
   try {
     // ユーザー数を取得
@@ -72,7 +72,7 @@ async function getStats() {
 }
 
 async function getRecentActivities() {
-  const supabase = await createClient()
+  const supabase = getServiceClient()
   
   try {
     // 最近のユーザー登録
